@@ -16,6 +16,18 @@ RSpec.describe RubyLLM::Providers::OpenAI::Temperature do
       end
     end
 
+    it 'forces temperature to 1.0 for the GPT-5 reasoning models' do
+      %w[gpt-5 gpt-5.4 gpt-5-2026 gpt-5-pro gpt-5.4-pro].each do |model|
+        expect(described_class.normalize(0.7, model)).to eq(1.0)
+      end
+    end
+
+    it 'preserves temperature for GPT-5 models that are not reasoning models' do
+      %w[gpt-5-chat-latest gpt-5-mini gpt-5-nano].each do |model|
+        expect(described_class.normalize(0.7, model)).to eq(0.7)
+      end
+    end
+
     it 'preserves temperature for standard models' do
       %w[gpt-4 gpt-4o gpt-4o-mini claude-3-opus].each do |model|
         expect(described_class.normalize(0.7, model)).to eq(0.7)

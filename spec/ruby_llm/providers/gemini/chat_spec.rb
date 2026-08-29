@@ -665,6 +665,33 @@ RSpec.describe RubyLLM::Providers::Gemini::Chat do
       expect(message.thinking&.text).to eq('Reasoning trace')
     end
 
+    it 'keeps inline image attachments when the response mixes text and images' do
+      png = Base64.strict_encode64('fake-png-bytes')
+      response = Struct.new(:body, :env).new(
+        {
+          'candidates' => [
+            {
+              'content' => {
+                'parts' => [
+                  { 'text' => 'Here is the chart' },
+                  { 'inlineData' => { 'mimeType' => 'image/png', 'data' => png } }
+                ]
+              }
+            }
+          ],
+          'usageMetadata' => {}
+        },
+        Struct.new(:url).new(Struct.new(:path).new('/v1/models/gemini-2.5-flash:generateContent'))
+      )
+
+      provider = RubyLLM::Providers::Gemini.new(RubyLLM.config)
+      message = provider.send(:parse_completion_response, response)
+
+      expect(message.content).to be_a(RubyLLM::Content)
+      expect(message.content.text).to eq('Here is the chart')
+      expect(message.content.attachments.size).to eq(1)
+    end
+
     it 'captures cached token usage when present' do
       response = Struct.new(:body, :env).new(
         {
