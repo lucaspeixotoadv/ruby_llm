@@ -497,6 +497,97 @@ RSpec.describe RubyLLM::Providers::Gemini::Chat do
     end
   end
 
+  describe '#render_payload system instructions' do
+    let(:tools) { {} }
+    let(:model) { instance_double(RubyLLM::Model::Info, id: 'gemini-2.5-flash', metadata: {}) }
+
+    it 'sends system messages as systemInstruction and keeps them out of contents' do
+      messages = [
+        RubyLLM::Message.new(role: :system, content: 'Você atende clientes.'),
+        RubyLLM::Message.new(role: :user, content: 'Olá')
+      ]
+
+      payload = test_obj.send(:render_payload, messages, tools:, temperature: nil, model:)
+
+      expect(payload[:systemInstruction]).to eq(parts: [{ text: 'Você atende clientes.' }])
+      expect(payload[:contents]).to eq([{ role: 'user', parts: [{ text: 'Olá' }] }])
+    end
+
+    it 'does not duplicate the instruction inside contents' do
+      messages = [
+        RubyLLM::Message.new(role: :system, content: 'Be brief.'),
+        RubyLLM::Message.new(role: :user, content: 'Hi')
+      ]
+
+      payload = test_obj.send(:render_payload, messages, tools:, temperature: nil, model:)
+
+      texts = payload[:contents].flat_map { |content| content[:parts].filter_map { |part| part[:text] } }
+      expect(texts).not_to include('Be brief.')
+      expect(payload[:contents].map { |content| content[:role] }).to eq(['user'])
+    end
+
+    it 'carries every system message as its own part' do
+      messages = [
+        RubyLLM::Message.new(role: :system, content: 'First rule.'),
+        RubyLLM::Message.new(role: :system, content: 'Second rule.'),
+        RubyLLM::Message.new(role: :user, content: 'Hi')
+      ]
+
+      payload = test_obj.send(:render_payload, messages, tools:, temperature: nil, model:)
+
+      expect(payload[:systemInstruction]).to eq(parts: [{ text: 'First rule.' }, { text: 'Second rule.' }])
+    end
+
+    it 'reads the text out of a Content system message' do
+      messages = [
+        RubyLLM::Message.new(role: :system, content: RubyLLM::Content.new('From content.')),
+        RubyLLM::Message.new(role: :user, content: 'Hi')
+      ]
+
+      payload = test_obj.send(:render_payload, messages, tools:, temperature: nil, model:)
+
+      expect(payload[:systemInstruction]).to eq(parts: [{ text: 'From content.' }])
+    end
+
+    it 'omits systemInstruction when there is no system message' do
+      messages = [RubyLLM::Message.new(role: :user, content: 'Hi')]
+
+      payload = test_obj.send(:render_payload, messages, tools:, temperature: nil, model:)
+
+      expect(payload).not_to have_key(:systemInstruction)
+      expect(payload[:contents]).to eq([{ role: 'user', parts: [{ text: 'Hi' }] }])
+    end
+
+    it 'omits systemInstruction when the instruction is empty' do
+      messages = [
+        RubyLLM::Message.new(role: :system, content: ''),
+        RubyLLM::Message.new(role: :user, content: 'Hi')
+      ]
+
+      payload = test_obj.send(:render_payload, messages, tools:, temperature: nil, model:)
+
+      expect(payload).not_to have_key(:systemInstruction)
+    end
+
+    it 'leaves tool result messages in contents' do
+      messages = [
+        RubyLLM::Message.new(role: :system, content: 'Be brief.'),
+        RubyLLM::Message.new(role: :user, content: 'Weather?'),
+        RubyLLM::Message.new(
+          role: :assistant,
+          content: '',
+          tool_calls: { 'call_1' => RubyLLM::ToolCall.new(id: 'call_1', name: 'weather', arguments: {}) }
+        ),
+        RubyLLM::Message.new(role: :tool, content: 'Sunny', tool_call_id: 'call_1')
+      ]
+
+      payload = test_obj.send(:render_payload, messages, tools:, temperature: nil, model:)
+
+      expect(payload[:systemInstruction]).to eq(parts: [{ text: 'Be brief.' }])
+      expect(payload[:contents].map { |content| content[:role] }).to eq(%w[user model user])
+    end
+  end
+
   describe '#format_messages' do
     it 'groups consecutive tool responses into a single user message with multiple function responses' do
       messages = [

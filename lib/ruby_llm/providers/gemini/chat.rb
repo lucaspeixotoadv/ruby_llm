@@ -20,9 +20,11 @@ module RubyLLM
           tool_prefs ||= {}
           @model = model.id
           payload = {
-            contents: format_messages(messages),
+            contents: format_messages(messages.reject { |msg| msg.role == :system }),
             generationConfig: {}
           }
+          system_instruction = format_system_instruction(messages)
+          payload[:systemInstruction] = system_instruction if system_instruction
 
           payload[:generationConfig][:temperature] = temperature unless temperature.nil?
 
@@ -58,6 +60,22 @@ module RubyLLM
         end
 
         private
+
+        # Gemini carries the system prompt in its own top-level `systemInstruction`
+        # field, a Content sibling of `contents`. Without this, :system messages
+        # fall through `format_role` and reach the API as ordinary `user` turns,
+        # indistinguishable from what the end user typed.
+        #
+        # The API documents the field as text only, so attachments on a system
+        # message are dropped rather than sent in a shape Gemini would reject.
+        def format_system_instruction(messages)
+          parts = messages.select { |msg| msg.role == :system }.filter_map do |msg|
+            text = msg.content.is_a?(Content) ? msg.content.text : msg.content.to_s
+            { text: text } unless text.empty?
+          end
+
+          { parts: parts } if parts.any?
+        end
 
         def format_messages(messages)
           formatter = MessageFormatter.new(
