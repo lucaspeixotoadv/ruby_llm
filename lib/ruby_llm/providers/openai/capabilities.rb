@@ -162,10 +162,11 @@ module RubyLLM
           standard_pricing = {
             input_per_million: input_price_for(model_id),
             output_per_million: output_price_for(model_id)
-          }
+          }.compact
 
           cached_price = cached_input_price_for(model_id)
           standard_pricing[:cache_read_input_per_million] = cached_price if cached_price
+          return {} if standard_pricing.empty?
 
           { text_tokens: { standard: standard_pricing } }
         end
@@ -212,13 +213,13 @@ module RubyLLM
         def input_price_for(model_id)
           return family_prices(model_id).dig(:text, :input) if image_model?(model_id)
 
-          price_for(model_id, :input, 0.50)
+          price_for(model_id, :input)
         end
 
         def output_price_for(model_id)
           return family_prices(model_id).dig(:text, :output) if image_model?(model_id)
 
-          price_for(model_id, :output, 1.50)
+          price_for(model_id, :output)
         end
 
         def cached_input_price_for(model_id)
@@ -233,29 +234,29 @@ module RubyLLM
         end
 
         def image_pricing_for(model_id)
-          text_pricing = {
-            input_per_million: input_price_for(model_id)
-          }
+          text_pricing = { input_per_million: input_price_for(model_id) }.compact
           cached_text_price = cached_input_price_for(model_id)
           text_pricing[:cache_read_input_per_million] = cached_text_price if cached_text_price
 
           image_pricing = {
             input_per_million: family_prices(model_id).dig(:images, :input),
             output_per_million: family_prices(model_id).dig(:images, :output)
-          }
+          }.compact
           cached_image_price = family_prices(model_id).dig(:images, :cached_input)
           image_pricing[:cache_read_input_per_million] = cached_image_price if cached_image_price
 
-          {
-            text_tokens: { standard: text_pricing },
-            images: { standard: image_pricing }
-          }
+          pricing = {}
+          pricing[:text_tokens] = { standard: text_pricing } if text_pricing.any?
+          pricing[:images] = { standard: image_pricing } if image_pricing.any?
+          pricing
         end
 
-        def price_for(model_id, key, fallback)
+        # nil means "we do not know what this costs", never a stand-in price.
+        # An unpriced family must not be given a plausible-looking number: the
+        # registry would then record a wrong price instead of no price.
+        def price_for(model_id, key)
           prices = family_prices(model_id)
-          prices = { key => fallback } if prices.empty?
-          prices[key] || prices[:price] || fallback
+          prices.fetch(key) { prices[:price] }
         end
 
         def family_prices(model_id)

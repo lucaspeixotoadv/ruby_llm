@@ -30,8 +30,31 @@ module RubyLLM
         category(:embeddings)
       end
 
+      # This pricing as it stood at a given time. Categories whose price never
+      # changed answer the same as they do now.
+      def at(time)
+        Resolved.new(self, time)
+      end
+
+      # True when any category's price changes on a known date.
+      def scheduled?
+        @data.each_value.any?(&:scheduled?)
+      end
+
       def to_h
         @data.transform_values(&:to_h)
+      end
+
+      # Pricing pinned to a moment in time.
+      class Resolved
+        def initialize(pricing, time)
+          @pricing = pricing
+          @time = time
+        end
+
+        CATEGORIES.each do |category|
+          define_method(category) { @pricing.public_send(category).at(@time) }
+        end
       end
 
       private
@@ -40,14 +63,20 @@ module RubyLLM
         @data[name] || PricingCategory.new
       end
 
+      # Pricing is only "empty" when every tier value is nil. A category that
+      # prices something at 0.0 is stating a known price and is kept, and a
+      # category carrying a dated schedule is never empty.
       def empty_pricing?(data)
         return true unless data
 
         %i[standard batch].each do |tier|
-          next unless data[tier]
+          tier_data = data[tier]
+          next unless tier_data
 
-          data[tier].each_value do |value|
-            return false if value && value != 0.0
+          return false if PricingSchedule.from(tier_data)&.any?
+
+          tier_data.each_value do |value|
+            return false unless value.nil?
           end
         end
 

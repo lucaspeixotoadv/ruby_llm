@@ -21,7 +21,9 @@ module RubyLLM
 
         def parse_embedding_response(response, model:, text:)
           data = response.body
-          input_tokens = data.dig('usage', 'prompt_tokens') || 0
+          # nil, not 0, when the response carries no usage: we did not measure
+          # zero tokens, we measured nothing.
+          input_tokens = data.dig('usage', 'prompt_tokens')&.to_i
           vectors = data['data'].map { |d| d['embedding'] }
           vectors = vectors.first if vectors.length == 1 && !text.is_a?(Array)
 

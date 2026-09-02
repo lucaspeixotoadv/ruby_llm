@@ -105,10 +105,14 @@ module RubyLLM
           }
         end
 
+        # nil when neither count is present, so an unreported transcription
+        # does not read as one that produced zero output tokens.
         def sum_output_tokens(metadata)
-          candidates = metadata['candidatesTokenCount'] || 0
-          thoughts = metadata['thoughtsTokenCount'] || 0
-          candidates + thoughts
+          candidates = metadata['candidatesTokenCount']
+          thoughts = metadata['thoughtsTokenCount']
+          return nil if candidates.nil? && thoughts.nil?
+
+          candidates.to_i + thoughts.to_i
         end
       end
     end

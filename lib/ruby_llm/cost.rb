@@ -25,7 +25,7 @@ module RubyLLM
 
     # rubocop:disable Metrics/ParameterLists
     def initialize(tokens: nil, model: nil, amounts: nil, missing: [], has_tokens: nil, category: :text_tokens,
-                   input_details: nil)
+                   input_details: nil, at: nil)
       @tokens = tokens
       @model = normalize_model(model)
       @amounts = amounts
@@ -33,6 +33,10 @@ module RubyLLM
       @has_tokens = has_tokens
       @category = category.to_sym
       @input_details = input_details
+      # Prices the call at the moment it happened. Defaults to now, which is
+      # what a live call wants; pass the call's timestamp when re-pricing
+      # historical usage against a price that has since changed.
+      @at = at
     end
     # rubocop:enable Metrics/ParameterLists
 
@@ -157,11 +161,19 @@ module RubyLLM
     end
 
     def text_pricing
-      model&.pricing&.text_tokens || RubyLLM::Model::PricingCategory.new
+      pricing_category(:text_tokens)
     end
 
     def image_pricing
-      model&.pricing&.images || RubyLLM::Model::PricingCategory.new
+      pricing_category(:images)
+    end
+
+    def pricing_category(name)
+      pricing = model&.pricing
+      return RubyLLM::Model::PricingCategory.new unless pricing
+
+      category = pricing.public_send(name)
+      @at ? category.at(@at) : category
     end
 
     def output_pricing

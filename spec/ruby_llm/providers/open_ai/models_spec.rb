@@ -87,7 +87,11 @@ RSpec.describe RubyLLM::Providers::OpenAI::Models do
       model = parsed_model('omni-moderation-latest', capabilities)
 
       expect(model.capabilities).to eq(['vision'])
-      expect(model.pricing.to_h).to eq({})
+      # Moderation is free, and a known price of zero is recorded as zero
+      # rather than dropped - free is not the same as unpriced.
+      expect(model.pricing.to_h).to eq(
+        text_tokens: { standard: { input_per_million: 0.0, output_per_million: 0.0 } }
+      )
     end
   end
 end

@@ -318,7 +318,7 @@ module RubyLLM
         end
       end
 
-      def add_provider_metadata(models_dev_model, provider_model) # rubocop:disable Metrics/PerceivedComplexity
+      def add_provider_metadata(models_dev_model, provider_model)
         data = models_dev_model.to_h
         data[:name] = provider_model.name if blank_value?(data[:name])
         data[:family] = provider_model.family if blank_value?(data[:family])
@@ -326,12 +326,37 @@ module RubyLLM
         data[:context_window] = provider_model.context_window if blank_value?(data[:context_window])
         data[:max_output_tokens] = provider_model.max_output_tokens if blank_value?(data[:max_output_tokens])
         data[:modalities] = provider_model.modalities.to_h if blank_value?(data[:modalities])
-        data[:pricing] = provider_model.pricing.to_h if blank_value?(data[:pricing])
+        data[:pricing] = merged_pricing(models_dev_model, provider_model)
         data[:metadata] = provider_model.metadata.merge(data[:metadata] || {})
         provider_capabilities = provider_model.capabilities - MODELS_DEV_AUTHORITY_CAPABILITIES
         data[:capabilities] = (models_dev_model.capabilities + provider_capabilities).uniq
         normalize_embedding_modalities(data)
         Model::Info.new(data)
+      end
+
+      # Decides whose price wins when both sources have one.
+      #
+      # The provider wins in two cases. First, when it carries a dated schedule:
+      # models.dev can only state a single flat number, so a schedule sourced
+      # from the provider's own pricing page - including a change announced for
+      # a future date - is strictly more information and must not be silently
+      # replaced by a snapshot of today. Second, when the models.dev entry has
+      # no cost of its own: a price on such an entry was filled in from the
+      # provider on an earlier refresh, and re-reading it back as though
+      # models.dev had asserted it would launder a stale provider guess into a
+      # secondary-source fact.
+      def merged_pricing(models_dev_model, provider_model)
+        models_dev_pricing = models_dev_model.pricing.to_h
+        return provider_model.pricing.to_h if blank_value?(models_dev_pricing)
+        return provider_model.pricing.to_h if provider_model.pricing.scheduled?
+        return provider_model.pricing.to_h if models_dev_cost_absent?(models_dev_model)
+
+        models_dev_pricing
+      end
+
+      def models_dev_cost_absent?(models_dev_model)
+        metadata = models_dev_model.metadata || {}
+        metadata[:source].to_s == 'models.dev' && blank_value?(metadata[:cost])
       end
 
       def normalize_embedding_modalities(data)

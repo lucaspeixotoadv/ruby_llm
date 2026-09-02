@@ -2,7 +2,11 @@
 
 module RubyLLM
   module Model
-    # Stores non-zero pricing values for a single pricing tier.
+    # Stores the pricing values for a single pricing tier.
+    #
+    # A price of 0.0 is a *known* price (the provider charges nothing) and is
+    # kept, so consumers can tell "this is free" apart from "we do not know
+    # what this costs". Only nil — the absence of information — is dropped.
     class PricingTier
       ATTRIBUTES = %i[
         input_per_million
@@ -18,7 +22,7 @@ module RubyLLM
         @values = {}
 
         data.each do |key, value|
-          @values[key.to_sym] = value if value && value != 0.0
+          @values[key.to_sym] = value unless value.nil?
         end
       end
 
@@ -28,7 +32,7 @@ module RubyLLM
         end
 
         define_method("#{attribute}=") do |value|
-          @values[attribute] = value if value && value != 0.0
+          @values[attribute] = value unless value.nil?
         end
       end
 

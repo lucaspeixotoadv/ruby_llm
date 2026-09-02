@@ -198,10 +198,15 @@ module RubyLLM
           parts&.any? { |p| p['functionCall'] }
         end
 
+        # nil when the response reported neither count: no output tokens were
+        # measured, which is not the same as measuring zero of them. Mirrors
+        # Streaming#extract_output_tokens.
         def calculate_output_tokens(data)
-          candidates = data.dig('usageMetadata', 'candidatesTokenCount') || 0
-          thoughts = data.dig('usageMetadata', 'thoughtsTokenCount') || 0
-          candidates + thoughts
+          candidates = data.dig('usageMetadata', 'candidatesTokenCount')
+          thoughts = data.dig('usageMetadata', 'thoughtsTokenCount')
+          return nil if candidates.nil? && thoughts.nil?
+
+          candidates.to_i + thoughts.to_i
         end
 
         def response_json_schema_supported?(model)

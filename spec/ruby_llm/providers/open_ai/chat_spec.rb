@@ -30,7 +30,9 @@ RSpec.describe RubyLLM::Providers::OpenAI::Chat do
       expect(message.cached_tokens).to eq(6)
       expect(message.input_tokens).to eq(2)
       expect(message.output_tokens).to eq(4)
-      expect(message.cache_creation_tokens).to eq(0)
+      # The response reports no cache writes, so the count is unknown - not a
+      # measured zero.
+      expect(message.cache_creation_tokens).to be_nil
     end
 
     it 'normalizes DeepSeek cache hit and miss usage fields' do
@@ -60,7 +62,7 @@ RSpec.describe RubyLLM::Providers::OpenAI::Chat do
       expect(message.input_tokens).to eq(14)
       expect(message.cached_tokens).to eq(192)
       expect(message.output_tokens).to eq(4)
-      expect(message.cache_creation_tokens).to eq(0)
+      expect(message.cache_creation_tokens).to be_nil
     end
 
     it 'keeps OpenAI reasoning tokens inside completion output tokens' do

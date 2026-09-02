@@ -2,13 +2,33 @@
 
 module RubyLLM
   # Core embedding interface.
+  #
+  # `input_tokens` is nil when the provider did not report usage. nil means
+  # "unknown", and is deliberately distinct from 0, which would claim the
+  # provider measured and billed nothing.
   class Embedding
     attr_reader :vectors, :model, :input_tokens
 
-    def initialize(vectors:, model:, input_tokens: 0)
+    def initialize(vectors:, model:, input_tokens: nil)
       @vectors = vectors
       @model = model
       @input_tokens = input_tokens
+    end
+
+    # True when the provider reported token usage for this embedding.
+    def input_tokens?
+      !@input_tokens.nil?
+    end
+
+    # Cost of this embedding, as a RubyLLM::Cost.
+    #
+    # Returns nil when usage is unknown - there is nothing to price. When usage
+    # is known but the model has no pricing, the Cost reports its components as
+    # missing rather than as zero.
+    def cost(model_info = nil)
+      return nil unless input_tokens?
+
+      Cost.new(tokens: Tokens.new(input: input_tokens), model: model_info || model)
     end
 
     def self.embed(text, # rubocop:disable Metrics/ParameterLists

@@ -24,7 +24,21 @@ module RubyLLM
           vectors = predictions&.map { |p| p.dig('embeddings', 'values') }
           vectors = vectors.first if vectors&.length == 1 && !text.is_a?(Array)
 
-          Embedding.new(vectors:, model:, input_tokens: 0)
+          Embedding.new(vectors:, model:, input_tokens: extract_input_tokens(predictions))
+        end
+
+        # Each prediction may carry embeddings.statistics.token_count. Sum the
+        # counts that are actually present; when no prediction reports one,
+        # usage is unknown and stays nil instead of being claimed as 0.
+        def extract_input_tokens(predictions)
+          counts = Array(predictions).filter_map do |prediction|
+            next unless prediction.is_a?(Hash)
+
+            prediction.dig('embeddings', 'statistics', 'token_count')
+          end
+          return nil if counts.empty?
+
+          counts.sum(&:to_i)
         end
       end
     end

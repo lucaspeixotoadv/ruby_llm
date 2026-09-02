@@ -16,10 +16,24 @@ module RubyLLM
         end
 
         def parse_embedding_response(response, model:, text:)
-          vectors = response.body['embeddings']&.map { |e| e['values'] }
+          body = response.body
+          vectors = body['embeddings']&.map { |e| e['values'] }
           vectors = vectors.first if vectors&.length == 1 && !text.is_a?(Array)
 
-          Embedding.new(vectors:, model:, input_tokens: 0)
+          Embedding.new(vectors:, model:, input_tokens: extract_input_tokens(body))
+        end
+
+        # BatchEmbedContentsResponse carries an optional usageMetadata with
+        # promptTokenCount. Older responses omit it entirely; then usage is
+        # genuinely unknown and stays nil rather than being reported as 0.
+        def extract_input_tokens(body)
+          return nil unless body.is_a?(Hash)
+
+          usage = body['usageMetadata']
+          return nil unless usage.is_a?(Hash)
+
+          prompt_tokens = usage['promptTokenCount']
+          prompt_tokens&.to_i
         end
 
         private

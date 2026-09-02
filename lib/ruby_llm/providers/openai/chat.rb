@@ -113,8 +113,10 @@ module RubyLLM
           usage.dig('prompt_tokens_details', 'cached_tokens') || usage['prompt_cache_hit_tokens']
         end
 
+        # nil when the response does not report cache writes. Callers that need
+        # a number for arithmetic use .to_i; the token record keeps "unknown".
         def cache_write_tokens(usage)
-          usage.dig('prompt_tokens_details', 'cache_write_tokens') || 0
+          usage.dig('prompt_tokens_details', 'cache_write_tokens')
         end
 
         def thinking_tokens(usage)

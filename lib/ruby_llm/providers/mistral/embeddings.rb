@@ -20,7 +20,7 @@ module RubyLLM
 
         def parse_embedding_response(response, model:, text:)
           data = response.body
-          input_tokens = data.dig('usage', 'prompt_tokens') || 0
+          input_tokens = data.dig('usage', 'prompt_tokens')&.to_i
           vectors = data['data'].map { |d| d['embedding'] }
 
           vectors = vectors.first if vectors.length == 1 && !text.is_a?(Array)
