@@ -94,6 +94,25 @@ RSpec.describe 'Gemini registry' do # rubocop:disable RSpec/DescribeClass
     end
   end
 
+  describe 'models the provider stopped listing' do
+    # Gemini's ListModels does not return the imagen and veo generation models,
+    # and what a key may see varies. Absence from a listing is not evidence a
+    # model was retired, and dropping it breaks calls that still work.
+    it 'keeps a model a refresh did not see' do
+      expect { gemini_model('imagen-4.0-generate-001') }.not_to raise_error
+      expect { gemini_model('veo-3.0-generate-001') }.not_to raise_error
+    end
+
+    it 'does not let a preserved model keep a price the provider no longer states' do
+      expect(gemini_model('veo-3.0-generate-001').pricing.to_h).to eq({})
+      expect(gemini_model('gemini-robotics-er-1.5-preview').pricing.to_h).to eq({})
+    end
+
+    it 'keeps a preserved model priced when the provider still prices it' do
+      expect(gemini_model('imagen-4.0-generate-001').pricing.text_tokens.input).to eq(0.03)
+    end
+  end
+
   describe 'merging a curated schedule with secondary data' do
     it 'keeps the dated schedule instead of a flat secondary price' do
       scheduled = RubyLLM::Model::Info.new(

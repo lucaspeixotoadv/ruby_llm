@@ -90,17 +90,23 @@ de 01/01/2027; gravar só o de amanhã o deixa errado até lá.
 
 Atualizado via o caminho oficial (`Models.refresh!` com `GEMINI_API_KEY`), não
 por edição manual. Resultado: +13 modelos Gemini (incluindo `gemini-3.6-flash`
-e `gemini-3.7-flash`), −10 que a API não lista mais, e 14 que perderam o
-pricing inventado.
+e `gemini-3.7-flash`), zero remoções, e 29 entradas corrigidas — a maioria
+perdendo o pricing inventado ou ganhando `reasoning`/`caching`.
 
-Duas proteções foram adicionadas ao merge para que um refresh futuro não
-desfaça o trabalho:
+Três proteções foram adicionadas ao merge para que um refresh não desfaça o
+trabalho nem apague informação boa:
 
 1. um schedule vindo do provider vence um preço plano do models.dev — o
    models.dev não tem como expressar mudança de preço com data;
 2. uma entrada models.dev **sem** `metadata.cost` nunca precificou nada, então
    o preço que estiver nela veio de um refresh anterior do próprio provider e
-   não pode ser relido como se fosse fato do models.dev.
+   não pode ser relido como se fosse fato do models.dev;
+3. um modelo que o refresh não viu é **preservado**, não deletado. O
+   `ListModels` do Gemini não retorna os modelos imagen e veo, e o que uma
+   chave enxerga varia — ausência de uma listagem não prova aposentadoria, e
+   apagar quebra chamadas que ainda funcionam. O pricing do modelo preservado
+   é re-derivado do provider, para que um preço inventado antigo não sobreviva
+   só por o modelo estar fora da listagem.
 
 ## Fontes do pricing de 3.6/3.7 Flash
 

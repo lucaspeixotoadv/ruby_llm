@@ -18,7 +18,9 @@ RSpec.describe RubyLLM::Embedding do
         expect(embedding.vectors).to be_an(Array)
         expect(embedding.vectors.first).to be_a(Float)
         expect(embedding.model).to eq(model)
-        expect(embedding.input_tokens).to be >= 0
+        # Providers that report usage must report something sane; providers
+        # that report none leave it unknown rather than claiming zero.
+        expect(embedding.input_tokens).to be >= 0 if embedding.input_tokens?
       end
 
       it "#{provider}/#{model} can handle a single text with custom dimensions" do
@@ -36,7 +38,7 @@ RSpec.describe RubyLLM::Embedding do
         expect(embeddings.vectors.size).to eq(3)
         expect(embeddings.vectors.first).to be_an(Array)
         expect(embeddings.model).to eq(model)
-        expect(embeddings.input_tokens).to be >= 0
+        expect(embeddings.input_tokens).to be >= 0 if embeddings.input_tokens?
       end
 
       it "#{provider}/#{model} can handle multiple texts with custom dimensions" do

@@ -19006,6 +19006,43 @@
     }
   },
   {
+    "id": "gemini-2.0-flash-001",
+    "name": "Gemini 2.0 Flash 001",
+    "provider": "gemini",
+    "family": null,
+    "created_at": null,
+    "context_window": 1048576,
+    "max_output_tokens": 8192,
+    "knowledge_cutoff": null,
+    "modalities": {
+      "input": [],
+      "output": []
+    },
+    "capabilities": [
+      "function_calling",
+      "structured_output",
+      "vision"
+    ],
+    "pricing": {
+      "text_tokens": {
+        "standard": {
+          "input_per_million": 0.1,
+          "output_per_million": 0.4
+        }
+      }
+    },
+    "metadata": {
+      "version": "2.0",
+      "description": "Stable version of Gemini 2.0 Flash, our fast and versatile multimodal model for scaling across diverse tasks, released in January of 2025.",
+      "supported_generation_methods": [
+        "generateContent",
+        "countTokens",
+        "createCachedContent",
+        "batchGenerateContent"
+      ]
+    }
+  },
+  {
     "id": "gemini-2.0-flash-lite",
     "name": "Gemini 2.0 Flash-Lite",
     "provider": "gemini",
@@ -19064,6 +19101,41 @@
         "output": 8192
       },
       "knowledge": "2024-06"
+    }
+  },
+  {
+    "id": "gemini-2.0-flash-lite-001",
+    "name": "Gemini 2.0 Flash-Lite 001",
+    "provider": "gemini",
+    "family": null,
+    "created_at": null,
+    "context_window": 1048576,
+    "max_output_tokens": 8192,
+    "knowledge_cutoff": null,
+    "modalities": {
+      "input": [],
+      "output": []
+    },
+    "capabilities": [
+      "vision"
+    ],
+    "pricing": {
+      "text_tokens": {
+        "standard": {
+          "input_per_million": 0.075,
+          "output_per_million": 0.3
+        }
+      }
+    },
+    "metadata": {
+      "version": "2.0",
+      "description": "Stable version of Gemini 2.0 Flash-Lite",
+      "supported_generation_methods": [
+        "generateContent",
+        "countTokens",
+        "createCachedContent",
+        "batchGenerateContent"
+      ]
     }
   },
   {
@@ -20961,6 +21033,64 @@
     }
   },
   {
+    "id": "gemini-robotics-er-1.5-preview",
+    "name": "Gemini Robotics-ER 1.5 Preview",
+    "provider": "gemini",
+    "family": null,
+    "created_at": null,
+    "context_window": 1048576,
+    "max_output_tokens": 65536,
+    "knowledge_cutoff": null,
+    "modalities": {
+      "input": [],
+      "output": []
+    },
+    "capabilities": [
+      "function_calling",
+      "structured_output",
+      "vision"
+    ],
+    "pricing": {},
+    "metadata": {
+      "version": "1.5-preview",
+      "description": "Gemini Robotics-ER 1.5 Preview",
+      "supported_generation_methods": [
+        "generateContent",
+        "countTokens"
+      ]
+    }
+  },
+  {
+    "id": "gemini-robotics-er-1.6-preview",
+    "name": "Gemini Robotics-ER 1.6 Preview",
+    "provider": "gemini",
+    "family": null,
+    "created_at": null,
+    "context_window": 131072,
+    "max_output_tokens": 65536,
+    "knowledge_cutoff": null,
+    "modalities": {
+      "input": [],
+      "output": []
+    },
+    "capabilities": [
+      "function_calling",
+      "structured_output",
+      "vision"
+    ],
+    "pricing": {},
+    "metadata": {
+      "version": "1.6-preview",
+      "description": "Gemini Robotics-ER 1.6 Preview",
+      "supported_generation_methods": [
+        "generateContent",
+        "countTokens",
+        "createCachedContent",
+        "batchGenerateContent"
+      ]
+    }
+  },
+  {
     "id": "gemini-robotics-er-2-preview",
     "name": "Gemini Robotics-ER 2 Preview",
     "provider": "gemini",
@@ -21081,6 +21211,102 @@
     }
   },
   {
+    "id": "imagen-4.0-fast-generate-001",
+    "name": "Imagen 4 Fast",
+    "provider": "gemini",
+    "family": null,
+    "created_at": null,
+    "context_window": 480,
+    "max_output_tokens": 8192,
+    "knowledge_cutoff": null,
+    "modalities": {
+      "input": [],
+      "output": []
+    },
+    "capabilities": [
+      "vision"
+    ],
+    "pricing": {
+      "text_tokens": {
+        "standard": {
+          "input_per_million": 0.03,
+          "output_per_million": 0.03
+        }
+      }
+    },
+    "metadata": {
+      "version": "001",
+      "description": "Vertex served Imagen 4.0 Fast model",
+      "supported_generation_methods": [
+        "predict"
+      ]
+    }
+  },
+  {
+    "id": "imagen-4.0-generate-001",
+    "name": "Imagen 4",
+    "provider": "gemini",
+    "family": null,
+    "created_at": null,
+    "context_window": 480,
+    "max_output_tokens": 8192,
+    "knowledge_cutoff": null,
+    "modalities": {
+      "input": [],
+      "output": []
+    },
+    "capabilities": [
+      "vision"
+    ],
+    "pricing": {
+      "text_tokens": {
+        "standard": {
+          "input_per_million": 0.03,
+          "output_per_million": 0.03
+        }
+      }
+    },
+    "metadata": {
+      "version": "001",
+      "description": "Vertex served Imagen 4.0 model",
+      "supported_generation_methods": [
+        "predict"
+      ]
+    }
+  },
+  {
+    "id": "imagen-4.0-ultra-generate-001",
+    "name": "Imagen 4 Ultra",
+    "provider": "gemini",
+    "family": null,
+    "created_at": null,
+    "context_window": 480,
+    "max_output_tokens": 8192,
+    "knowledge_cutoff": null,
+    "modalities": {
+      "input": [],
+      "output": []
+    },
+    "capabilities": [
+      "vision"
+    ],
+    "pricing": {
+      "text_tokens": {
+        "standard": {
+          "input_per_million": 0.03,
+          "output_per_million": 0.03
+        }
+      }
+    },
+    "metadata": {
+      "version": "001",
+      "description": "Vertex served Imagen 4.0 ultra model",
+      "supported_generation_methods": [
+        "predict"
+      ]
+    }
+  },
+  {
     "id": "lyria-3-clip-preview",
     "name": "Lyria 3 Clip Preview",
     "provider": "gemini",
@@ -21159,6 +21385,75 @@
         "generateContent",
         "countTokens",
         "batchGenerateContent"
+      ]
+    }
+  },
+  {
+    "id": "veo-2.0-generate-001",
+    "name": "Veo 2",
+    "provider": "gemini",
+    "family": null,
+    "created_at": null,
+    "context_window": 480,
+    "max_output_tokens": 8192,
+    "knowledge_cutoff": null,
+    "modalities": {
+      "input": [],
+      "output": []
+    },
+    "capabilities": [],
+    "pricing": {},
+    "metadata": {
+      "version": "2.0",
+      "description": "Vertex served Veo 2 model. Access to this model requires billing to be enabled on the associated Google Cloud Platform account. Please visit https://console.cloud.google.com/billing to enable it.",
+      "supported_generation_methods": [
+        "predictLongRunning"
+      ]
+    }
+  },
+  {
+    "id": "veo-3.0-fast-generate-001",
+    "name": "Veo 3 fast",
+    "provider": "gemini",
+    "family": null,
+    "created_at": null,
+    "context_window": 480,
+    "max_output_tokens": 8192,
+    "knowledge_cutoff": null,
+    "modalities": {
+      "input": [],
+      "output": []
+    },
+    "capabilities": [],
+    "pricing": {},
+    "metadata": {
+      "version": "3.0",
+      "description": "Veo 3 fast",
+      "supported_generation_methods": [
+        "predictLongRunning"
+      ]
+    }
+  },
+  {
+    "id": "veo-3.0-generate-001",
+    "name": "Veo 3",
+    "provider": "gemini",
+    "family": null,
+    "created_at": null,
+    "context_window": 480,
+    "max_output_tokens": 8192,
+    "knowledge_cutoff": null,
+    "modalities": {
+      "input": [],
+      "output": []
+    },
+    "capabilities": [],
+    "pricing": {},
+    "metadata": {
+      "version": "3.0",
+      "description": "Veo 3",
+      "supported_generation_methods": [
+        "predictLongRunning"
       ]
     }
   },

@@ -259,6 +259,36 @@ RSpec.describe 'pricing and usage semantics' do # rubocop:disable RSpec/Describe
     end
   end
 
+  # Gemini::Streaming and the embedding modules are mixed into the same
+  # provider classes. An embedding reader sharing a name with a streaming one
+  # shadows it, and every streamed chunk silently loses that field.
+  describe 'streaming and embedding token readers do not collide' do
+    it 'reads input tokens off a streamed Gemini chunk' do
+      chunk = gemini_provider.send(:build_chunk, {
+                                     'candidates' => [{ 'content' => { 'parts' => [{ 'text' => 'hi' }] } }],
+                                     'usageMetadata' => { 'promptTokenCount' => 7, 'candidatesTokenCount' => 5 }
+                                   })
+
+      expect(chunk.input_tokens).to eq(7)
+      expect(chunk.output_tokens).to eq(5)
+    end
+
+    it 'reads input tokens off a streamed Vertex AI chunk' do
+      config = RubyLLM::Configuration.new
+      config.vertexai_project_id = 'test'
+      config.vertexai_location = 'us-central1'
+      provider = RubyLLM::Providers::VertexAI.new(config)
+
+      chunk = provider.send(:build_chunk, {
+                              'candidates' => [{ 'content' => { 'parts' => [{ 'text' => 'hi' }] } }],
+                              'usageMetadata' => { 'promptTokenCount' => 7, 'candidatesTokenCount' => 5 }
+                            })
+
+      expect(chunk.input_tokens).to eq(7)
+      expect(chunk.output_tokens).to eq(5)
+    end
+  end
+
   describe RubyLLM::Providers::Gemini::Chat do
     let(:chat) { gemini_provider }
 

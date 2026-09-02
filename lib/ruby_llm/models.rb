@@ -2,6 +2,7 @@
 
 require 'date'
 require 'json'
+require 'set'
 
 module RubyLLM
   # Registry of available AI models and their capabilities.
@@ -243,6 +244,7 @@ module RubyLLM
                            .except(*provider_fetch[:fetched_providers])
                            .values
                            .flatten
+        preserved_models += unlisted_existing_models(existing_by_provider, provider_fetch)
 
         provider_models = provider_fetch[:models] + preserved_models
         models_dev_models = if models_dev_fetch[:fetched]
@@ -274,6 +276,40 @@ module RubyLLM
         end
 
         filter_models(models).sort_by { |m| [m.provider, m.id] }
+      end
+
+      # Keeps models a refresh did not see rather than deleting them.
+      #
+      # Absence from a listing is weak evidence: providers omit models from
+      # their own list endpoints (Gemini's ListModels does not return the imagen
+      # and veo generation models), and what a key is entitled to see varies. A
+      # model that is merely unlisted still answers requests, so dropping it
+      # from the registry breaks working calls. A genuinely retired model
+      # lingering is the lesser error, and is visible in the entry itself.
+      def unlisted_existing_models(existing_by_provider, provider_fetch)
+        fetched_ids = provider_fetch[:models].group_by(&:provider).transform_values do |models|
+          models.to_set(&:id)
+        end
+
+        provider_fetch[:fetched_providers].flat_map do |slug|
+          seen = fetched_ids[slug] || Set.new
+          Array(existing_by_provider[slug])
+            .reject { |model| seen.include?(model.id) }
+            .map { |model| reprice_from_provider(model, slug) }
+        end
+      end
+
+      # A preserved model must not keep a price the provider would no longer
+      # state. Re-derive it exactly as a fresh listing would have, so an old
+      # fabricated price does not survive by virtue of the model being unlisted.
+      def reprice_from_provider(model, slug)
+        capabilities = Provider.providers[slug.to_sym]&.capabilities
+        return model unless capabilities.respond_to?(:pricing_for)
+
+        Model::Info.new(model.to_h.merge(pricing: capabilities.pricing_for(model.id)))
+      rescue StandardError => e
+        RubyLLM.logger.debug { "Could not reprice #{slug}/#{model.id}: #{e.class}: #{e.message}" }
+        model
       end
 
       def filter_models(models)
