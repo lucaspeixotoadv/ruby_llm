@@ -316,5 +316,88 @@ RSpec.describe RubyLLM::Model::Info do
         ]
       )
     end
+
+    it 'omits embedding_dimensions for a model that does not embed' do
+      expect(info.to_h).not_to have_key(:embedding_dimensions)
+    end
+  end
+
+  describe 'embedding dimensions' do
+    subject(:embedder) do
+      described_class.new(
+        id: 'gemini-embedding-001',
+        provider: 'gemini',
+        max_output_tokens: 1,
+        embedding_dimensions: {
+          default: 3072, configurable: true, supported: [768, 1536, 3072], min: 128, max: 3072
+        },
+        modalities: { input: %w[text], output: %w[embeddings] }
+      )
+    end
+
+    it 'is nil for a model that does not embed' do
+      expect(info.embedding_dimensions).to be_nil
+      expect(info.default_embedding_dimensions).to be_nil
+      expect(info).not_to be_configurable_embedding_dimensions
+      expect(info.supports_embedding_dimensions?(1536)).to be false
+    end
+
+    it 'builds an EmbeddingDimensions value object' do
+      expect(embedder.embedding_dimensions).to be_a(RubyLLM::Model::EmbeddingDimensions)
+      expect(embedder.default_embedding_dimensions).to eq(3072)
+      expect(embedder).to be_configurable_embedding_dimensions
+    end
+
+    it 'keeps the vector width independent of the output token limit' do
+      expect(embedder.max_output_tokens).to eq(1)
+      expect(embedder.max_tokens).to eq(1)
+      expect(embedder.default_embedding_dimensions).to eq(3072)
+    end
+
+    it 'does not read a token limit as a width when the width is absent' do
+      widthless = described_class.new(
+        id: 'text-embedding-mystery',
+        provider: 'openai',
+        max_output_tokens: 1536,
+        modalities: { input: %w[text], output: %w[embeddings] }
+      )
+
+      expect(widthless.default_embedding_dimensions).to be_nil
+    end
+
+    it 'accepts a bare integer for a fixed-width model' do
+      fixed = described_class.new(id: 'mistral-embed', provider: 'mistral', embedding_dimensions: 1024)
+
+      expect(fixed.default_embedding_dimensions).to eq(1024)
+      expect(fixed).not_to be_configurable_embedding_dimensions
+    end
+
+    it 'round-trips through to_h' do
+      round_tripped = described_class.new(embedder.to_h)
+
+      expect(round_tripped.embedding_dimensions).to eq(embedder.embedding_dimensions)
+      expect(round_tripped.max_output_tokens).to eq(1)
+    end
+  end
+
+  describe '#status' do
+    it 'reports the status the registry stated' do
+      model = described_class.new(id: 'x', provider: 'anthropic', metadata: { status: 'deprecated' })
+
+      expect(model.status).to eq('deprecated')
+      expect(model).to be_deprecated
+    end
+
+    it 'reports nil when the registry stated none' do
+      expect(info.status).to be_nil
+      expect(info).not_to be_deprecated
+    end
+
+    it 'reports a non-deprecated status without calling it deprecated' do
+      model = described_class.new(id: 'x', provider: 'anthropic', metadata: { status: 'alpha' })
+
+      expect(model.status).to eq('alpha')
+      expect(model).not_to be_deprecated
+    end
   end
 end

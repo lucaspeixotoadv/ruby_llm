@@ -34,6 +34,7 @@ module RubyLLM
               created_at: created_at,
               context_window: capabilities.context_window_for(model_id),
               max_output_tokens: capabilities.max_tokens_for(model_id),
+              embedding_dimensions: Model::EmbeddingDimensions.from_capabilities(capabilities, model_id),
               modalities: capabilities.modalities_for(model_id),
               capabilities: capabilities.capabilities_for(model_id),
               pricing: capabilities.pricing_for(model_id),

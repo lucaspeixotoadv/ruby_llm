@@ -9,6 +9,27 @@ module RubyLLM
 
         REGION_PREFIXES = %w[global us eu ap sa ca me af il].freeze
 
+        # Vector widths AWS documents for the embedders on Bedrock.
+        #
+        # The listing endpoint reports modalities and token limits but never a
+        # vector width, so it comes from the model cards. Titan v2 and Cohere
+        # v4 are Matryoshka models with a published set of sizes; the rest are
+        # fixed. Ids may carry a region prefix ("us.") and a version or context
+        # suffix (":0", ":0:512"), so the patterns match the model name inside
+        # them rather than the whole string.
+        EMBEDDING_DIMENSIONS = {
+          /amazon\.titan-embed-text-v2/ => { default: 1024, configurable: true, supported: [256, 512, 1024] },
+          /amazon\.titan-embed-image-v1/ => { default: 1024, configurable: true, supported: [256, 384, 1024] },
+          /amazon\.titan-embed-(?:g1-)?text/ => { default: 1536, configurable: false },
+          /cohere\.embed-v4/ => { default: 1536, configurable: true, supported: [256, 512, 1024, 1536] },
+          /cohere\.embed-(?:english|multilingual)-v3/ => { default: 1024, configurable: false }
+        }.freeze
+
+        def embedding_dimensions_for(model_id)
+          _, dimensions = EMBEDDING_DIMENSIONS.find { |pattern, _| model_id.to_s.match?(pattern) }
+          dimensions
+        end
+
         def models_api_base
           @config.bedrock_api_base || "https://bedrock.#{bedrock_region}.amazonaws.com"
         end
@@ -35,6 +56,7 @@ module RubyLLM
             created_at: nil,
             context_window: parse_context_window(model_data),
             max_output_tokens: converse_data['maxTokensDefault'] || converse_data['maxTokensMaximum'],
+            embedding_dimensions: embedding_dimensions_for(model_id),
             modalities: {
               input: normalize_modalities(model_data['inputModalities']),
               output: normalize_modalities(model_data['outputModalities'])

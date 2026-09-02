@@ -46,6 +46,27 @@ module RubyLLM
           flash_3_6_3_7: { schedule: FLASH_3_6_3_7_SCHEDULE } # rubocop:disable Naming/VariableNumber
         }.freeze
 
+        # Vector widths Google documents for its embedding models.
+        #
+        # gemini-embedding-001 is a Matryoshka model: the API takes an
+        # output_dimensionality between 128 and 3072, defaults to 3072, and
+        # Google names 768, 1536 and 3072 as the sizes to prefer. That is four
+        # separate facts and none of them fits in max_output_tokens - which
+        # models.dev reports as 1 for this model, from a limit.output that
+        # means output *tokens*.
+        EMBEDDING_DIMENSIONS = {
+          /\Agemini-embedding/ => {
+            default: 3072,
+            configurable: true,
+            supported: [768, 1536, 3072],
+            min: 128,
+            max: 3072
+          },
+          /\Atext-embedding-00[45]/ => { default: 768, configurable: true, max: 768 },
+          /\Atext-multilingual-embedding-002/ => { default: 768, configurable: true, max: 768 },
+          /\Aembedding-001\z/ => { default: 768, configurable: false }
+        }.freeze
+
         def supports_tool_choice?(_model_id)
           true
         end
@@ -74,8 +95,11 @@ module RubyLLM
           when /gemini-2\.0-flash/, /gemini-2\.0-flash-lite/, /gemini-1\.5-flash/, /gemini-1\.5-flash-8b/,
                /gemini-1\.5-pro/
             8_192
-          when /gemini-embedding-exp/ then nil
-          when /text-embedding-004/, /embedding-001/ then 768
+          # Embedding models generate no tokens. The 768 that used to sit here
+          # was their vector width wearing a token limit's name; it now lives
+          # in EMBEDDING_DIMENSIONS, and this answers nil rather than a number
+          # that means something else.
+          when /embedding/ then nil
           when /imagen-3/ then 4
           else 4_096
           end
@@ -144,6 +168,11 @@ module RubyLLM
           model_id.match?(/gemini|pro|flash/)
         end
 
+        def embedding_dimensions_for(model_id)
+          _, dimensions = EMBEDDING_DIMENSIONS.find { |pattern, _| model_id.to_s.match?(pattern) }
+          dimensions
+        end
+
         def pricing_family(model_id)
           case model_id
           when /\Agemini-3\.[67]-flash\z/ then :flash_3_6_3_7 # rubocop:disable Naming/VariableNumber
@@ -166,7 +195,7 @@ module RubyLLM
 
         module_function :context_window_for, :max_tokens_for, :critical_capabilities_for, :pricing_for,
                         :supports_vision?, :supports_functions?, :supports_structured_output?, :pricing_family,
-                        :modalities_for
+                        :modalities_for, :embedding_dimensions_for
       end
     end
   end

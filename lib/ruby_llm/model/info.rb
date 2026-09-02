@@ -5,7 +5,7 @@ module RubyLLM
     # Information about an AI model's capabilities, pricing, and metadata.
     class Info
       attr_reader :id, :name, :provider, :family, :created_at, :context_window, :max_output_tokens, :knowledge_cutoff,
-                  :modalities, :capabilities, :pricing, :metadata, :reasoning_options
+                  :modalities, :capabilities, :pricing, :metadata, :reasoning_options, :embedding_dimensions
 
       # Create a default model with assumed capabilities
       def self.default(model_id, provider)
@@ -27,6 +27,7 @@ module RubyLLM
         @created_at = Utils.to_time(data[:created_at])&.utc
         @context_window = data[:context_window]
         @max_output_tokens = data[:max_output_tokens]
+        @embedding_dimensions = EmbeddingDimensions.from(data[:embedding_dimensions])
         @knowledge_cutoff = Utils.to_date(data[:knowledge_cutoff])
         @modalities = Modalities.new(data[:modalities] || {})
         @capabilities = data[:capabilities] || []
@@ -61,6 +62,40 @@ module RubyLLM
 
       def supports_vision?
         modalities.input.include?('image')
+      end
+
+      # Width of the vectors this model returns, or nil when the model does not
+      # embed or its width is not known.
+      #
+      # Never read max_output_tokens for this: that field is a token limit, and
+      # for an embedding model models.dev fills it with whatever it put in
+      # limit.output - 1 for gemini-embedding-001, 3072 for
+      # text-embedding-3-large. Only one of those happens to be a vector width,
+      # and neither is one by definition.
+      def default_embedding_dimensions
+        embedding_dimensions&.default
+      end
+
+      # True when the model accepts an output-dimension parameter.
+      def configurable_embedding_dimensions?
+        embedding_dimensions&.configurable? || false
+      end
+
+      def supports_embedding_dimensions?(size)
+        embedding_dimensions&.supports?(size) || false
+      end
+
+      # Lifecycle status as stated by the registry (models.dev), e.g.
+      # "deprecated" or "alpha". nil when the source states none - which means
+      # "the source says nothing", not "the model is fine". RubyLLM neither
+      # invents this value nor overrides it.
+      def status
+        value = metadata[:status] || metadata['status']
+        value&.to_s
+      end
+
+      def deprecated?
+        status == 'deprecated'
       end
 
       def reasoning_option(type)
@@ -120,20 +155,23 @@ module RubyLLM
       end
 
       def to_h
-        {
+        hash = {
           id: id,
           name: name,
           provider: provider,
           family: family,
           created_at: created_at,
           context_window: context_window,
-          max_output_tokens: max_output_tokens,
+          max_output_tokens: max_output_tokens
+        }
+        hash[:embedding_dimensions] = embedding_dimensions.to_h if embedding_dimensions
+        hash.merge(
           knowledge_cutoff: knowledge_cutoff,
           modalities: modalities.to_h,
           capabilities: capabilities,
           pricing: pricing.to_h,
           metadata: metadata
-        }
+        )
       end
 
       private

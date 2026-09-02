@@ -22,6 +22,7 @@ module RubyLLM
               created_at: model_data['created'] ? Time.at(model_data['created']) : nil,
               context_window: capabilities.context_window_for(model_id),
               max_output_tokens: capabilities.max_tokens_for(model_id),
+              embedding_dimensions: Model::EmbeddingDimensions.from_capabilities(capabilities, model_id),
               capabilities: capabilities.critical_capabilities_for(model_id),
               pricing: capabilities.pricing_for(model_id),
               metadata: {

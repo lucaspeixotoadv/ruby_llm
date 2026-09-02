@@ -5,6 +5,7 @@ require 'fileutils'
 require 'generators/ruby_llm/upgrade_to_v1_7/upgrade_to_v1_7_generator'
 require 'generators/ruby_llm/upgrade_to_v1_9/upgrade_to_v1_9_generator'
 require 'generators/ruby_llm/upgrade_to_v1_14/upgrade_to_v1_14_generator'
+require 'generators/ruby_llm/upgrade_to_v1_16_3/upgrade_to_v1_16_3_generator'
 require_relative '../../support/generator_test_helpers'
 
 RSpec.describe 'RubyLLM upgrade generators', :generator, type: :generator do # rubocop:disable RSpec/DescribeClass
@@ -85,6 +86,17 @@ RSpec.describe 'RubyLLM upgrade generators', :generator, type: :generator do # r
         migration = File.read(migration_path)
         expect(migration).to include('if column_exists?(:tool_calls, :thought_signature, :string)')
         expect(migration).to include('change_column :tool_calls, :thought_signature, :text')
+      end
+    end
+
+    it 'creates the expected v1.16.3 migration file' do
+      within_test_app(app_path) do
+        migration_path = migrations_containing('add_ruby_llm_v1_16_3_columns').first
+        expect(migration_path).not_to be_nil
+
+        migration = File.read(migration_path)
+        expect(migration).to include('column_exists?(:models, :embedding_dimensions)')
+        expect(migration).to include('add_column :models, :embedding_dimensions')
       end
     end
   end
@@ -169,6 +181,16 @@ RSpec.describe 'RubyLLM upgrade generators', :generator, type: :generator do # r
         migration = File.read(migration_path)
         expect(migration).to include('if column_exists?(:tool_calls, :thought_signature, :string)')
         expect(migration).to include('change_column :tool_calls, :thought_signature, :text')
+      end
+    end
+
+    it 'creates a v1.16.3 migration targeting the model table' do
+      within_test_app(app_path) do
+        migration_path = migrations_containing('add_ruby_llm_v1_16_3_columns').first
+        expect(migration_path).not_to be_nil
+
+        migration = File.read(migration_path)
+        expect(migration).to include('add_column :models, :embedding_dimensions')
       end
     end
   end

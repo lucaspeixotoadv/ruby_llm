@@ -1,0 +1,7 @@
+class AddRubyLlmV1163Columns < ActiveRecord::Migration<%= migration_version %>
+  def change
+    unless column_exists?(:<%= model_table_name %>, :embedding_dimensions)
+      add_column :<%= model_table_name %>, :embedding_dimensions, <%= postgresql? ? ':jsonb' : ':json' %>
+    end
+  end
+end

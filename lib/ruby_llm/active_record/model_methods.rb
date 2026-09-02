@@ -32,10 +32,19 @@ module RubyLLM
           new(from_llm_attributes(model_info))
         end
 
+        # The column arrived after the table did, so an application that has
+        # not run the upgrade migration still round-trips everything else
+        # rather than raising on an attribute its schema has never heard of.
+        def embedding_dimensions_column?
+          column_names.include?('embedding_dimensions')
+        rescue StandardError
+          false
+        end
+
         private
 
         def from_llm_attributes(model_info)
-          {
+          attributes = {
             model_id: model_info.id,
             name: model_info.name,
             provider: model_info.provider,
@@ -49,11 +58,20 @@ module RubyLLM
             pricing: model_info.pricing.to_h,
             metadata: model_info.metadata
           }
+          attributes[:embedding_dimensions] = model_info.embedding_dimensions&.to_h if embedding_dimensions_column?
+          attributes
         end
       end
 
       def to_llm
-        RubyLLM::Model::Info.new(
+        data = to_llm_attributes
+        data[:embedding_dimensions] = embedding_dimensions&.deep_symbolize_keys if
+          self.class.embedding_dimensions_column?
+        RubyLLM::Model::Info.new(data)
+      end
+
+      def to_llm_attributes
+        {
           id: model_id,
           name: name,
           provider: provider,
@@ -66,10 +84,12 @@ module RubyLLM
           capabilities: capabilities,
           pricing: pricing&.deep_symbolize_keys || {},
           metadata: metadata&.deep_symbolize_keys || {}
-        )
+        }
       end
 
       delegate :supports?, :supports_vision?, :supports_functions?, :type,
+               :default_embedding_dimensions, :configurable_embedding_dimensions?,
+               :supports_embedding_dimensions?, :status, :deprecated?,
                :input_price_per_million, :output_price_per_million,
                :cache_read_input_price_per_million, :cache_write_input_price_per_million,
                :cached_input_price_per_million, :cache_creation_input_price_per_million,

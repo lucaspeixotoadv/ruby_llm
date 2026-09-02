@@ -66,8 +66,24 @@ module RubyLLM
           end
         end
 
+        # Vector widths Mistral documents for its embedders.
+        #
+        # mistral-embed returns a fixed 1024-wide vector. codestral-embed takes
+        # an output_dimension parameter and defaults to 1536; Mistral publishes
+        # no floor or ceiling for it, so none is claimed here - configurable
+        # with an unstated range is the honest reading, not a guessed one.
+        EMBEDDING_DIMENSIONS = {
+          /\Acodestral-embed/ => { default: 1536, configurable: true },
+          /\Amistral-embed/ => { default: 1024, configurable: false }
+        }.freeze
+
         def context_window_for(_model_id)
           32_768
+        end
+
+        def embedding_dimensions_for(model_id)
+          _, dimensions = EMBEDDING_DIMENSIONS.find { |pattern, _| model_id.to_s.match?(pattern) }
+          dimensions
         end
 
         def max_tokens_for(_model_id)

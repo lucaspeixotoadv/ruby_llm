@@ -106,6 +106,19 @@ module RubyLLM
           embedding_ada
         ].freeze
 
+        # Vector widths OpenAI documents for its embedding models.
+        #
+        # The text-embedding-3 models accept a "dimensions" request parameter
+        # and return a Matryoshka-truncated vector, so they are configurable up
+        # to their native width. ada-002 has no such parameter and is fixed.
+        # None of this is derivable from max_output_tokens, which for these
+        # models is not a token limit OpenAI publishes at all.
+        EMBEDDING_DIMENSIONS = {
+          'embedding3_large' => { default: 3072, configurable: true, max: 3072 },
+          'embedding3_small' => { default: 1536, configurable: true, max: 1536 },
+          'embedding_ada' => { default: 1536, configurable: false }
+        }.freeze
+
         def supports_tool_choice?(_model_id)
           true
         end
@@ -264,10 +277,14 @@ module RubyLLM
           PRICES.fetch(family, {})
         end
 
+        def embedding_dimensions_for(model_id)
+          EMBEDDING_DIMENSIONS[model_family(model_id)]
+        end
+
         module_function :context_window_for, :max_tokens_for, :critical_capabilities_for, :pricing_for,
                         :model_family, :supports_vision?, :supports_functions?, :supports_structured_output?,
                         :input_price_for, :output_price_for, :cached_input_price_for, :image_model?,
-                        :image_pricing_for, :price_for, :family_prices
+                        :image_pricing_for, :price_for, :family_prices, :embedding_dimensions_for
       end
     end
   end

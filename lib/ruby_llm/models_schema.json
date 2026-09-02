@@ -61,6 +61,44 @@
         ],
         "description": "Maximum output tokens"
       },
+      "embedding_dimensions": {
+        "type": "object",
+        "required": [
+          "default"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "default": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Vector width returned when no output dimension is requested. Distinct from max_output_tokens, which is a token limit."
+          },
+          "configurable": {
+            "type": "boolean",
+            "description": "Whether the model accepts an output-dimension parameter (Matryoshka truncation)"
+          },
+          "supported": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "uniqueItems": true,
+            "description": "Discrete vector widths the provider documents"
+          },
+          "min": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Smallest requestable vector width, when the provider documents a range"
+          },
+          "max": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Largest requestable vector width, when the provider documents a range"
+          }
+        },
+        "description": "Output dimensionality of an embedding model"
+      },
       "knowledge_cutoff": {
         "type": [
           "null",

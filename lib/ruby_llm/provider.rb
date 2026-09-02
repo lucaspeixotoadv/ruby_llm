@@ -164,6 +164,17 @@ module RubyLLM
         nil
       end
 
+      # Vector width of an embedding model, as the provider documents it.
+      #
+      # Answered by the provider's own capabilities rather than by reading a
+      # token limit, so a registry entry can carry the real dimension even
+      # when models.dev has none to give.
+      def embedding_dimensions_for(model_id)
+        return nil unless capabilities.respond_to?(:embedding_dimensions_for)
+
+        capabilities.embedding_dimensions_for(model_id)
+      end
+
       def configuration_requirements
         []
       end

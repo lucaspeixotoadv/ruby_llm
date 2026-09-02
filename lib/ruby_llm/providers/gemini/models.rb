@@ -22,6 +22,7 @@ module RubyLLM
               created_at: nil,
               context_window: model_data['inputTokenLimit'] || capabilities.context_window_for(model_id),
               max_output_tokens: model_data['outputTokenLimit'] || capabilities.max_tokens_for(model_id),
+              embedding_dimensions: Model::EmbeddingDimensions.from_capabilities(capabilities, model_id),
               capabilities: model_capabilities(model_data, model_id, capabilities),
               modalities: capabilities.modalities_for(model_id),
               pricing: capabilities.pricing_for(model_id),

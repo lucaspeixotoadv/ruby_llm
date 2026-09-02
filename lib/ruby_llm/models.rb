@@ -271,11 +271,27 @@ module RubyLLM
           elsif models_dev_model
             models_dev_model
           else
-            provider_model
+            normalize_provider_only_model(provider_model)
           end
         end
 
         filter_models(models).sort_by { |m| [m.provider, m.id] }
+      end
+
+      # An embedding model models.dev has never heard of still embeds.
+      #
+      # Provider listings disagree about how to say so - Gemini's ListModels
+      # reports no modalities at all, Azure's reports none either, and Mistral
+      # calls mistral-embed's output "text". Left alone, those models come out
+      # of the registry typed as chat models and drop out of
+      # RubyLLM.models.embedding_models, so the same normalization the
+      # models.dev path already applies is applied here too.
+      def normalize_provider_only_model(provider_model)
+        data = provider_model.to_h
+        return provider_model unless embedding_model?(data)
+
+        normalize_embedding_modalities(data)
+        Model::Info.new(data)
       end
 
       # Keeps models a refresh did not see rather than deleting them.
@@ -366,8 +382,17 @@ module RubyLLM
         data[:metadata] = provider_model.metadata.merge(data[:metadata] || {})
         provider_capabilities = provider_model.capabilities - MODELS_DEV_AUTHORITY_CAPABILITIES
         data[:capabilities] = (models_dev_model.capabilities + provider_capabilities).uniq
+        data[:embedding_dimensions] = merged_embedding_dimensions(data, provider_model)
         normalize_embedding_modalities(data)
         Model::Info.new(data)
+      end
+
+      # models.dev never states a vector width, so the provider's answer stands
+      # unless an earlier resolution already found one.
+      def merged_embedding_dimensions(data, provider_model)
+        return data[:embedding_dimensions] unless blank_value?(data[:embedding_dimensions])
+
+        provider_model.embedding_dimensions&.to_h
       end
 
       # Decides whose price wins when both sources have one.
@@ -395,8 +420,34 @@ module RubyLLM
         metadata[:source].to_s == 'models.dev' && blank_value?(metadata[:cost])
       end
 
+      # Vector width for an embedding model, asked of the provider that owns it.
+      #
+      # models.dev states no width for any embedding model - the closest thing
+      # in its payload is limit.output, which is a token limit and holds 1 for
+      # gemini-embedding-001 and 3072 for text-embedding-3-large. Reading it as
+      # a width is how a 3072-dimensional model gets described as
+      # 1-dimensional, so the width is taken from the provider's own
+      # capabilities and from nowhere else.
+      def embedding_dimensions_for(provider_slug, model_id)
+        provider_class = Provider.providers[provider_slug.to_s.to_sym]
+        return nil unless provider_class.respond_to?(:embedding_dimensions_for)
+
+        provider_class.embedding_dimensions_for(model_id)
+      rescue StandardError => e
+        RubyLLM.logger.debug do
+          "Could not resolve embedding dimensions for #{provider_slug}/#{model_id}: #{e.class}: #{e.message}"
+        end
+        nil
+      end
+
+      def embedding_model?(data)
+        return true if Array(data.dig(:modalities, :output)).include?('embeddings')
+
+        data[:id].to_s.include?('embed')
+      end
+
       def normalize_embedding_modalities(data)
-        return unless data[:id].to_s.include?('embedding')
+        return unless embedding_model?(data)
 
         modalities = data[:modalities].to_h
         modalities[:input] = ['text'] if modalities[:input].nil? || modalities[:input].empty?
@@ -440,6 +491,10 @@ module RubyLLM
         }
 
         normalize_embedding_modalities(data)
+        if embedding_model?(data)
+          dimensions = embedding_dimensions_for(provider_slug, data[:id])
+          data[:embedding_dimensions] = dimensions if dimensions
+        end
         data
       end
 

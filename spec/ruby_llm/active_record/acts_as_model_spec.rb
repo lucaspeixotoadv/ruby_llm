@@ -105,6 +105,35 @@ RSpec.describe RubyLLM::ActiveRecord::ActsAs do
         expect(model.name).to eq('GPT-4')
         expect(model.provider).to eq('openai')
       end
+
+      it 'round-trips an embedding width without confusing it with the token limit' do
+        embedder = RubyLLM::Model::Info.new(
+          id: 'gemini-embedding-001',
+          name: 'Gemini Embedding 001',
+          provider: 'gemini',
+          max_output_tokens: 1,
+          embedding_dimensions: {
+            default: 3072, configurable: true, supported: [768, 1536, 3072], min: 128, max: 3072
+          },
+          modalities: { input: %w[text], output: %w[embeddings] },
+          metadata: { status: 'deprecated' }
+        )
+
+        record = model_class.create!(model_class.send(:from_llm_attributes, embedder))
+        reloaded = model_class.find(record.id).to_llm
+
+        expect(reloaded.embedding_dimensions).to eq(embedder.embedding_dimensions)
+        expect(reloaded.default_embedding_dimensions).to eq(3072)
+        expect(reloaded.max_output_tokens).to eq(1)
+        expect(reloaded.status).to eq('deprecated')
+      end
+
+      it 'stores no width for a model that does not embed' do
+        record = model_class.create!(model_class.send(:from_llm_attributes, model_info))
+
+        expect(record.embedding_dimensions).to be_nil
+        expect(record.to_llm.embedding_dimensions).to be_nil
+      end
     end
 
     describe 'delegated methods' do
@@ -129,6 +158,13 @@ RSpec.describe RubyLLM::ActiveRecord::ActsAs do
 
       it 'delegates type detection' do
         expect(model.type).to eq('chat')
+      end
+
+      it 'delegates embedding width and status readers' do
+        expect(model.default_embedding_dimensions).to be_nil
+        expect(model.configurable_embedding_dimensions?).to be false
+        expect(model.status).to be_nil
+        expect(model.deprecated?).to be false
       end
 
       it 'delegates label formatting' do

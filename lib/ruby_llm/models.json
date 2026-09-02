@@ -1668,8 +1668,12 @@
     "max_output_tokens": 16384,
     "knowledge_cutoff": null,
     "modalities": {
-      "input": [],
-      "output": []
+      "input": [
+        "text"
+      ],
+      "output": [
+        "embeddings"
+      ]
     },
     "capabilities": [],
     "pricing": {
@@ -1695,8 +1699,12 @@
     "max_output_tokens": 16384,
     "knowledge_cutoff": null,
     "modalities": {
-      "input": [],
-      "output": []
+      "input": [
+        "text"
+      ],
+      "output": [
+        "embeddings"
+      ]
     },
     "capabilities": [],
     "pricing": {
@@ -5396,8 +5404,12 @@
     "max_output_tokens": 16384,
     "knowledge_cutoff": null,
     "modalities": {
-      "input": [],
-      "output": []
+      "input": [
+        "text"
+      ],
+      "output": [
+        "embeddings"
+      ]
     },
     "capabilities": [],
     "pricing": {
@@ -9696,10 +9708,19 @@
     "created_at": null,
     "context_window": null,
     "max_output_tokens": null,
+    "embedding_dimensions": {
+      "default": 3072,
+      "configurable": true,
+      "max": 3072
+    },
     "knowledge_cutoff": null,
     "modalities": {
-      "input": [],
-      "output": []
+      "input": [
+        "text"
+      ],
+      "output": [
+        "embeddings"
+      ]
     },
     "capabilities": [],
     "pricing": {
@@ -9723,10 +9744,19 @@
     "created_at": null,
     "context_window": null,
     "max_output_tokens": null,
+    "embedding_dimensions": {
+      "default": 1536,
+      "configurable": true,
+      "max": 1536
+    },
     "knowledge_cutoff": null,
     "modalities": {
-      "input": [],
-      "output": []
+      "input": [
+        "text"
+      ],
+      "output": [
+        "embeddings"
+      ]
     },
     "capabilities": [],
     "pricing": {
@@ -9750,10 +9780,18 @@
     "created_at": null,
     "context_window": null,
     "max_output_tokens": null,
+    "embedding_dimensions": {
+      "default": 1536,
+      "configurable": false
+    },
     "knowledge_cutoff": null,
     "modalities": {
-      "input": [],
-      "output": []
+      "input": [
+        "text"
+      ],
+      "output": [
+        "embeddings"
+      ]
     },
     "capabilities": [],
     "pricing": {
@@ -9777,10 +9815,18 @@
     "created_at": null,
     "context_window": null,
     "max_output_tokens": null,
+    "embedding_dimensions": {
+      "default": 1536,
+      "configurable": false
+    },
     "knowledge_cutoff": null,
     "modalities": {
-      "input": [],
-      "output": []
+      "input": [
+        "text"
+      ],
+      "output": [
+        "embeddings"
+      ]
     },
     "capabilities": [],
     "pricing": {
@@ -10566,6 +10612,10 @@
     "created_at": null,
     "context_window": null,
     "max_output_tokens": null,
+    "embedding_dimensions": {
+      "default": 1536,
+      "configurable": false
+    },
     "knowledge_cutoff": null,
     "modalities": {
       "input": [
@@ -10596,6 +10646,15 @@
     "created_at": null,
     "context_window": null,
     "max_output_tokens": null,
+    "embedding_dimensions": {
+      "default": 1024,
+      "configurable": true,
+      "supported": [
+        256,
+        384,
+        1024
+      ]
+    },
     "knowledge_cutoff": null,
     "modalities": {
       "input": [
@@ -10627,6 +10686,15 @@
     "created_at": null,
     "context_window": null,
     "max_output_tokens": null,
+    "embedding_dimensions": {
+      "default": 1024,
+      "configurable": true,
+      "supported": [
+        256,
+        384,
+        1024
+      ]
+    },
     "knowledge_cutoff": null,
     "modalities": {
       "input": [
@@ -10658,6 +10726,10 @@
     "created_at": null,
     "context_window": null,
     "max_output_tokens": null,
+    "embedding_dimensions": {
+      "default": 1536,
+      "configurable": false
+    },
     "knowledge_cutoff": null,
     "modalities": {
       "input": [
@@ -10688,6 +10760,10 @@
     "created_at": null,
     "context_window": null,
     "max_output_tokens": null,
+    "embedding_dimensions": {
+      "default": 1536,
+      "configurable": false
+    },
     "knowledge_cutoff": null,
     "modalities": {
       "input": [
@@ -10718,6 +10794,15 @@
     "created_at": null,
     "context_window": null,
     "max_output_tokens": null,
+    "embedding_dimensions": {
+      "default": 1024,
+      "configurable": true,
+      "supported": [
+        256,
+        512,
+        1024
+      ]
+    },
     "knowledge_cutoff": null,
     "modalities": {
       "input": [
@@ -11774,6 +11859,10 @@
     "created_at": null,
     "context_window": null,
     "max_output_tokens": null,
+    "embedding_dimensions": {
+      "default": 1024,
+      "configurable": false
+    },
     "knowledge_cutoff": null,
     "modalities": {
       "input": [
@@ -11804,6 +11893,10 @@
     "created_at": null,
     "context_window": null,
     "max_output_tokens": null,
+    "embedding_dimensions": {
+      "default": 1024,
+      "configurable": false
+    },
     "knowledge_cutoff": null,
     "modalities": {
       "input": [
@@ -11834,6 +11927,10 @@
     "created_at": null,
     "context_window": null,
     "max_output_tokens": null,
+    "embedding_dimensions": {
+      "default": 1024,
+      "configurable": false
+    },
     "knowledge_cutoff": null,
     "modalities": {
       "input": [
@@ -11864,6 +11961,10 @@
     "created_at": null,
     "context_window": null,
     "max_output_tokens": null,
+    "embedding_dimensions": {
+      "default": 1024,
+      "configurable": false
+    },
     "knowledge_cutoff": null,
     "modalities": {
       "input": [
@@ -17267,6 +17368,16 @@
     "created_at": null,
     "context_window": 128000,
     "max_output_tokens": null,
+    "embedding_dimensions": {
+      "default": 1536,
+      "configurable": true,
+      "supported": [
+        256,
+        512,
+        1024,
+        1536
+      ]
+    },
     "knowledge_cutoff": null,
     "modalities": {
       "input": [
@@ -20705,6 +20816,17 @@
     "created_at": "2025-05-20 00:00:00 UTC",
     "context_window": 2048,
     "max_output_tokens": 1,
+    "embedding_dimensions": {
+      "default": 3072,
+      "configurable": true,
+      "supported": [
+        768,
+        1536,
+        3072
+      ],
+      "min": 128,
+      "max": 3072
+    },
     "knowledge_cutoff": null,
     "modalities": {
       "input": [
@@ -20756,10 +20878,25 @@
     "created_at": null,
     "context_window": 8192,
     "max_output_tokens": 1,
+    "embedding_dimensions": {
+      "default": 3072,
+      "configurable": true,
+      "supported": [
+        768,
+        1536,
+        3072
+      ],
+      "min": 128,
+      "max": 3072
+    },
     "knowledge_cutoff": null,
     "modalities": {
-      "input": [],
-      "output": []
+      "input": [
+        "text"
+      ],
+      "output": [
+        "embeddings"
+      ]
     },
     "capabilities": [
       "function_calling",
@@ -20786,10 +20923,25 @@
     "created_at": null,
     "context_window": 8192,
     "max_output_tokens": 1,
+    "embedding_dimensions": {
+      "default": 3072,
+      "configurable": true,
+      "supported": [
+        768,
+        1536,
+        3072
+      ],
+      "min": 128,
+      "max": 3072
+    },
     "knowledge_cutoff": null,
     "modalities": {
-      "input": [],
-      "output": []
+      "input": [
+        "text"
+      ],
+      "output": [
+        "embeddings"
+      ]
     },
     "capabilities": [
       "function_calling",
@@ -21564,6 +21716,10 @@
     "created_at": "2025-05-20 22:00:00 UTC",
     "context_window": 32768,
     "max_output_tokens": 8192,
+    "embedding_dimensions": {
+      "default": 1536,
+      "configurable": true
+    },
     "knowledge_cutoff": null,
     "modalities": {
       "input": [
@@ -21590,6 +21746,10 @@
     "created_at": "2025-05-20 22:00:00 UTC",
     "context_window": 32768,
     "max_output_tokens": 8192,
+    "embedding_dimensions": {
+      "default": 1536,
+      "configurable": true
+    },
     "knowledge_cutoff": null,
     "modalities": {
       "input": [
@@ -22532,13 +22692,17 @@
     "created_at": "2023-12-11 00:00:00 UTC",
     "context_window": 8000,
     "max_output_tokens": 3072,
+    "embedding_dimensions": {
+      "default": 1024,
+      "configurable": false
+    },
     "knowledge_cutoff": null,
     "modalities": {
       "input": [
         "text"
       ],
       "output": [
-        "text"
+        "embeddings"
       ]
     },
     "capabilities": [],
@@ -22576,6 +22740,10 @@
     "created_at": null,
     "context_window": 32768,
     "max_output_tokens": 8192,
+    "embedding_dimensions": {
+      "default": 1024,
+      "configurable": false
+    },
     "knowledge_cutoff": null,
     "modalities": {
       "input": [
@@ -28894,6 +29062,11 @@
     "created_at": "2024-01-25 00:00:00 UTC",
     "context_window": 8191,
     "max_output_tokens": 3072,
+    "embedding_dimensions": {
+      "default": 3072,
+      "configurable": true,
+      "max": 3072
+    },
     "knowledge_cutoff": null,
     "modalities": {
       "input": [
@@ -28939,6 +29112,11 @@
     "created_at": "2024-01-25 00:00:00 UTC",
     "context_window": 8191,
     "max_output_tokens": 1536,
+    "embedding_dimensions": {
+      "default": 1536,
+      "configurable": true,
+      "max": 1536
+    },
     "knowledge_cutoff": null,
     "modalities": {
       "input": [
@@ -28984,6 +29162,10 @@
     "created_at": "2022-12-15 00:00:00 UTC",
     "context_window": 8192,
     "max_output_tokens": 1536,
+    "embedding_dimensions": {
+      "default": 1536,
+      "configurable": false
+    },
     "knowledge_cutoff": null,
     "modalities": {
       "input": [
@@ -60005,6 +60187,17 @@
     "created_at": "2025-05-20 00:00:00 UTC",
     "context_window": 2048,
     "max_output_tokens": 1,
+    "embedding_dimensions": {
+      "default": 3072,
+      "configurable": true,
+      "supported": [
+        768,
+        1536,
+        3072
+      ],
+      "min": 128,
+      "max": 3072
+    },
     "knowledge_cutoff": null,
     "modalities": {
       "input": [
@@ -60050,10 +60243,25 @@
     "created_at": null,
     "context_window": null,
     "max_output_tokens": null,
+    "embedding_dimensions": {
+      "default": 3072,
+      "configurable": true,
+      "supported": [
+        768,
+        1536,
+        3072
+      ],
+      "min": 128,
+      "max": 3072
+    },
     "knowledge_cutoff": null,
     "modalities": {
-      "input": [],
-      "output": []
+      "input": [
+        "text"
+      ],
+      "output": [
+        "embeddings"
+      ]
     },
     "capabilities": [
       "streaming",
@@ -60300,10 +60508,19 @@
     "created_at": null,
     "context_window": null,
     "max_output_tokens": null,
+    "embedding_dimensions": {
+      "default": 768,
+      "configurable": true,
+      "max": 768
+    },
     "knowledge_cutoff": null,
     "modalities": {
-      "input": [],
-      "output": []
+      "input": [
+        "text"
+      ],
+      "output": [
+        "embeddings"
+      ]
     },
     "capabilities": [
       "streaming",
@@ -60322,10 +60539,19 @@
     "created_at": null,
     "context_window": null,
     "max_output_tokens": null,
+    "embedding_dimensions": {
+      "default": 768,
+      "configurable": true,
+      "max": 768
+    },
     "knowledge_cutoff": null,
     "modalities": {
-      "input": [],
-      "output": []
+      "input": [
+        "text"
+      ],
+      "output": [
+        "embeddings"
+      ]
     },
     "capabilities": [
       "streaming",
@@ -60344,10 +60570,19 @@
     "created_at": null,
     "context_window": null,
     "max_output_tokens": null,
+    "embedding_dimensions": {
+      "default": 768,
+      "configurable": true,
+      "max": 768
+    },
     "knowledge_cutoff": null,
     "modalities": {
-      "input": [],
-      "output": []
+      "input": [
+        "text"
+      ],
+      "output": [
+        "embeddings"
+      ]
     },
     "capabilities": [
       "streaming",

@@ -8,8 +8,8 @@ linha 2.0.
 
 O upstream começou a reescrita da 2.0 um dia depois de publicar a 1.16.0.
 Todas as correções que precisamos vivem sobre a refatoração de *protocols*,
-que é incompatível com `ai-agents 0.12.0` (`ruby_llm ~> 1.14`), do qual o
-Captain v2 depende. Ficamos na 1.16 e trouxemos só o que é necessário.
+que ainda não tem release estável. Ficamos na 1.16 e trouxemos só o que é
+necessário.
 
 ## Versões
 
@@ -20,9 +20,11 @@ O Chatwoot consome **sempre uma tag imutável**, nunca a branch.
 | `1.16.0` | referência ao upstream puro que serve de base (commit `2cf34b9`) |
 | `1.16.1` | primeiras correções do fork: Gemini inline images, temperatura GPT-5, `systemInstruction` |
 | `1.16.2` | semântica zero-vs-desconhecido em pricing/usage, pricing temporal, registry Gemini atualizado |
+| `1.16.3` | `embedding_dimensions` como campo próprio; `metadata.status` verificado ponta a ponta |
 
-`RubyLLM::VERSION` continua **`1.16.0`** de propósito: qualquer bump quebra o
-`~> 1.14` do `ai-agents`. O versionamento do fork vive só nas tags.
+`RubyLLM::VERSION` continua **`1.16.0`** porque marca a base upstream de onde
+o fork parte; a identidade de cada release do fork vive na tag. Não há mais
+nenhuma restrição externa de versão a respeitar.
 
 Fluxo: trabalha-se em `develop`, valida-se, publica-se uma tag nova, e o
 `Gemfile` do Chatwoot passa a apontar para ela.
@@ -108,6 +110,99 @@ trabalho nem apague informação boa:
    é re-derivado do provider, para que um preço inventado antigo não sobreviva
    só por o modelo estar fora da listagem.
 
+### 1.16.3 — dimensão de embedding como campo próprio, e `metadata.status`
+
+**O problema**
+
+O `models.dev` não tem campo para largura de vetor. Nas entradas de embedding
+ele coloca um número em `limit.output` — que o RubyLLM mapeia para
+`max_output_tokens`, o limite de *tokens gerados*. Às vezes esse número
+coincide com a dimensão (`text-embedding-3-large`: 3072), às vezes não é nada
+(`gemini-embedding-001`: **1**). Quem lê o limite de tokens como dimensão
+acerta num modelo e cria um vetor de 1 dimensão no seguinte.
+
+**A correção**
+
+`embedding_dimensions` passa a ser campo de primeira classe do `Model::Info`,
+com objeto de valor próprio (`RubyLLM::Model::EmbeddingDimensions`), entrada no
+schema do registry, coluna opcional no registry ActiveRecord e presença no
+`to_h`/JSON. `limit.output` continua significando exatamente o que sempre
+significou — e nunca mais é lido como dimensão.
+
+Formato:
+
+```json
+"embedding_dimensions": {
+  "default": 3072,
+  "configurable": true,
+  "supported": [768, 1536, 3072],
+  "min": 128,
+  "max": 3072
+}
+```
+
+- `default` — a largura devolvida quando nada é pedido;
+- `configurable` — se o modelo aceita parâmetro de dimensão (Matryoshka);
+- `supported` — a lista discreta que o provider documenta, quando existe;
+- `min`/`max` — a faixa contínua, quando o provider documenta uma.
+
+Modelo de largura fixa carrega só `{ "default": n, "configurable": false }`.
+Nada é inferido além do que o provider afirma: um modelo configurável sem faixa
+publicada (`codestral-embed`) fica sem `min`/`max` em vez de ganhar limites
+inventados, e uma largura desconhecida continua `nil`, não `0`.
+
+`gemini-embedding-001` fica representado como acima: padrão 3072, faixa
+128–3072, e 768/1536/3072 como as dimensões recomendadas pelo Google — tudo
+convivendo com `max_output_tokens: 1`, que continua sendo o que o `models.dev`
+diz sobre tokens.
+
+API no `Model::Info`:
+
+| Método | Devolve |
+|---|---|
+| `embedding_dimensions` | o objeto de valor, ou `nil` |
+| `default_embedding_dimensions` | `Integer` ou `nil` |
+| `configurable_embedding_dimensions?` | `true`/`false` |
+| `supports_embedding_dimensions?(n)` | se `n` é uma largura válida |
+
+A largura vem das capabilities do provider (OpenAI, Gemini/Vertex, Mistral,
+Bedrock), não do `models.dev`. `Gemini::Capabilities.max_tokens_for` deixou de
+devolver `768` para os embedders: aquilo era a dimensão usando o nome errado.
+
+**Normalização de modalidades**
+
+Modelos de embedding que só existem na listagem do provider (Azure e Gemini não
+reportam modalidades; Mistral diz que `mistral-embed` produz `text`) passavam
+pelo merge sem a normalização que o caminho do `models.dev` já fazia, e saíam
+do registry tipados como `chat` — fora de `RubyLLM.models.embedding_models`. A
+mesma normalização passou a valer para eles: 14 entradas corrigidas.
+
+**`metadata.status`**
+
+Verificado ponta a ponta (`models.dev` → parsing → `Model::Info` → merge com
+provider → `to_h` → JSON → refresh → ActiveRecord) e coberto por testes. O
+campo já era preservado; nenhuma camada nova foi criada. O que se acrescentou
+foram leitores tipados — `Model::Info#status` e `#deprecated?` — que aceitam a
+chave como símbolo ou string, já que uma coluna `jsonb` devolve string.
+
+Regras que continuam valendo, agora com teste que as fixa:
+
+- disponibilidade **não** se decide por nome de modelo;
+- não existe blacklist local (`gemini-2.5-*` inclusive);
+- se o `models.dev` não marca um modelo como `deprecated`, o RubyLLM devolve
+  `nil` — corrigir o dado é responsabilidade da fonte, não do fork.
+
+**Consumo no Chatwoot**
+
+Passa a ser possível ler `model.default_embedding_dimensions` em vez de usar
+`limit.output`/`max_output_tokens` como fallback de dimensão, e
+`model.status` / `model.deprecated?` para decidir se um modelo entra em novas
+seleções. Nenhuma regra de seleção ou de UI vive aqui.
+
+Registries ActiveRecord ganham a coluna `embedding_dimensions` (`jsonb`/`json`)
+via `bin/rails generate ruby_llm:upgrade_to_v1_16_3`. Sem a migração o resto do
+round-trip continua funcionando; só a largura não é persistida.
+
 ## Fontes do pricing de 3.6/3.7 Flash
 
 Preços validados contra a página oficial de pricing do Google Cloud
@@ -145,12 +240,8 @@ inócuo: mantém o que já está em `models.json`.
 
 ## Quando abandonar este fork
 
-Assim que **as duas** condições valerem:
-
-1. `ruby_llm 2.0` tiver release ou RC estável publicado no RubyGems;
-2. houver caminho compatível para o `ai-agents`, ou o Captain deixar de
-   depender dele.
+Assim que `ruby_llm 2.0` tiver release ou RC estável publicado no RubyGems.
 
 Migrar é apagar o fork e voltar para a gem publicada — checando antes se as
-correções de 1.16.2 chegaram ao upstream, porque várias delas não são
+correções de 1.16.2 e 1.16.3 chegaram ao upstream, porque várias delas não são
 cherry-picks de commits existentes.

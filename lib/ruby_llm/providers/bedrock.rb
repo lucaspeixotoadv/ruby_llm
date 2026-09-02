@@ -57,6 +57,12 @@ module RubyLLM
           %i[bedrock_api_key bedrock_secret_key bedrock_region bedrock_session_token bedrock_api_base]
         end
 
+        # Bedrock has no capabilities module; its embedding widths live with
+        # the model listing code that already knows how its ids are shaped.
+        def embedding_dimensions_for(model_id)
+          Models.embedding_dimensions_for(model_id)
+        end
+
         def configuration_requirements
           %i[bedrock_api_key bedrock_secret_key bedrock_region]
         end
