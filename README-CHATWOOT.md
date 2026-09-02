@@ -22,9 +22,10 @@ O Chatwoot consome **sempre uma tag imutável**, nunca a branch.
 | `1.16.2` | semântica zero-vs-desconhecido em pricing/usage, pricing temporal, registry Gemini atualizado |
 | `1.16.3` | `embedding_dimensions` como campo próprio; `metadata.status` verificado ponta a ponta |
 
-`RubyLLM::VERSION` continua **`1.16.0`** porque marca a base upstream de onde
-o fork parte; a identidade de cada release do fork vive na tag. Não há mais
-nenhuma restrição externa de versão a respeitar.
+`RubyLLM::VERSION` acompanha a tag: a partir da `1.16.3` a constante é a
+mesma coisa que a tag, e não mais a versão da base upstream. Ela ficou presa
+em `1.16.0` até a `1.16.2` por causa de uma restrição externa que não existe
+mais.
 
 Fluxo: trabalha-se em `develop`, valida-se, publica-se uma tag nova, e o
 `Gemfile` do Chatwoot passa a apontar para ela.
