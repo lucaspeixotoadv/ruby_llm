@@ -27,7 +27,7 @@ module RubyLLM
       end
 
       def maybe_normalize_temperature(temperature, model)
-        OpenAI::Temperature.normalize(temperature, model.id)
+        OpenAI::Temperature.normalize(temperature, model)
       end
 
       class << self

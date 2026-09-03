@@ -191,6 +191,132 @@ RSpec.describe RubyLLM::Model::Info do
     end
   end
 
+  describe 'reasoning capability' do
+    def model(capabilities: [], reasoning_options: nil)
+      metadata = reasoning_options.nil? ? {} : { reasoning_options: reasoning_options }
+      described_class.new(id: 'a-model', provider: 'openai', capabilities: capabilities, metadata: metadata)
+    end
+
+    describe '#supports_reasoning?' do
+      it 'reads the capability the registry states' do
+        expect(model(capabilities: %w[reasoning])).to be_supports_reasoning
+        expect(model(capabilities: %w[function_calling])).not_to be_supports_reasoning
+      end
+
+      it 'does not depend on the registry enumerating reasoning options' do
+        # Every OpenAI reasoning model is in this position: models.dev states
+        # that it reasons and enumerates no options for steering it. Absent
+        # options are a different fact from an absent feature.
+        optionless = model(capabilities: %w[reasoning])
+
+        expect(optionless.reasoning_options).to eq([])
+        expect(optionless).to be_supports_reasoning
+      end
+    end
+
+    describe '#supports_reasoning_effort?' do
+      it 'is unknown when the registry enumerates no options' do
+        expect(model(capabilities: %w[reasoning]).supports_reasoning_effort?).to be_nil
+        expect(model(capabilities: %w[reasoning]).supports_reasoning_effort?(:low)).to be_nil
+      end
+
+      it 'is true when effort is among the enumerated options' do
+        subject = model(reasoning_options: [{ type: 'effort', values: %w[low medium high] }])
+
+        expect(subject.supports_reasoning_effort?).to be true
+        expect(subject.reasoning_efforts).to eq(%w[low medium high])
+      end
+
+      it 'is false when the registry enumerates options without effort' do
+        subject = model(reasoning_options: [{ type: 'budget_tokens', min: 1024 }])
+
+        expect(subject.supports_reasoning_effort?).to be false
+      end
+
+      it 'checks a particular effort against the enumerated values' do
+        subject = model(reasoning_options: [{ type: 'effort', values: %w[low medium high] }])
+
+        expect(subject.supports_reasoning_effort?(:medium)).to be true
+        expect(subject.supports_reasoning_effort?('minimal')).to be false
+      end
+
+      it 'is unknown for a particular effort when the option lists no values' do
+        subject = model(reasoning_options: [{ type: 'effort' }])
+
+        expect(subject.supports_reasoning_effort?).to be true
+        expect(subject.supports_reasoning_effort?(:low)).to be_nil
+      end
+    end
+
+    describe '#supports_reasoning_budget?' do
+      it 'is unknown when the registry enumerates no options' do
+        expect(model(capabilities: %w[reasoning]).supports_reasoning_budget?).to be_nil
+        expect(model(capabilities: %w[reasoning]).supports_reasoning_budget?(2048)).to be_nil
+      end
+
+      it 'is true when budget_tokens is among the enumerated options' do
+        subject = model(reasoning_options: [{ type: 'budget_tokens', min: 1024 }])
+
+        expect(subject.supports_reasoning_budget?).to be true
+        expect(subject.minimum_reasoning_budget).to eq(1024)
+        expect(subject.maximum_reasoning_budget).to be_nil
+      end
+
+      it 'is false when the registry enumerates options without budget_tokens' do
+        subject = model(reasoning_options: [{ type: 'effort', values: %w[low high] }])
+
+        expect(subject.supports_reasoning_budget?).to be false
+      end
+
+      it 'checks a budget against the stated bounds' do
+        subject = model(reasoning_options: [{ type: 'budget_tokens', min: 512, max: 24_576 }])
+
+        expect(subject.supports_reasoning_budget?(1024)).to be true
+        expect(subject.supports_reasoning_budget?(256)).to be false
+        expect(subject.supports_reasoning_budget?(32_768)).to be false
+        expect(subject.minimum_reasoning_budget).to eq(512)
+        expect(subject.maximum_reasoning_budget).to eq(24_576)
+      end
+
+      it 'treats an unstated maximum as unbounded rather than zero' do
+        subject = model(reasoning_options: [{ type: 'budget_tokens', min: 1024 }])
+
+        expect(subject.supports_reasoning_budget?(1_000_000)).to be true
+      end
+    end
+  end
+
+  describe 'temperature capability' do
+    def model(metadata)
+      described_class.new(id: 'a-model', provider: 'openai', metadata: metadata)
+    end
+
+    it 'reports what the registry states' do
+      expect(model(temperature: true).supports_temperature?).to be true
+      expect(model(temperature: false).supports_temperature?).to be false
+    end
+
+    it 'reports nil when the registry states nothing' do
+      expect(model({}).supports_temperature?).to be_nil
+    end
+
+    it 'reads a value stored under a string key, as a database column returns it' do
+      expect(model('temperature' => false).supports_temperature?).to be false
+    end
+
+    it 'rejects a temperature only where the registry says so' do
+      expect(model(temperature: false)).to be_rejects_temperature
+      expect(model(temperature: true)).not_to be_rejects_temperature
+    end
+
+    it 'does not read silence as a refusal' do
+      # nil and false are different facts: one is "the source says nothing",
+      # the other is "the model refuses". Only the second drops the parameter.
+      expect(model({}).supports_temperature?).to be_nil
+      expect(model({})).not_to be_rejects_temperature
+    end
+  end
+
   describe '#type' do
     it 'returns chat for text output models' do
       expect(info.type).to eq('chat')

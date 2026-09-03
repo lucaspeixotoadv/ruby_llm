@@ -295,6 +295,20 @@ puts response2.content
 
 The `with_temperature` method returns the chat instance, allowing you to chain multiple configuration calls together.
 
+Not every model takes a custom temperature - OpenAI's reasoning models refuse
+the parameter. RubyLLM reads that from the registry rather than from the model
+id, and leaves the parameter out for a model that refuses it instead of quietly
+substituting a different value:
+
+```ruby
+RubyLLM.models.find('gpt-5-mini').supports_temperature?  # => false
+RubyLLM.models.find('gpt-4o').supports_temperature?      # => true
+RubyLLM.models.find('gpt-4o-search-preview').supports_temperature?  # => nil
+```
+
+`nil` is a third answer: the registry says nothing about that model, so the
+temperature is sent as given rather than dropped on a guess.
+
 ### Provider-Specific Parameters
 
 Different providers offer unique features and parameters. The `with_params` method lets you access these provider-specific capabilities while maintaining RubyLLM's unified interface. Parameters passed via `with_params` will override any defaults set by RubyLLM, giving you full control over the API request payload.

@@ -43,6 +43,7 @@ module RubyLLM
             }
           end
 
+          reject_unsupported_budget(model, thinking)
           effort = resolve_effort(thinking)
           payload[:reasoning_effort] = effort if effort
 
@@ -162,6 +163,24 @@ module RubyLLM
           return nil unless thinking
 
           thinking.respond_to?(:effort) ? thinking.effort : thinking
+        end
+
+        # Chat Completions steers reasoning with `reasoning_effort` and has no
+        # field for a token budget, so a budget cannot reach the provider at
+        # all. It is refused here rather than dropped on the way to the payload:
+        # a setting the public API accepted must not vanish in silence.
+        #
+        # This is a property of the endpoint, not of the model, which is why no
+        # registry lookup decides it - every provider speaking this dialect
+        # (Azure, DeepSeek, xAI, Perplexity, Ollama, GPUStack) has the same
+        # missing field.
+        def reject_unsupported_budget(model, thinking)
+          budget = thinking.respond_to?(:budget) ? thinking.budget : nil
+          return if budget.nil?
+
+          raise ArgumentError,
+                "Thinking budget is not supported for #{model.id}: the chat completions API takes a " \
+                'reasoning effort instead. Use with_thinking(effort:).'
         end
 
         def format_thinking(msg)

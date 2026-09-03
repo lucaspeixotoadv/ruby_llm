@@ -3,30 +3,32 @@
 module RubyLLM
   module Providers
     class OpenAI
-      # Normalizes temperature for OpenAI models with provider-specific requirements.
+      # Decides whether a temperature reaches the OpenAI-compatible payload.
+      #
+      # The registry states this per model (models.dev's `temperature` field,
+      # read through Model::Info#rejects_temperature?), so nothing here matches
+      # on a model id. An id-shaped rule cannot keep up with the naming: it read
+      # gpt-5 as a reasoning model and gpt-5-mini and gpt-5-nano as ordinary
+      # ones, and sent all three a temperature the API refuses for two of them.
+      #
+      # A model that refuses a custom temperature has the parameter left out
+      # rather than rewritten to 1.0. Substituting a value silently answers a
+      # different question than the caller asked; omitting it lets the model's
+      # own default stand, which is what the API does for these models anyway.
+      #
+      # Where the registry says nothing the temperature is sent unchanged.
+      # Silence is not a refusal, and a dropped parameter would be invisible.
       module Temperature
         module_function
 
-        def normalize(temperature, model_id)
-          if reasoning_model?(model_id) && !temperature.nil? && !temperature_close_to_one?(temperature)
-            RubyLLM.logger.debug { "Model #{model_id} requires temperature=1.0, setting that instead." }
-            1.0
-          elsif model_id.include?('-search')
-            RubyLLM.logger.debug { "Model #{model_id} does not accept temperature parameter, removing" }
-            nil
-          else
-            temperature
+        def normalize(temperature, model)
+          return temperature if temperature.nil?
+          return temperature unless model.respond_to?(:rejects_temperature?) && model.rejects_temperature?
+
+          RubyLLM.logger.debug do
+            "Model #{model.id} does not accept a custom temperature, removing it"
           end
-        end
-
-        def temperature_close_to_one?(temperature)
-          (temperature.to_f - 1.0).abs <= Float::EPSILON
-        end
-
-        def reasoning_model?(model_id)
-          model_id.match?(/^o\d/) ||                          # o1, o3, o4-mini, etc.
-            model_id.match?(/^gpt-5(\.\d+)?(-\d{4})?$/) ||    # gpt-5, gpt-5.4, gpt-5.4-2026-03-05
-            model_id.match?(/^gpt-5(\.\d+)?-pro/)             # gpt-5-pro, gpt-5.4-pro
+          nil
         end
       end
     end

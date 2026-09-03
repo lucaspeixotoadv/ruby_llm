@@ -65,6 +65,35 @@ Use `effort` to pick a qualitative depth (`:low`, `:medium`, `:high`) and `budge
 
 RubyLLM sends `effort` and `budget` exactly as provided. Check your provider's docs for supported values.
 
+A provider that has no way to send one of them raises `ArgumentError` rather than
+dropping it. OpenAI's chat completions API steers reasoning with an effort and
+has no field for a token budget, so `with_thinking(budget:)` is refused there -
+and on every provider speaking that dialect (Azure, DeepSeek, xAI, Perplexity,
+Ollama, GPUStack, Mistral). Use `with_thinking(effort:)` for those.
+
+### Asking a model what it supports
+
+The registry answers per model, so you do not have to match on model ids:
+
+```ruby
+model = RubyLLM.models.find('gpt-5.4')
+
+model.supports_reasoning?            # => true
+model.reasoning_efforts              # => [] - OpenAI states no enumeration
+model.supports_reasoning_effort?     # => nil - "the registry says nothing"
+model.supports_reasoning_budget?     # => nil
+
+claude = RubyLLM.models.find('claude-haiku-4-5')
+claude.supports_reasoning_budget?    # => true
+claude.minimum_reasoning_budget      # => 1024
+claude.supports_reasoning_budget?(512) # => false
+```
+
+These questions have three answers, not two. `true` and `false` are statements
+the registry makes; `nil` means it makes none. A model with no
+`reasoning_options` is not a model without reasoning - it is a model whose
+options the source never enumerated, which is the ordinary case for OpenAI.
+
 ## Streaming with Thinking
 
 Thinking content is delivered alongside normal content in streaming chunks:
@@ -120,7 +149,7 @@ end
 - Anthropic requires a thinking budget for older Claude models and effort-based adaptive thinking for newer models.
 - Bedrock thinking params are model-dependent; models may accept budget, effort, or provider-specific fields.
 - Gemini 2.5 uses a token budget; Gemini 3 uses effort levels.
-- OpenAI reasoning models accept `effort` but may not return thinking text or signatures.
+- OpenAI reasoning models accept `effort` but may not return thinking text or signatures. `budget` raises `ArgumentError`: the chat completions API has no field for it.
 - Perplexity sonar reasoning models stream `<think>` blocks inside content; RubyLLM extracts them after the response completes.
 - Mistral Magistral models always think and ignore `with_thinking` params. Non-magistral models warn if you pass them.
 - Ollama and GPUStack local-model thinking controls vary by backend and model. RubyLLM does not translate them; pass backend params explicitly with `with_params`.

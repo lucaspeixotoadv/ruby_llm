@@ -280,4 +280,126 @@ RSpec.describe 'model metadata semantics' do # rubocop:disable RSpec/DescribeCla
       expect(gemini_two_five.map(&:status).uniq).to eq([nil])
     end
   end
+
+  # metadata.temperature and reasoning_options are the same kind of fact as
+  # metadata.status: models.dev owns them, RubyLLM hands them over unchanged,
+  # and "the source says nothing" is a third answer that is neither yes nor no.
+  describe 'metadata.temperature' do
+    let(:refusing_payload) do
+      {
+        id: 'gpt-5-mini',
+        name: 'GPT-5 Mini',
+        temperature: false,
+        reasoning: true,
+        limit: { context: 400_000, output: 128_000 },
+        modalities: { input: %w[text image], output: ['text'] }
+      }
+    end
+
+    it 'is carried from the models.dev payload into a first-class question' do
+      model = models_dev_info(refusing_payload, 'openai', 'openai')
+
+      expect(model.metadata[:temperature]).to be false
+      expect(model.supports_temperature?).to be false
+      expect(model).to be_rejects_temperature
+    end
+
+    it 'reports support where the source states it' do
+      model = models_dev_info(refusing_payload.merge(temperature: true), 'openai', 'openai')
+
+      expect(model.supports_temperature?).to be true
+      expect(model).not_to be_rejects_temperature
+    end
+
+    it 'stays unknown when models.dev states nothing' do
+      model = models_dev_info(refusing_payload.except(:temperature), 'openai', 'openai')
+
+      expect(model.metadata).not_to have_key(:temperature)
+      expect(model.supports_temperature?).to be_nil
+      expect(model).not_to be_rejects_temperature
+    end
+
+    it 'is not invented for a model the provider listing alone knows about' do
+      provider_only = RubyLLM::Model::Info.new(
+        id: 'gpt-5-2025-08-07',
+        provider: 'openai',
+        metadata: { source: 'provider' }
+      )
+
+      merged = RubyLLM::Models.merge_models([provider_only], [])
+
+      expect(merged.first.supports_temperature?).to be_nil
+      expect(merged.first).not_to be_rejects_temperature
+    end
+
+    it 'survives the JSON round-trip the registry file performs' do
+      model = models_dev_info(refusing_payload, 'openai', 'openai')
+      reloaded = RubyLLM::Model::Info.new(
+        JSON.parse(JSON.generate([model.to_h]), symbolize_names: true).first
+      )
+
+      expect(reloaded.supports_temperature?).to be false
+    end
+
+    it 'separates the variants of one family in the shipped registry' do
+      # The three share a prefix and disagree about temperature. Only the
+      # registry can tell them apart; an id-shaped rule read gpt-5-mini and
+      # gpt-5-nano as ordinary models and sent them a parameter the API
+      # refuses.
+      models = RubyLLM::Models.new
+
+      expect(models.find('gpt-5', 'openai')).to be_rejects_temperature
+      expect(models.find('gpt-5-mini', 'openai')).to be_rejects_temperature
+      expect(models.find('gpt-5-nano', 'openai')).to be_rejects_temperature
+      expect(models.find('gpt-5-chat-latest', 'openai')).not_to be_rejects_temperature
+    end
+
+    it 'leaves the models the source never described unknown rather than refusing' do
+      unknown = RubyLLM::Models.new.find('gpt-4o-search-preview', 'openai')
+
+      expect(unknown.supports_temperature?).to be_nil
+      expect(unknown).not_to be_rejects_temperature
+    end
+  end
+
+  describe 'reasoning support and reasoning options' do
+    it 'states that a model reasons without stating how it is steered' do
+      # This is the ordinary case for OpenAI: models.dev marks the model as
+      # reasoning and enumerates no options at all. Reading the missing
+      # enumeration as "no reasoning support" would silence every one of them.
+      model = RubyLLM::Models.new.find('gpt-5.4', 'openai')
+
+      expect(model).to be_supports_reasoning
+      expect(model.reasoning_options).to eq([])
+      expect(model.supports_reasoning_effort?).to be_nil
+      expect(model.supports_reasoning_budget?).to be_nil
+    end
+
+    it 'exposes the budget bounds where the source states them' do
+      model = RubyLLM::Models.new.find('claude-haiku-4-5', 'anthropic')
+
+      expect(model).to be_supports_reasoning
+      expect(model.supports_reasoning_budget?).to be true
+      expect(model.minimum_reasoning_budget).to eq(1024)
+      expect(model.supports_reasoning_budget?(512)).to be false
+    end
+
+    it 'exposes the efforts where the source enumerates them' do
+      model = RubyLLM::Models.new.find('mistral-small-latest', 'mistral')
+
+      expect(model.reasoning_efforts).to eq(%w[none high])
+      expect(model.supports_reasoning_effort?('high')).to be true
+      expect(model.supports_reasoning_effort?('medium')).to be false
+      expect(model.supports_reasoning_budget?).to be false
+    end
+
+    it 'never reads reasoning support out of a model id' do
+      # Every model the registry marks as reasoning says so in its own
+      # capabilities; none of them is recognised by name.
+      reasoning = RubyLLM::Models.new.all.select(&:supports_reasoning?)
+
+      expect(reasoning).not_to be_empty
+      expect(reasoning.map(&:capabilities)).to all(include('reasoning'))
+    end
+  end
 end

@@ -338,4 +338,65 @@ RSpec.describe RubyLLM::Providers::OpenAI::Chat do
       end
     end
   end
+
+  describe '.render_payload with thinking' do
+    let(:user_message) { RubyLLM::Message.new(role: :user, content: 'Hello') }
+
+    before do
+      allow(described_class).to receive(:format_messages).and_return([{ role: 'user', content: 'Hello' }])
+    end
+
+    def render_payload(model_id:, thinking:, provider: 'openai', capabilities: %w[reasoning])
+      model = RubyLLM::Model::Info.new(id: model_id, provider: provider, capabilities: capabilities)
+
+      described_class.render_payload(
+        [user_message],
+        tools: {},
+        temperature: nil,
+        model: model,
+        stream: false,
+        thinking: thinking
+      )
+    end
+
+    it 'sends an effort as reasoning_effort' do
+      payload = render_payload(model_id: 'gpt-5.4', thinking: RubyLLM::Thinking::Config.new(effort: :medium))
+
+      expect(payload[:reasoning_effort]).to eq('medium')
+      expect(payload).not_to have_key(:thinking)
+    end
+
+    it 'sends no reasoning field when thinking was never configured' do
+      payload = render_payload(model_id: 'gpt-4o', thinking: nil, capabilities: [])
+
+      expect(payload).not_to have_key(:reasoning_effort)
+    end
+
+    it 'refuses a thinking budget instead of dropping it' do
+      # Chat completions has no field for a token budget, so the setting could
+      # never reach the provider. It used to disappear between with_thinking
+      # and the payload, leaving the caller with an unreasoned answer and no
+      # indication why.
+      expect do
+        render_payload(model_id: 'gpt-5.4', thinking: RubyLLM::Thinking::Config.new(budget: 2048))
+      end.to raise_error(ArgumentError, /budget is not supported for gpt-5\.4/)
+    end
+
+    it 'refuses a budget even when an effort is given alongside it' do
+      expect do
+        render_payload(
+          model_id: 'gpt-5.4',
+          thinking: RubyLLM::Thinking::Config.new(effort: :low, budget: 2048)
+        )
+      end.to raise_error(ArgumentError, /with_thinking\(effort:\)/)
+    end
+
+    it 'refuses a budget for every provider speaking this dialect' do
+      %w[azure deepseek xai perplexity].each do |provider|
+        expect do
+          render_payload(model_id: 'a-model', provider: provider, thinking: RubyLLM::Thinking::Config.new(budget: 1024))
+        end.to raise_error(ArgumentError)
+      end
+    end
+  end
 end

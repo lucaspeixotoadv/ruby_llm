@@ -497,6 +497,36 @@ RSpec.describe RubyLLM::Providers::Gemini::Chat do
     end
   end
 
+  describe '#render_payload with thinking' do
+    let(:messages) { [] }
+    let(:tools) { {} }
+    let(:model) { instance_double(RubyLLM::Model::Info, id: 'gemini-3-flash-preview', metadata: {}) }
+
+    it 'sends an effort as a thinkingLevel' do
+      payload = test_obj.send(
+        :render_payload, messages, tools:, temperature: nil, model:,
+                                   thinking: RubyLLM::Thinking::Config.new(effort: :low)
+      )
+
+      expect(payload[:generationConfig][:thinkingConfig]).to eq(includeThoughts: true, thinkingLevel: 'low')
+    end
+
+    it 'sends a budget as a thinkingBudget' do
+      payload = test_obj.send(
+        :render_payload, messages, tools:, temperature: nil, model:,
+                                   thinking: RubyLLM::Thinking::Config.new(budget: 2048)
+      )
+
+      expect(payload[:generationConfig][:thinkingConfig]).to eq(includeThoughts: true, thinkingBudget: 2048)
+    end
+
+    it 'leaves the thinking config out when thinking was never configured' do
+      payload = test_obj.send(:render_payload, messages, tools:, temperature: nil, model:)
+
+      expect(payload[:generationConfig]).not_to have_key(:thinkingConfig)
+    end
+  end
+
   describe '#render_payload system instructions' do
     let(:tools) { {} }
     let(:model) { instance_double(RubyLLM::Model::Info, id: 'gemini-2.5-flash', metadata: {}) }

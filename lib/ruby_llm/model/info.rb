@@ -98,12 +98,103 @@ module RubyLLM
         status == 'deprecated'
       end
 
+      # What the registry states about a custom temperature, in three states:
+      #
+      #   true  - the model takes a temperature
+      #   false - the model refuses one, so the parameter must be left out
+      #   nil   - the source says nothing
+      #
+      # The third is not the second. models.dev describes the models it knows;
+      # entries that reach the registry from a provider listing alone (dated
+      # snapshots, preview ids) carry no temperature field at all, and reading
+      # that silence as a refusal would drop a parameter the model accepts.
+      # Callers that must act on a refusal ask #rejects_temperature?.
+      #
+      # rubocop:disable-next Style/ReturnNilInPredicateMethodDefinition
+      def supports_temperature?
+        value = metadata.key?(:temperature) ? metadata[:temperature] : metadata['temperature']
+        return nil if value.nil?
+
+        value ? true : false
+      end
+
+      # True only where the registry states the model refuses a custom
+      # temperature. Unknown stays false here: nothing is dropped on a guess.
+      def rejects_temperature?
+        supports_temperature? == false
+      end
+
+      # True when the registry lists reasoning among the model's capabilities.
+      #
+      # Independent of #reasoning_options: models.dev states that a model
+      # reasons far more often than it enumerates how the reasoning is steered,
+      # and OpenAI's reasoning models carry no reasoning_options at all.
+      def supports_reasoning?
+        reasoning?
+      end
+
       def reasoning_option(type)
         reasoning_options.find { |option| option[:type] == type.to_s }
       end
 
       def reasoning_option_values(type)
         Array(reasoning_option(type)&.fetch(:values, nil))
+      end
+
+      # The reasoning efforts the registry enumerates, or [] when it enumerates
+      # none. Empty is "not stated" - see #supports_reasoning_effort?.
+      def reasoning_efforts
+        reasoning_option_values('effort')
+      end
+
+      # Whether the model takes a reasoning effort, and optionally whether it
+      # takes a particular one. Three states, for the same reason as
+      # #supports_temperature?:
+      #
+      #   nil   - the registry enumerates no reasoning options for this model,
+      #           so it states nothing about efforts. Absent options are not an
+      #           absent feature.
+      #   false - the registry enumerates options and effort is not among them,
+      #           or the effort asked for is outside the enumerated values.
+      #   true  - effort is among them.
+      # rubocop:disable-next Style/ReturnNilInPredicateMethodDefinition
+      def supports_reasoning_effort?(effort = nil)
+        return nil if reasoning_options.empty?
+
+        option = reasoning_option('effort')
+        return false unless option
+        return true if effort.nil?
+
+        values = Array(option[:values]).map(&:to_s)
+        return nil if values.empty?
+
+        values.include?(effort.to_s)
+      end
+
+      # Whether the model takes a thinking token budget, and optionally whether
+      # a given budget is within the range the registry states. Same three
+      # states as #supports_reasoning_effort?.
+      # rubocop:disable-next Style/ReturnNilInPredicateMethodDefinition
+      def supports_reasoning_budget?(budget = nil)
+        return nil if reasoning_options.empty?
+
+        option = reasoning_option('budget_tokens')
+        return false unless option
+        return true if budget.nil?
+
+        within_reasoning_budget?(budget)
+      end
+
+      # Smallest thinking budget the registry states for this model, or nil when
+      # it states none.
+      def minimum_reasoning_budget
+        reasoning_option('budget_tokens')&.[](:min)
+      end
+
+      # Largest thinking budget the registry states, or nil when it states none.
+      # nil is "unbounded as far as the registry knows", not zero.
+      def maximum_reasoning_budget
+        reasoning_option('budget_tokens')&.[](:max)
       end
 
       def supports_video?
@@ -175,6 +266,17 @@ module RubyLLM
       end
 
       private
+
+      def within_reasoning_budget?(budget)
+        return false unless budget.is_a?(Numeric)
+
+        minimum = minimum_reasoning_budget
+        maximum = maximum_reasoning_budget
+        return false if minimum && budget < minimum
+        return false if maximum && budget > maximum
+
+        true
+      end
 
       def reasoning_options_from(data)
         data[:reasoning_options] || metadata[:reasoning_options] || metadata['reasoning_options']
