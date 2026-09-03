@@ -21,6 +21,7 @@ O Chatwoot consome **sempre uma tag imutável**, nunca a branch.
 | `1.16.1` | primeiras correções do fork: Gemini inline images, temperatura GPT-5, `systemInstruction` |
 | `1.16.2` | semântica zero-vs-desconhecido em pricing/usage, pricing temporal, registry Gemini atualizado |
 | `1.16.3` | `embedding_dimensions` como campo próprio; `metadata.status` verificado ponta a ponta |
+| `1.16.4` | temperatura e reasoning consultados no registry, sem regex por id de modelo |
 
 `RubyLLM::VERSION` acompanha a tag: a partir da `1.16.3` a constante é a
 mesma coisa que a tag, e não mais a versão da base upstream. Ela ficou presa
@@ -204,6 +205,94 @@ Registries ActiveRecord ganham a coluna `embedding_dimensions` (`jsonb`/`json`)
 via `bin/rails generate ruby_llm:upgrade_to_v1_16_3`. Sem a migração o resto do
 round-trip continua funcionando; só a largura não é persistida.
 
+### 1.16.4 — temperatura e reasoning saem do registry, não do nome do modelo
+
+**O problema**
+
+Duas capabilities que o registry já descrevia estavam sendo re-derivadas fora
+dele.
+
+A temperatura era decidida por regex sobre `model.id`, em
+`OpenAI::Temperature`: `/^o\d/`, `/^gpt-5(\.\d+)?(-\d{4})?$/` e
+`/^gpt-5(\.\d+)?-pro/`. `gpt-5-mini` e `gpt-5-nano` não casam com nenhuma
+delas e recebiam `temperature`, que a API recusa — o `models.dev` afirma
+`temperature: false` para os dois. E os ids que casavam tinham a temperatura
+**reescrita para 1.0**, um valor que quem chamou nunca pediu, trocado em
+silêncio.
+
+O reasoning tinha o dado (`capabilities` inclui `reasoning`;
+`metadata.reasoning_options` quando a fonte enumera) e nenhuma API para
+perguntar por ele. `reasoning_options` existe em 30 modelos — anthropic 17,
+gemini 8, mistral 3, deepseek 2 — e em **nenhum** da OpenAI: ler a ausência da
+enumeração como ausência de suporte silenciaria a linha inteira.
+
+E `with_thinking(budget:)` na OpenAI era no-op silencioso: aceito pela API
+pública da lib e descartado antes do payload.
+
+**A correção**
+
+`Model::Info` ganha as perguntas, e a normalização passa a consultá-las:
+
+```ruby
+model.supports_temperature?          # true | false | nil
+model.rejects_temperature?           # só true quando o registry afirma false
+model.supports_reasoning?            # capability, independente das options
+model.reasoning_efforts              # ["low", "medium", "high"] ou []
+model.supports_reasoning_effort?(:medium)
+model.supports_reasoning_budget?(2048)
+model.minimum_reasoning_budget
+model.maximum_reasoning_budget
+```
+
+Três estados, não dois — mesma semântica de `metadata.status`. `true` e
+`false` são afirmações da fonte; `nil` é a fonte não dizendo nada. Um modelo
+sem `reasoning_options` não é um modelo sem reasoning: é um modelo cujas
+opções a fonte nunca enumerou.
+
+Modelo que recusa temperatura tem o parâmetro **omitido**, não substituído por
+1.0 — o default do próprio modelo prevalece, que é o que a API faz de todo
+jeito.
+
+`with_thinking(budget:)` na OpenAI passa a levantar `ArgumentError`. Isso é
+propriedade do *endpoint*, não do modelo: chat completions dirige o raciocínio
+por `reasoning_effort` e não tem campo para budget, então nenhuma consulta ao
+registry decide — vale igual para Azure, DeepSeek, xAI, Perplexity, Ollama,
+GPUStack e Mistral, que falam o mesmo dialeto. Mesma convenção que o Anthropic
+já usava para um budget que o modelo não aceita.
+
+Sem lista local de modelos, sem allowlist, sem exceção por família.
+
+**Payloads**
+
+| Chamada | Antes | Depois |
+|---|---|---|
+| `gpt-5-mini` + `with_temperature(0.2)` | `temperature: 0.2` (400) | omitida |
+| `gpt-5` + `with_temperature(0.2)` | `temperature: 1.0` | omitida |
+| `gpt-4o` + `with_temperature(0.2)` | `0.2` | `0.2` |
+| `gpt-5.4` + `with_thinking(effort:)` | `reasoning_effort` | `reasoning_effort` |
+| `gpt-5.4` + `with_thinking(budget:)` | descartado | `ArgumentError` |
+| Gemini | `thinkingLevel` / `thinkingBudget` | inalterado |
+
+**Ressalva**
+
+Ids que chegam ao registry só pela listagem do provider — snapshots datados
+(`o1-2024-12-17`, `gpt-5-2025-08-07`) e previews (`gpt-4o-search-preview`,
+`gpt-5-search-api`) — não têm `metadata.temperature`. Como `nil` não é `false`,
+esses passam a receber a temperatura configurada, onde a regex acertava dois
+deles por acidente. É um erro visível da API em vez de um valor trocado em
+silêncio, e o alcance é pequeno: `Chat#temperature` é `nil` por padrão, então
+só atinge quem chama `with_temperature` explicitamente nesses ids. Corrigir o
+dado é da fonte, não do fork.
+
+**Consumo no Chatwoot**
+
+Dá para perguntar ao modelo, antes de montar a chamada, se ele aceita
+temperatura e como o raciocínio dele é dirigido, em vez de manter uma tabela
+de ids do lado de cá. `nil` deve ser tratado como desconhecido, não como não.
+
+Sem migração: nada de novo é persistido, tudo sai de `metadata`, que o
+registry já carrega.
+
 ## Fontes do pricing de 3.6/3.7 Flash
 
 Preços validados contra a página oficial de pricing do Google Cloud
@@ -244,5 +333,5 @@ inócuo: mantém o que já está em `models.json`.
 Assim que `ruby_llm 2.0` tiver release ou RC estável publicado no RubyGems.
 
 Migrar é apagar o fork e voltar para a gem publicada — checando antes se as
-correções de 1.16.2 e 1.16.3 chegaram ao upstream, porque várias delas não são
-cherry-picks de commits existentes.
+correções de 1.16.2, 1.16.3 e 1.16.4 chegaram ao upstream, porque várias delas
+não são cherry-picks de commits existentes.
