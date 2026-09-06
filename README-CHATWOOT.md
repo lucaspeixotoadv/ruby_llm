@@ -22,6 +22,7 @@ O Chatwoot consome **sempre uma tag imutável**, nunca a branch.
 | `1.16.2` | semântica zero-vs-desconhecido em pricing/usage, pricing temporal, registry Gemini atualizado |
 | `1.16.3` | `embedding_dimensions` como campo próprio; `metadata.status` verificado ponta a ponta |
 | `1.16.4` | temperatura e reasoning consultados no registry, sem regex por id de modelo |
+| `1.16.5` | embeddings declaram sua finalidade: `taskType` e `title` no Gemini, com capabilities por modelo |
 
 `RubyLLM::VERSION` acompanha a tag: a partir da `1.16.3` a constante é a
 mesma coisa que a tag, e não mais a versão da base upstream. Ela ficou presa
@@ -292,6 +293,104 @@ de ids do lado de cá. `nil` deve ser tratado como desconhecido, não como não.
 
 Sem migração: nada de novo é persistido, tudo sai de `metadata`, que o
 registry já carrega.
+
+### 1.16.5 — embeddings declaram sua finalidade
+
+**O problema**
+
+O `gemini-embedding-001` produz vetores **assimétricos**: o mesmo texto
+embeddado como documento a ser indexado e como consulta que vai buscá-lo não
+dá o mesmo vetor. Quem sabe de que lado está é a aplicação, e o
+`EmbedContentRequest` tem os campos para ela dizer — `taskType` e, para
+documentos, `title`. O RubyLLM mandava só `model`, `content` e
+`outputDimensionality`; não havia como pedir nenhum dos dois.
+
+A falta é silenciosa: todo RAG construído sobre a lib indexava e consultava
+com vetores de propósito geral, sem erro e sem sintoma. Medido contra a API,
+o que ficava de fora mexe no vetor e não é cosmético —
+`cos(doc_sem_task, doc_com_RETRIEVAL_DOCUMENT) = 0.827` e
+`cos(doc_task, doc_task+title) = 0.928`.
+
+**A correção**
+
+`RubyLLM.embed` aceita `task:` e `title:`:
+
+```ruby
+# indexação
+RubyLLM.embed(texto, model: "gemini-embedding-001", dimensions: 1536,
+              task: :retrieval_document, title: "Política de reembolso")
+
+# busca
+RubyLLM.embed(consulta, model: "gemini-embedding-001", dimensions: 1536,
+              task: :retrieval_query)
+```
+
+`RubyLLM::Embedding::Task` é o vocabulário provider-agnostic — os oito tipos
+que o EmbedContent documenta (`retrieval_document`, `retrieval_query`,
+`semantic_similarity`, `classification`, `clustering`, `question_answering`,
+`fact_verification`, `code_retrieval_query`) — e guarda a única regra que liga
+tarefa e título: `title:` só acompanha `:retrieval_document`, como o Google
+afirma ("Only applicable when TaskType is `RETRIEVAL_DOCUMENT`"). Aceita
+`:retrieval_document`, `"retrieval_document"` ou `"RETRIEVAL_DOCUMENT"`.
+
+Cada adapter traduz para o que sua API tem de fato: o Gemini manda
+`taskType`/`title` em cada request do `batchEmbedContents`, o Vertex AI manda
+`task_type`/`title` em cada instance do `:predict`, e a OpenAI — cujo
+`/v1/embeddings` não tem o conceito, só `input`, `model`, `dimensions`,
+`encoding_format` e `user` — manda exatamente o que sempre mandou.
+
+**Capabilities por modelo**
+
+Quais tarefas um modelo aceita é pergunta ao `Gemini::Capabilities`, ao lado
+de `embedding_dimensions_for`; provider sem essa capability não aceita
+nenhuma. Tarefa que o modelo escolhido não honra **levanta erro**, em vez de
+ser descartada — é o que impede o uso silencioso.
+
+Isso importa mais onde a API aceita e ignora: o `batchEmbedContents` recebe um
+`taskType` para `gemini-embedding-2`, responde 200 e devolve vetor idêntico ao
+que devolve sem ele (medido: cosseno 1.0). O cookbook do Google diz que nesse
+modelo a instrução de tarefa vai no próprio texto. Recusar é a única forma de
+quem chamou descobrir que o pedido não foi honrado. O legado `embedding-001`,
+que antecede o parâmetro, também não aceita nenhuma.
+
+**Payloads**
+
+| Chamada | Antes | Depois |
+|---|---|---|
+| Gemini + `task: :retrieval_document, title:` | impossível | `taskType` + `title` no request |
+| Gemini + `task: :retrieval_query` | impossível | `taskType`, sem `title` |
+| Gemini sem `task:` | `model`/`content`/`outputDimensionality` | idêntico |
+| OpenAI, com ou sem `dimensions:` | `model`/`input`/`dimensions` | idêntico |
+| `gemini-embedding-2` + `task:` | — | `UnsupportedEmbeddingTaskError` |
+| OpenAI + `task:` | — | `UnsupportedEmbeddingTaskError` |
+| `title:` sem tarefa de documento | — | `InvalidEmbeddingTaskError` |
+
+**Dimensionalidade e normalização**
+
+`dimensions:` continua indo para o parâmetro que cada provider publica —
+`dimensions` na OpenAI, `outputDimensionality` no Gemini,
+`parameters.outputDimensionality` no Vertex. O que passa a estar documentado é
+o que vem de volta: a OpenAI normaliza os vetores em qualquer largura,
+inclusive depois de encurtar; o `gemini-embedding-001` normaliza **só** na
+largura nativa. Medido: ‖v‖ = 1.0 em 3072, 0.70 em 1536, 0.58 em 768. O
+`gemini-embedding-2` normaliza em toda largura.
+
+A lib não normaliza nada por conta própria — reescalar o vetor de um provider
+por baixo do pano seria trocar o significado da resposta em silêncio. Fica com
+quem consome, e o guia de embeddings diz quem deve o quê.
+
+**Consumo no Chatwoot**
+
+Indexar com `task: :retrieval_document` (e `title:` quando o documento tiver
+um), buscar com `task: :retrieval_query`, e manter os dois lados coerentes: um
+índice de documento consultado com vetores de propósito geral degrada o
+resultado sem acusar erro. Usando `gemini-embedding-001` em largura reduzida,
+normalizar antes de gravar. Um `title:` vale para todos os textos da mesma
+chamada — serve para trechos de um mesmo documento, não para documentos
+diferentes.
+
+Chamadas existentes seguem idênticas: sem `task:`, todo payload é byte a byte
+o que era. Sem migração — nada de novo é persistido.
 
 ## Fontes do pricing de 3.6/3.7 Flash
 
