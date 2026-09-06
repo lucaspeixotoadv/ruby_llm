@@ -11,8 +11,15 @@ module RubyLLM
           "models/#{model}:batchEmbedContents"
         end
 
-        def render_embedding_payload(text, model:, dimensions:)
-          { requests: [text].flatten.map { |t| single_embedding_payload(t, model:, dimensions:) } }
+        def render_embedding_payload(text, model:, dimensions:, task: nil, title: nil)
+          { requests: [text].flatten.map { |t| single_embedding_payload(t, model:, dimensions:, task:, title:) } }
+        end
+
+        # Google's wire spelling of a RubyLLM task name. The taskType enum of
+        # EmbedContentRequest is exactly the upcased set of task names, which
+        # is why this is a translation and not a lookup table to keep in sync.
+        def task_type_for(task)
+          task && Embedding::Task.from(task).to_s.upcase
         end
 
         def parse_embedding_response(response, model:, text:)
@@ -41,10 +48,20 @@ module RubyLLM
 
         private
 
-        def single_embedding_payload(text, model:, dimensions:)
+        # taskType, title and outputDimensionality are sent as top-level
+        # EmbedContentRequest fields. The v1beta discovery document marks them
+        # deprecated in favour of embedContentConfig, but they remain the
+        # fields the batchEmbedContents endpoint serves today and the ones this
+        # payload has always used for dimensions.
+        #
+        # title is passed through as given: whether a task may carry one is
+        # decided once, in Embedding::Task, not re-decided here.
+        def single_embedding_payload(text, model:, dimensions:, task:, title:)
           {
             model: "models/#{model}",
             content: { parts: [{ text: text.to_s }] },
+            taskType: task_type_for(task),
+            title: title,
             outputDimensionality: dimensions
           }.compact
         end

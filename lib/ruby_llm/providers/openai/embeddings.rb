@@ -11,7 +11,11 @@ module RubyLLM
           'embeddings'
         end
 
-        def render_embedding_payload(text, model:, dimensions:)
+        # OpenAI's /v1/embeddings takes input, model, dimensions,
+        # encoding_format and user - and no notion of what the embedding is
+        # for. task and title never reach the wire here; a caller that asks
+        # for one is stopped by Provider#embed rather than having it dropped.
+        def render_embedding_payload(text, model:, dimensions:, task: nil, title: nil) # rubocop:disable Lint/UnusedMethodArgument
           {
             model: model,
             input: text,

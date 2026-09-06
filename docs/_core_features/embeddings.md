@@ -25,7 +25,10 @@ After reading this guide, you will know:
 
 *   How to generate embeddings for single or multiple texts.
 *   How to choose specific embedding models.
+*   How to request a specific number of dimensions.
+*   How to tell RubyLLM whether you are embedding a document or a search query.
 *   How to use the results, including calculating similarity.
+*   Which of this each provider actually supports, and what normalization you owe your vectors.
 *   How to handle errors during embedding generation.
 *   Best practices for performance and large datasets.
 *   How to integrate embeddings in a Rails application.
@@ -118,7 +121,113 @@ This is particularly useful when:
 - Ensuring consistent dimensionality across different requests
 - Optimizing storage and query performance in your vector database
 
-Note that not all models support custom dimensions. If you specify dimensions that aren't supported by the chosen model, RubyLLM will use the model's default dimensions.
+RubyLLM sends `dimensions:` to whichever parameter the provider actually publishes:
+
+| Provider | Wire parameter | Models that accept it |
+| :------- | :------------- | :-------------------- |
+| OpenAI | `dimensions` | `text-embedding-3-small` (native 1536), `text-embedding-3-large` (native 3072). `text-embedding-ada-002` has no such parameter. |
+| Gemini | `outputDimensionality` | `gemini-embedding-001` and the `gemini-embedding-2` family (native 3072; Google recommends 768, 1536 or 3072), `text-embedding-004/005`. The legacy `embedding-001` has no such parameter. |
+| Vertex AI | `parameters.outputDimensionality` | Same models, through the `:predict` endpoint. |
+
+A model with no dimensions parameter ignores the request and returns its native width. Ask a model's registry entry what it can do rather than guessing:
+
+```ruby
+model = RubyLLM.models.find("{{ site.models.embedding_large }}")
+model.embedding_dimensions.default      # => 3072
+model.embedding_dimensions.configurable? # => true
+model.embedding_dimensions.supports?(1536) # => true
+```
+
+## Documents and Queries: Stating What an Embedding Is For
+
+A document you are indexing and a query you will search it with are not the same kind of text, and some providers produce different - asymmetric - vectors for each. Only your application knows which side it is on, so tell RubyLLM with `task:`:
+
+```ruby
+# Indexing a document
+document = RubyLLM.embed(
+  "Refunds are issued within 30 days of purchase.",
+  model: "gemini-embedding-001",
+  dimensions: 1536,
+  task: :retrieval_document,
+  title: "Refund policy"
+)
+
+# Searching for it later
+query = RubyLLM.embed(
+  "how long do refunds take?",
+  model: "gemini-embedding-001",
+  dimensions: 1536,
+  task: :retrieval_query
+)
+```
+
+`task:` is optional. A call that omits it behaves exactly as it always has, and both sides of a retrieval system embedded without a task still work - they are simply general-purpose vectors rather than retrieval-tuned ones.
+
+The task names RubyLLM understands:
+
+| Task | What it is for |
+| :--- | :------------- |
+| `:retrieval_document` | A document being indexed for later search. The only task that takes a `title:`. |
+| `:retrieval_query` | A query searching over those documents. |
+| `:semantic_similarity` | Comparing two texts for likeness. |
+| `:classification` | Text that will feed a classifier. |
+| `:clustering` | Text that will be grouped without labels. |
+| `:question_answering` | Question answering. |
+| `:fact_verification` | Fact verification. |
+| `:code_retrieval_query` | A query searching over code. |
+
+Index and search must agree: embed your corpus with `:retrieval_document` and your queries with `:retrieval_query`. Mixing a document-tuned index with query-tuned lookups (or vice versa) quietly degrades results.
+
+### Titles
+
+`title:` is the document's own title, supplied by you - RubyLLM never derives one from the text. Google states that a title produces better-quality retrieval embeddings, and that it applies only to `RETRIEVAL_DOCUMENT`. RubyLLM enforces the same rule:
+
+```ruby
+RubyLLM.embed("...", model: "gemini-embedding-001", task: :retrieval_query, title: "Refund policy")
+# => RubyLLM::InvalidEmbeddingTaskError: title: is only meaningful for an embedding task
+#    that describes a document (retrieval_document), got :retrieval_query.
+```
+
+When you batch several texts in one call, the title applies to all of them - right for chunks of a single document, wrong for chunks of different ones. Embed different documents in different calls if each needs its own title.
+
+### Provider Support
+
+`task:` is refused, not ignored, when the chosen model cannot honour it - otherwise you would store general-purpose vectors believing they were tuned for retrieval:
+
+```ruby
+RubyLLM.embed("...", model: "{{ site.models.embedding_small }}", task: :retrieval_query)
+# => RubyLLM::UnsupportedEmbeddingTaskError: openai/text-embedding-3-small cannot embed for
+#    the retrieval_query task. This model takes no task types; omit task: and title:.
+```
+
+| Provider / model | Task support |
+| :--------------- | :----------- |
+| Gemini `gemini-embedding-001`, `text-embedding-004/005`, `text-multilingual-embedding-002` | All tasks above, sent as `taskType` (plus `title` for documents). |
+| Vertex AI, same models | All tasks above, sent as each instance's `task_type` and `title`. |
+| Gemini `gemini-embedding-2` family | None. Google dropped the parameter for these models; state the task in the text itself instead. The API still *accepts* a `taskType` and returns a byte-identical vector with or without it, so RubyLLM refuses it rather than let it look honoured. |
+| Gemini `embedding-001` (legacy) | None. Predates the parameter. |
+| OpenAI, Mistral, Azure | None. Their embedding endpoints have no equivalent, and their vectors are symmetric - use the same call for documents and queries. |
+
+## Normalization
+
+Whether a vector arrives with unit length depends on the provider, and RubyLLM does not silently rescale what a provider returns:
+
+*   **OpenAI** normalizes its embeddings to length 1, including after `dimensions:` shortens them. Cosine similarity and dot product agree; nothing is owed by you.
+*   **Gemini `gemini-embedding-001`** returns normalized vectors only at its native 3072. Ask for a reduced width and the truncated vector is **not** re-normalized - you must do it before comparing vectors, or cosine similarity will be wrong. Measured against the live API: ‖v‖ = 1.0 at 3072, 0.70 at 1536, 0.58 at 768.
+*   **Gemini `gemini-embedding-2`** normalizes at every width, reduced ones included (‖v‖ = 1.0 at 768). Nothing is owed by you.
+
+```ruby
+# Required for gemini-embedding-001 at any width other than its native 3072
+def normalize(vector)
+  norm = Math.sqrt(vector.sum { |value| value * value })
+  norm.zero? ? vector : vector.map { |value| value / norm }
+end
+
+embedding = RubyLLM.embed(text, model: "gemini-embedding-001", dimensions: 1536, task: :retrieval_document)
+vectors = normalize(embedding.vectors)
+```
+
+Normalize both sides consistently - documents at index time and queries at search time - and store the normalized form so your database compares like with like.
 
 ## Using Embedding Results
 
@@ -180,7 +289,7 @@ For comprehensive error handling patterns and retry strategies, see the [Error H
 *   **Batching:** Always embed multiple texts in a single call when possible. `RubyLLM.embed(["text1", "text2"])` is much faster than calling `RubyLLM.embed` twice.
 *   **Caching/Persistence:** Embeddings are generally static for a given text and model. Store generated embeddings in your database or cache instead of regenerating them frequently.
 *   **Dimensionality:** Different models produce vectors of different lengths (dimensions). Ensure your storage and similarity calculation methods handle the correct dimensionality (e.g., `{{ site.models.embedding_small }}` uses 1536 dimensions, `{{ site.models.embedding_large }}` uses 3072).
-*   **Normalization:** Some vector databases and similarity algorithms perform better if vectors are normalized (scaled to have a length/magnitude of 1). Check the documentation for your specific use case or database.
+*   **Normalization:** See [Normalization](#normalization) above. OpenAI and `gemini-embedding-2` vectors arrive normalized; `gemini-embedding-001` vectors do not when you reduce their width, and normalizing them is your responsibility.
 
 ## Rails Integration Example
 

@@ -67,6 +67,31 @@ module RubyLLM
           /\Aembedding-001\z/ => { default: 768, configurable: false }
         }.freeze
 
+        # Which embedding models take a taskType, and which do not.
+        #
+        # Two models take none, for opposite reasons. The legacy
+        # models/embedding-001 predates the parameter - the API reference says
+        # taskType is "Not supported on earlier models". The gemini-embedding-2
+        # family dropped it: Google's own cookbook states that with
+        # gemini-embedding-2 "the task_type parameter is not supported" and
+        # task instructions belong in the prompt text instead. That model does
+        # not reject the field - batchEmbedContents returns 200 and a vector
+        # identical to the one it returns without it (measured: cosine 1.0),
+        # so refusing the task here is the only way a caller finds out it was
+        # never honoured. Everything else
+        # takes the full EmbedContentRequest.taskType enum, which RubyLLM
+        # names in Embedding::Task::NAMES.
+        #
+        # Ordered, because /\Agemini-embedding/ would otherwise swallow the
+        # gemini-embedding-2 models.
+        EMBEDDING_TASKS = [
+          [/\Agemini-embedding-2/, [].freeze],
+          [/\Aembedding-001\z/, [].freeze],
+          [/\Agemini-embedding/, RubyLLM::Embedding::Task::NAMES],
+          [/\Atext-embedding-00[45]/, RubyLLM::Embedding::Task::NAMES],
+          [/\Atext-multilingual-embedding-002/, RubyLLM::Embedding::Task::NAMES]
+        ].freeze
+
         def supports_tool_choice?(_model_id)
           true
         end
@@ -173,6 +198,13 @@ module RubyLLM
           dimensions
         end
 
+        # Embedding task types this model accepts. An unknown model - or one
+        # that is not an embedder at all - accepts none.
+        def embedding_tasks_for(model_id)
+          _, tasks = EMBEDDING_TASKS.find { |pattern, _| model_id.to_s.match?(pattern) }
+          Array(tasks)
+        end
+
         def pricing_family(model_id)
           case model_id
           when /\Agemini-3\.[67]-flash\z/ then :flash_3_6_3_7 # rubocop:disable Naming/VariableNumber
@@ -195,7 +227,7 @@ module RubyLLM
 
         module_function :context_window_for, :max_tokens_for, :critical_capabilities_for, :pricing_for,
                         :supports_vision?, :supports_functions?, :supports_structured_output?, :pricing_family,
-                        :modalities_for, :embedding_dimensions_for
+                        :modalities_for, :embedding_dimensions_for, :embedding_tasks_for
       end
     end
   end

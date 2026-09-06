@@ -11,9 +11,15 @@ module RubyLLM
           "projects/#{@config.vertexai_project_id}/locations/#{@config.vertexai_location}/publishers/google/models/#{model}:predict" # rubocop:disable Layout/LineLength
         end
 
-        def render_embedding_payload(text, model:, dimensions:) # rubocop:disable Lint/UnusedMethodArgument
+        # The predict API carries the task and the title on each instance,
+        # next to the content, and the reduced width in the shared parameters
+        # block - the field names Google's own Vertex SDK sends
+        # (TextEmbeddingInput -> {content, task_type, title}).
+        def render_embedding_payload(text, model:, dimensions:, task: nil, title: nil) # rubocop:disable Lint/UnusedMethodArgument
+          task_type = Gemini::Embeddings.task_type_for(task)
+
           {
-            instances: [text].flatten.map { |t| { content: t.to_s } }
+            instances: [text].flatten.map { |t| { content: t.to_s, task_type: task_type, title: title }.compact }
           }.tap do |payload|
             payload[:parameters] = { outputDimensionality: dimensions } if dimensions
           end

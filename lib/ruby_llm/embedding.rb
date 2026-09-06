@@ -31,12 +31,22 @@ module RubyLLM
       Cost.new(tokens: Tokens.new(input: input_tokens), model: model_info || model)
     end
 
+    # Embeds one text or an array of them.
+    #
+    # +task+ states what the embedding is for (:retrieval_document,
+    # :retrieval_query, ...) so a provider that tunes vectors per task can be
+    # asked for the right ones; +title+ names the document being embedded and
+    # only goes with a document task. Both are optional: a call that omits
+    # them behaves exactly as it did before they existed.
     def self.embed(text, # rubocop:disable Metrics/ParameterLists
                    model: nil,
                    provider: nil,
                    assume_model_exists: false,
                    context: nil,
-                   dimensions: nil)
+                   dimensions: nil,
+                   task: nil,
+                   title: nil)
+      task = Task.coerce(task, title:)
       config = context&.config || RubyLLM.config
       model ||= config.default_embedding_model
       model, provider_instance = Models.resolve(model, provider: provider, assume_exists: assume_model_exists,
@@ -49,11 +59,12 @@ module RubyLLM
         model: model_id,
         model_info: model,
         input: text,
-        dimensions: dimensions
+        dimensions: dimensions,
+        task: task&.to_sym
       }
 
       RubyLLM.instrument('embedding.ruby_llm', payload, config: config) do |event|
-        result = provider_instance.embed(text, model: model_id, dimensions:)
+        result = provider_instance.embed(text, model: model_id, dimensions:, task:, title:)
         event[:result] = result
         event[:response_model] = result.model
         event[:input_tokens] = result.input_tokens

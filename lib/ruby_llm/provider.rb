@@ -72,8 +72,10 @@ module RubyLLM
       parse_list_models_response response, slug, capabilities
     end
 
-    def embed(text, model:, dimensions:)
-      payload = render_embedding_payload(text, model:, dimensions:)
+    def embed(text, model:, dimensions:, task: nil, title: nil)
+      task = Embedding::Task.coerce(task, title:)
+      ensure_embedding_task_supported!(task, model:)
+      payload = render_embedding_payload(text, model:, dimensions:, task:, title:)
       response = @connection.post(embedding_url(model:), payload)
       parse_embedding_response(response, model:, text:)
     end
@@ -175,6 +177,18 @@ module RubyLLM
         capabilities.embedding_dimensions_for(model_id)
       end
 
+      # Embedding task types a model accepts, as RubyLLM task names.
+      #
+      # Asked of the provider's own capabilities, the same way vector widths
+      # are. A provider whose API has no task parameter has nothing to say and
+      # so accepts none - which is a fact about that API, not a gap in this
+      # list.
+      def embedding_tasks_for(model_id)
+        return [] unless capabilities.respond_to?(:embedding_tasks_for)
+
+        Array(capabilities.embedding_tasks_for(model_id))
+      end
+
       def configuration_requirements
         []
       end
@@ -244,6 +258,24 @@ module RubyLLM
       return if with.nil? && mask.nil?
 
       raise UnsupportedAttachmentError, 'image reference'
+    end
+
+    # A task RubyLLM understands but this model cannot be asked for is an
+    # error, not a parameter to drop: the caller would otherwise store
+    # general-purpose vectors believing they were tuned for retrieval.
+    def ensure_embedding_task_supported!(task, model:)
+      return if task.nil?
+
+      supported = self.class.embedding_tasks_for(model)
+      return if supported.include?(task.to_sym)
+
+      hint = if supported.empty?
+               'This model takes no task types; omit task: and title:.'
+             else
+               "Tasks it accepts: #{supported.join(', ')}."
+             end
+
+      raise UnsupportedEmbeddingTaskError, "#{slug}/#{model} cannot embed for the #{task} task. #{hint}"
     end
 
     def build_audio_file_part(file_path)

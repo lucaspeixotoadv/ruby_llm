@@ -24,6 +24,17 @@ module RubyLLM
   class InvalidToolChoiceError < StandardError; end
   class ModelNotFoundError < StandardError; end
 
+  # Raised when an embedding request does not make sense on its own terms:
+  # an unknown task name, or a title given for a task that does not describe
+  # a document. Provider-independent - see RubyLLM::Embedding::Task.
+  class InvalidEmbeddingTaskError < StandardError; end
+
+  # Raised when the requested embedding task is meaningful to RubyLLM but the
+  # chosen provider or model has no way to honour it. Failing here is
+  # deliberate: silently dropping the task would return general-purpose
+  # vectors while the caller believes it asked for retrieval-tuned ones.
+  class UnsupportedEmbeddingTaskError < StandardError; end
+
   # Raised when RubyLLM cannot format an attachment for the selected provider.
   class UnsupportedAttachmentError < StandardError
     GUIDANCE = 'Consider using a model that supports this attachment type.'
