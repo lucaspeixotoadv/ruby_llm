@@ -17,6 +17,13 @@ module RubyLLM
         @config.gemini_api_base || 'https://generativelanguage.googleapis.com/v1beta'
       end
 
+      # The function response turn places every attachment itself: inside the
+      # function response where the model takes it (Gemini 3), beside it where
+      # it does not. See `Gemini::Tools#format_tool_result`.
+      def tool_results_carry_attachments?
+        true
+      end
+
       def headers
         {
           'x-goog-api-key' => @config.gemini_api_key

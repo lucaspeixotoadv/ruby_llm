@@ -69,11 +69,11 @@ RSpec.describe 'Gemini registry' do # rubocop:disable RSpec/DescribeClass
       unpriced = RubyLLM.models.select { |m| m.provider == 'gemini' && m.pricing.to_h.empty? }
 
       expect(unpriced).not_to be_empty
-      expect(unpriced.map(&:id)).to include('lyria-3-pro-preview', 'veo-3.1-generate-preview')
+      expect(unpriced.map(&:id)).to include('veo-3.1-generate-preview', 'veo-3.1-fast-generate-preview')
     end
 
     it 'yields no cost at all rather than a cost of zero' do
-      model = gemini_model('lyria-3-pro-preview')
+      model = gemini_model('veo-3.1-generate-preview')
       cost = RubyLLM::Cost.new(tokens: RubyLLM::Tokens.new(input: 1_000, output: 1_000), model:)
 
       expect(cost.total).to be_nil

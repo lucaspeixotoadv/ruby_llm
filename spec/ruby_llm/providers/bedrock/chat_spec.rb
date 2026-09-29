@@ -36,6 +36,17 @@ RSpec.describe RubyLLM::Providers::Bedrock::Chat do
 
       expect(result).to eq([{ text: '(no output)' }])
     end
+
+    # An image is an image block, and not its base64 data URI as text.
+    it 'renders a file as the block Converse takes, not as text' do
+      image_path = File.expand_path('../../../fixtures/ruby.png', __dir__)
+
+      result = described_class.render_tool_result_content(RubyLLM::Content.new('attached', [image_path]))
+
+      expect(result.first).to eq({ text: 'attached' })
+      expect(result.last).to have_key(:image)
+      expect(result.to_json).not_to include('data:image/png;base64')
+    end
   end
 
   describe '.render_payload' do

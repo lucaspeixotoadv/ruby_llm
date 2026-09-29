@@ -173,6 +173,18 @@ module RubyLLM
           end
         end
 
+        # What a function response carries inside it, as its own parts.
+        # https://ai.google.dev/gemini-api/docs/function-calling -- "Multimodal
+        # function responses".
+        FUNCTION_RESPONSE_MIME_TYPES = %w[image/png image/jpeg image/webp application/pdf text/plain].freeze
+
+        # Files inside a function response are a Gemini 3 series feature: the
+        # documentation states it for the series, and nothing about earlier ones.
+        def multimodal_function_responses?(model_id)
+          generation = model_id.to_s[/\Agemini-(\d+)/, 1]
+          !generation.nil? && generation.to_i >= 3
+        end
+
         def supports_vision?(model_id)
           return false if model_id.match?(/text-embedding|embedding-001|aqa/)
 

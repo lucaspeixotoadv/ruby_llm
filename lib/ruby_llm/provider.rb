@@ -47,7 +47,7 @@ module RubyLLM
 
       payload = Utils.deep_merge(
         render_payload(
-          messages,
+          tool_results_carry_attachments? ? messages : ToolResultAttachments.relocate(messages),
           tools: tools,
           tool_prefs: tool_prefs,
           temperature: normalized_temperature,
@@ -66,6 +66,13 @@ module RubyLLM
       end
     end
     # rubocop:enable Metrics/ParameterLists
+
+    # Whether the API carries attachments inside a tool result. When it does
+    # not, they reach the model in a message of their own, right after the tool
+    # results (`ToolResultAttachments`), instead of being flattened into text.
+    def tool_results_carry_attachments?
+      false
+    end
 
     def list_models
       response = @connection.get models_url

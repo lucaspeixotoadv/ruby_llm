@@ -23,6 +23,7 @@ O Chatwoot consome **sempre uma tag imutável**, nunca a branch.
 | `1.16.3` | `embedding_dimensions` como campo próprio; `metadata.status` verificado ponta a ponta |
 | `1.16.4` | temperatura e reasoning consultados no registry, sem regex por id de modelo |
 | `1.16.5` | embeddings declaram sua finalidade: `taskType` e `title` no Gemini, com capabilities por modelo |
+| `1.16.6` | arquivos em resultado de tool chegam ao modelo como arquivo, em todo provider; registry atualizado |
 
 `RubyLLM::VERSION` acompanha a tag: a partir da `1.16.3` a constante é a
 mesma coisa que a tag, e não mais a versão da base upstream. Ela ficou presa
@@ -293,6 +294,61 @@ de ids do lado de cá. `nil` deve ser tratado como desconhecido, não como não.
 
 Sem migração: nada de novo é persistido, tudo sai de `metadata`, que o
 registry já carrega.
+
+### 1.16.6 — arquivos em resultado de tool
+
+**O problema**
+
+Uma tool pode responder com um `RubyLLM::Content` com anexos -- a imagem que
+ela buscou, o PDF que ela leu --, e o `Chat` guarda esse `Content` na mensagem
+de tool. O que cada provider fazia com ele:
+
+| Provider | Antes |
+|---|---|
+| Anthropic | blocos `image`/`document` dentro do `tool_result` -- correto |
+| OpenAI (e os compatíveis) | partes `image_url`/`file` numa mensagem `role: tool`, que a Chat Completions só aceita com texto: requisição recusada |
+| Gemini / Vertex AI | as partes dentro de `functionResponse.response.content`: o modelo recebia o base64 como string de dado, e não como imagem |
+| Bedrock | `attachment.for_llm` num bloco de texto: o data URI inteiro como texto |
+
+**A correção**
+
+O contrato da tool não muda: ela devolve `Content` com anexos. Cada provider
+entrega os arquivos pelo canal que a API tem para arquivos.
+
+- **Anthropic** -- como já era.
+- **Bedrock** -- os anexos viram os blocos `image`/`document` do Converse, que
+  o `toolResult` aceita, pelo mesmo `Media.render_content` das mensagens.
+- **Gemini 3** -- imagens (`png`, `jpeg`, `webp`), PDF e `text/plain` vão
+  DENTRO do `functionResponse`, em `parts` com `inline_data` e `display_name`,
+  e o `response` aponta para cada um por `{"$ref": display_name}`. É o recurso
+  "multimodal function responses", documentado para a série Gemini 3.
+- **Gemini anterior ao 3, ou tipo que o `functionResponse` não aceita** (um
+  áudio) -- o arquivo vai AO LADO, como parte do mesmo turno, depois de todas
+  as function responses daquele turno.
+- **OpenAI e todo provider sem suporte** -- `RubyLLM::ToolResultAttachments`:
+  cada resultado de tool fica com o texto dele e diz que os arquivos vêm a
+  seguir, e os arquivos de toda a sequência de resultados vão numa mensagem
+  `user` logo depois do último -- a API exige cada resultado colado na chamada
+  que o pediu. O provider declara o que a API dele faz em
+  `Provider#tool_results_carry_attachments?`; o padrão é não carregar, que é
+  o caminho seguro para um provider novo.
+
+O histórico do `Chat` não muda: a realocação acontece na lista que está sendo
+renderizada, e a mensagem de tool continua guardando o `Content` que a tool
+devolveu.
+
+**Registry**
+
+A tag também leva a atualização do `models.json`/`aliases.json` a partir do
+models.dev (`cb15660`). Três specs que fixavam exemplos no dado do registry
+foram atualizados para modelos que continuam no cenário que eles descrevem
+(`lyria-3-pro-preview` ganhou preço, `gpt-5.4` passou a enumerar opções de
+reasoning). A validação do `models.json` contra o schema voltou a rodar -- o
+`json-schema` 6.2 lia o schema pelo caminho com `JSON.parse(..., quirks_mode:)`,
+opção que o `json` 3.0 removeu, e agora recebe o schema já lido. Os dois
+exemplos de `with_schema` com `anthropic/claude-haiku-4-5`
+passaram a rodar -- o registry agora declara saída estruturada no modelo -- e
+não têm cassete gravada: precisam ser gravados com uma chave da Anthropic.
 
 ### 1.16.5 — embeddings declaram sua finalidade
 

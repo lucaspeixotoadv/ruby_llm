@@ -18,6 +18,11 @@ module RubyLLM
         {}
       end
 
+      # Converse tool results take image and document blocks.
+      def tool_results_carry_attachments?
+        true
+      end
+
       # rubocop:disable Metrics/ParameterLists
       def complete(messages, tools:, temperature:, model:, params: {}, headers: {}, schema: nil, thinking: nil,
                    tool_prefs: nil, &)

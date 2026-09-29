@@ -169,10 +169,12 @@ module RubyLLM
           [text_tool_result_block(content)]
         end
 
+        # The attachments go as the blocks Converse gives them anywhere else --
+        # image and document --, and not as text: `for_llm` of an image is a
+        # base64 data URI, which the model would read as a very long string.
         def render_content_tool_result_content(content)
-          blocks = []
-          blocks << text_tool_result_block(content.text) unless content.text.to_s.empty?
-          content.attachments.each { |attachment| blocks << text_tool_result_block(attachment.for_llm) }
+          blocks = Media.render_content(content, used_document_names: @used_document_names)
+                        .reject { |block| block.key?(:text) && block[:text].to_s.empty? }
           blocks.empty? ? [text_tool_result_block(nil)] : blocks
         end
 

@@ -94,5 +94,60 @@ RSpec.describe RubyLLM::Providers::Gemini::Tools do
                              }
                            ])
     end
+
+    # A file in a tool result is never data inside the `response` JSON: Gemini
+    # would read the base64 as a string.
+    describe 'with attachments' do
+      let(:image_path) { File.expand_path('../../../fixtures/ruby.png', __dir__) }
+      let(:audio_path) { File.expand_path('../../../fixtures/ruby.mp3', __dir__) }
+
+      def result_for(model_id, attachments)
+        test_obj.instance_variable_set(:@model, model_id)
+        message = RubyLLM::Message.new(role: :tool, tool_call_id: 'read_file',
+                                       content: RubyLLM::Content.new('{"status":"attached"}', attachments))
+        test_obj.format_tool_result(message)
+      end
+
+      it 'puts an image inside the function response on Gemini 3, pointed to by its display name' do
+        result = result_for('gemini-3.5-flash', [image_path])
+
+        expect(result.size).to eq(1)
+        function_response = result.first[:functionResponse]
+        expect(function_response[:response]).to eq(
+          name: 'read_file', content: [{ text: '{"status":"attached"}' }], attachments: [{ '$ref': 'ruby.png' }]
+        )
+        inline = function_response[:parts].first[:inline_data]
+        expect(inline).to include(mime_type: 'image/png', display_name: 'ruby.png')
+        expect(function_response[:response].to_json).not_to include(inline[:data])
+      end
+
+      it 'puts the file beside the function response on a model before Gemini 3' do
+        result = result_for('gemini-2.5-flash', [image_path])
+
+        expect(result.first[:functionResponse]).not_to have_key(:parts)
+        expect(result.first[:functionResponse][:response]).not_to have_key(:attachments)
+        expect(result[1]).to eq({ text: 'Attachments returned by read_file:' })
+        expect(result[2][:inline_data][:mime_type]).to eq('image/png')
+      end
+
+      it 'puts a type the function response does not take beside it, even on Gemini 3' do
+        result = result_for('gemini-3.5-flash', [image_path, audio_path])
+
+        expect(result.first[:functionResponse][:parts].map do |part|
+          part[:inline_data][:mime_type]
+        end).to eq(['image/png'])
+        expect(result.last[:inline_data][:mime_type]).to eq('audio/mpeg')
+      end
+
+      it 'keeps display names unique across the request' do
+        first = result_for('gemini-3.5-flash', [image_path])
+        second = result_for('gemini-3.5-flash', [image_path])
+
+        names = [first, second].map do |result|
+          result.first[:functionResponse][:parts].first[:inline_data][:display_name]
+        end
+        expect(names.uniq.size).to eq(2)
+      end
+    end
   end
 end

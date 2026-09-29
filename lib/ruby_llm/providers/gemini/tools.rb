@@ -50,6 +50,7 @@ module RubyLLM
           function_name ||= msg.tool_call_id
           content = msg.content
           content = '(no output)' if content.nil? || (content.respond_to?(:empty?) && content.empty?)
+          return format_tool_result_with_attachments(content, function_name) if tool_result_attachments?(content)
 
           [{
             functionResponse: {
@@ -60,6 +61,62 @@ module RubyLLM
               }
             }
           }]
+        end
+
+        # A tool result with files. The text stays in `response`; each file goes
+        # where this model reads it as a file, and never inside the `response`
+        # JSON, where it would be data -- base64 read as a string.
+        #
+        # Gemini 3 takes images and PDFs INSIDE the function response, as parts
+        # the `response` points to by `displayName`. Anything else -- an older
+        # model, an audio -- goes BESIDE it, as parts of the same turn, after the
+        # function responses (`MessageFormatter#collect_tool_parts`).
+        def format_tool_result_with_attachments(content, function_name)
+          inside, beside = content.attachments.partition { |attachment| inside_function_response?(attachment) }
+          names = inside.map { |attachment| unique_display_name(attachment) }
+
+          text = content.text.to_s.empty? ? '(no output)' : content.text
+          response = { name: function_name, content: Media.format_content(text) }
+          response[:attachments] = names.map { |name| { '$ref': name } } if names.any?
+          function_response = { name: function_name, response: response }
+          if inside.any?
+            function_response[:parts] = inside.zip(names).map do |attachment, name|
+              function_response_part(attachment, name)
+            end
+          end
+
+          [{ functionResponse: function_response }, *beside_parts(beside, function_name)]
+        end
+
+        def tool_result_attachments?(content)
+          content.is_a?(Content) && content.attachments.any?
+        end
+
+        def inside_function_response?(attachment)
+          Capabilities.multimodal_function_responses?(@model.to_s) &&
+            Capabilities::FUNCTION_RESPONSE_MIME_TYPES.include?(attachment.mime_type)
+        end
+
+        def function_response_part(attachment, name)
+          { inline_data: { mime_type: attachment.mime_type, display_name: name, data: attachment.encoded } }
+        end
+
+        def beside_parts(attachments, function_name)
+          return [] if attachments.empty?
+
+          [Media.format_text("Attachments returned by #{function_name}:"),
+           *attachments.map { |attachment| Media.format_content_attachment(attachment) }]
+        end
+
+        # `displayName` is how the `response` points to a part, and it has to be
+        # unique in the request.
+        def unique_display_name(attachment)
+          @tool_result_display_names ||= Set.new
+          base = attachment.filename.to_s.empty? ? 'attachment' : attachment.filename.to_s
+          name = base
+          name = "#{@tool_result_display_names.size + 1}-#{base}" while @tool_result_display_names.include?(name)
+          @tool_result_display_names << name
+          name
         end
 
         def extract_tool_calls(data) # rubocop:disable Metrics/PerceivedComplexity

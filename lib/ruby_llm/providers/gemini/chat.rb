@@ -19,6 +19,7 @@ module RubyLLM
                            thinking: nil, tool_prefs: nil)
           tool_prefs ||= {}
           @model = model.id
+          @tool_result_display_names = Set.new
           payload = {
             contents: format_messages(messages.reject { |msg| msg.role == :system }),
             generationConfig: {}
@@ -326,7 +327,10 @@ module RubyLLM
               index += 1
             end
 
-            [parts, index]
+            # The function responses first, in the order of the calls; the files
+            # that travel beside them (`Tools#format_tool_result`) after all of
+            # them.
+            [parts.partition { |part| part.key?(:functionResponse) }.flatten(1), index]
           end
 
           def build_tool_response(parts)

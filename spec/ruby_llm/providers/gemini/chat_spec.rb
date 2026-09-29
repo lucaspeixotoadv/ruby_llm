@@ -763,4 +763,31 @@ RSpec.describe RubyLLM::Providers::Gemini::Chat do
     # Verify our implementation correctly sums both token types
     expect(response.output_tokens).to eq(candidates_tokens + thoughts_tokens)
   end
+
+  # Files a tool returned travel beside the function responses on models that
+  # do not take them inside: after all of them, never between two.
+  describe '#render_payload with tool results that carry files' do
+    let(:image_path) { File.expand_path('../../../fixtures/ruby.png', __dir__) }
+    let(:model) { instance_double(RubyLLM::Model::Info, id: 'gemini-2.5-flash', metadata: {}) }
+
+    it 'keeps every function response before the files of the turn' do
+      tool_calls = {
+        'a' => RubyLLM::ToolCall.new(id: 'a', name: 'read_file', arguments: {}),
+        'b' => RubyLLM::ToolCall.new(id: 'b', name: 'weather', arguments: {})
+      }
+      messages = [
+        RubyLLM::Message.new(role: :user, content: 'read it'),
+        RubyLLM::Message.new(role: :assistant, content: '', tool_calls:),
+        RubyLLM::Message.new(role: :tool, tool_call_id: 'a', content: RubyLLM::Content.new('attached', [image_path])),
+        RubyLLM::Message.new(role: :tool, tool_call_id: 'b', content: 'sunny')
+      ]
+
+      payload = test_obj.send(:render_payload, messages, tools: {}, temperature: nil, model:)
+      parts = payload[:contents].last[:parts]
+
+      expect(payload[:contents].last[:role]).to eq('user')
+      expect(parts.first(2).map { |part| part.dig(:functionResponse, :name) }).to eq(%w[read_file weather])
+      expect(parts.last[:inline_data][:mime_type]).to eq('image/png')
+    end
+  end
 end

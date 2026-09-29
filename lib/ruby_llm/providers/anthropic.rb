@@ -15,6 +15,11 @@ module RubyLLM
         @config.anthropic_api_base || 'https://api.anthropic.com'
       end
 
+      # Tool results take image and document blocks.
+      def tool_results_carry_attachments?
+        true
+      end
+
       def headers
         {
           'x-api-key' => @config.anthropic_api_key,

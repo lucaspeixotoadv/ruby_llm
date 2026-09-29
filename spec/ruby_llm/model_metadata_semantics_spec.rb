@@ -367,7 +367,7 @@ RSpec.describe 'model metadata semantics' do # rubocop:disable RSpec/DescribeCla
       # This is the ordinary case for OpenAI: models.dev marks the model as
       # reasoning and enumerates no options at all. Reading the missing
       # enumeration as "no reasoning support" would silence every one of them.
-      model = RubyLLM::Models.new.find('gpt-5.4', 'openai')
+      model = RubyLLM::Models.new.find('gpt-5.1-2025-11-13', 'openai')
 
       expect(model).to be_supports_reasoning
       expect(model.reasoning_options).to eq([])

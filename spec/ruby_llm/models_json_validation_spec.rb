@@ -9,8 +9,11 @@ RSpec.describe RubyLLM::Models do
 
   it 'validates that models.json conforms to the schema' do
     models_data = JSON.parse(File.read(models_json_path))
+    # The schema goes in already parsed: given a path, json-schema reads it with
+    # `JSON.parse(..., quirks_mode: true)`, an option the json gem dropped in 3.0.
+    schema = JSON.parse(File.read(schema_path))
 
-    validation_errors = JSON::Validator.fully_validate(schema_path, models_data)
+    validation_errors = JSON::Validator.fully_validate(schema, models_data)
 
     expect(validation_errors).to be_empty,
                                  "models.json has validation errors:\n#{validation_errors.join("\n")}"
