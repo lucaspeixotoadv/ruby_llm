@@ -346,9 +346,9 @@ foram atualizados para modelos que continuam no cenário que eles descrevem
 reasoning). A validação do `models.json` contra o schema voltou a rodar -- o
 `json-schema` 6.2 lia o schema pelo caminho com `JSON.parse(..., quirks_mode:)`,
 opção que o `json` 3.0 removeu, e agora recebe o schema já lido. Os dois
-exemplos de `with_schema` com `anthropic/claude-haiku-4-5`
-passaram a rodar -- o registry agora declara saída estruturada no modelo -- e
-não têm cassete gravada: precisam ser gravados com uma chave da Anthropic.
+exemplos de `with_schema` com `anthropic/claude-haiku-4-5` passaram a rodar --
+o registry agora declara saída estruturada no modelo -- e ganharam cassetes
+gravadas contra a API.
 
 ### 1.16.5 — embeddings declaram sua finalidade
 
