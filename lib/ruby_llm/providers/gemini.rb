@@ -12,6 +12,7 @@ module RubyLLM
       include Gemini::Streaming
       include Gemini::Tools
       include Gemini::Media
+      include Gemini::CachedContents
 
       def api_base
         @config.gemini_api_base || 'https://generativelanguage.googleapis.com/v1beta'

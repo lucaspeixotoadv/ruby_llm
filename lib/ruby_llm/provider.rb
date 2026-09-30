@@ -58,6 +58,7 @@ module RubyLLM
         ),
         params
       )
+      payload = finalize_payload(payload)
 
       if block_given?
         stream_response @connection, payload, headers, &
@@ -66,6 +67,13 @@ module RubyLLM
       end
     end
     # rubocop:enable Metrics/ParameterLists
+
+    # The last word on the payload, after the caller's params are merged into it:
+    # a provider drops what a param makes redundant (see
+    # `Gemini::CachedContents#finalize_payload`).
+    def finalize_payload(payload)
+      payload
+    end
 
     # Whether the API carries attachments inside a tool result. When it does
     # not, they reach the model in a message of their own, right after the tool

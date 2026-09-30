@@ -24,6 +24,7 @@ O Chatwoot consome **sempre uma tag imutável**, nunca a branch.
 | `1.16.4` | temperatura e reasoning consultados no registry, sem regex por id de modelo |
 | `1.16.5` | embeddings declaram sua finalidade: `taskType` e `title` no Gemini, com capabilities por modelo |
 | `1.16.6` | arquivos em resultado de tool chegam ao modelo como arquivo, em todo provider; registry atualizado |
+| `1.16.7` | cache explícito do Gemini (`cachedContents`): criação e requisição que o referencia |
 
 `RubyLLM::VERSION` acompanha a tag: a partir da `1.16.3` a constante é a
 mesma coisa que a tag, e não mais a versão da base upstream. Ela ficou presa
@@ -490,3 +491,42 @@ Assim que `ruby_llm 2.0` tiver release ou RC estável publicado no RubyGems.
 Migrar é apagar o fork e voltar para a gem publicada — checando antes se as
 correções de 1.16.2, 1.16.3 e 1.16.4 chegaram ao upstream, porque várias delas
 não são cherry-picks de commits existentes.
+
+### 1.16.7 — cache explícito do Gemini
+
+**O problema**
+
+O cache implícito do Gemini é "melhor esforço". Medido no `gemini-3.8-flash`
+com um prompt de sistema de ~5k tokens mais ferramentas: nada abaixo de ~6.144
+tokens no total, e acima disso só acerta quando a requisição é praticamente
+idêntica à anterior -- uma rodada nova de conversa, ou a volta de uma
+ferramenta, quase nunca aproveitava o cache.
+
+O cache explícito (`cachedContents`) é lido em toda requisição que o nomeia,
+enquanto ele existir. A lib não tinha como criá-lo, e uma requisição com
+`cachedContent` levava junto `systemInstruction` e `tools`, que o Gemini
+recusa com 400 quando o cache já os contém.
+
+**O que entra**
+
+`Gemini::CachedContents`, incluído no provider:
+
+- `cached_content_payload(messages, tools:, model:)` -- o que o cache guarda:
+  o mesmo `systemInstruction` e as mesmas declarações de ferramenta que a
+  requisição levaria, formatados pelo mesmo código. Quem usa pode derivar a
+  chave do cache desse payload: prompt ou ferramenta diferente, cache
+  diferente.
+- `create_cached_content(payload, ttl:)` -- cria o cache por `ttl` segundos e
+  devolve nome, expiração e tokens. O prazo é fixo: usar o cache não o renova.
+- `Provider#finalize_payload` -- a última palavra sobre o payload, depois de
+  os `params` do chamador entrarem nele. No Gemini, uma requisição com
+  `cachedContent` perde `systemInstruction`, `tools` e `toolConfig`. As
+  ferramentas continuam registradas no `Chat`, e as chamadas que o modelo
+  fizer são executadas como sempre.
+
+Uso: `chat.with_params(cachedContent: cache.name)`.
+
+Validado contra a API: com cache de 4.973 tokens (prompt + uma ferramenta),
+as duas idas ao modelo de uma rodada com chamada de ferramenta vieram com
+`cachedContentTokenCount` 4.973. O mínimo do cache explícito no 3.8 Flash é
+1.024 tokens (`Cached content is too small ... min_total_token_count=1024`).
