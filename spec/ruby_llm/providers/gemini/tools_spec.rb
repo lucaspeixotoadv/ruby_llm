@@ -50,6 +50,42 @@ RSpec.describe RubyLLM::Providers::Gemini::Tools do
     end
   end
 
+  # A conversation that started on another provider: its function calls carry
+  # no signature, and Gemini 3 refuses them without one.
+  describe 'a function call written by another provider' do
+    def message_with_calls(signature: nil)
+      tool_calls = {
+        'a' => RubyLLM::ToolCall.new(id: 'a', name: 'case_search', arguments: {}, thought_signature: signature),
+        'b' => RubyLLM::ToolCall.new(id: 'b', name: 'case_details', arguments: {})
+      }
+      RubyLLM::Message.new(role: :assistant, content: nil, tool_calls:)
+    end
+
+    def formatted_for(model, message)
+      test_obj.instance_variable_set(:@model, model)
+      test_obj.format_tool_call(message)
+    end
+
+    it 'takes the documented signature on the first call, for Gemini 3' do
+      result = formatted_for('gemini-3.8-flash', message_with_calls)
+
+      expect(result.first[:thoughtSignature]).to eq('skip_thought_signature_validator')
+      expect(result.last).not_to have_key(:thoughtSignature)
+    end
+
+    it 'keeps the signature Gemini wrote itself' do
+      result = formatted_for('gemini-3.8-flash', message_with_calls(signature: 'real'))
+
+      expect(result.map { |part| part[:thoughtSignature] }).to eq(['real', nil])
+    end
+
+    it 'leaves earlier Gemini models without a signature' do
+      result = formatted_for('gemini-2.5-flash', message_with_calls)
+
+      expect(result.none? { |part| part.key?(:thoughtSignature) }).to be(true)
+    end
+  end
+
   describe '#format_tool_result' do
     it 'uses the tool call id for Gemini function responses' do
       message = RubyLLM::Message.new(

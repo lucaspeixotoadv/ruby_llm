@@ -43,7 +43,30 @@ module RubyLLM
             parts << part
           end
 
+          sign_foreign_tool_call(parts)
+        end
+
+        # The signature Gemini documents for a function call it did not write --
+        # one that came from another provider, or was built by hand. Gemini 3
+        # refuses a function call without a signature in the history (400
+        # "Function call is missing a thought_signature").
+        FOREIGN_THOUGHT_SIGNATURE = 'skip_thought_signature_validator'
+
+        # A conversation that started on another provider reaches Gemini 3 with
+        # function calls that carry no signature. The first call of the turn
+        # takes the documented one, which is what Gemini checks; the others may
+        # go without it, as in a parallel call Gemini wrote itself.
+        def sign_foreign_tool_call(parts)
+          calls = parts.select { |part| part.key?(:functionCall) }
+          return parts if calls.empty? || calls.any? { |part| part[:thoughtSignature] }
+          return parts unless signatures_required?
+
+          calls.first[:thoughtSignature] = FOREIGN_THOUGHT_SIGNATURE
           parts
+        end
+
+        def signatures_required?
+          @model.to_s.match?(/\Agemini-([3-9]|\d{2,})/)
         end
 
         def format_tool_result(msg, function_name = nil)

@@ -25,6 +25,7 @@ O Chatwoot consome **sempre uma tag imutável**, nunca a branch.
 | `1.16.5` | embeddings declaram sua finalidade: `taskType` e `title` no Gemini, com capabilities por modelo |
 | `1.16.6` | arquivos em resultado de tool chegam ao modelo como arquivo, em todo provider; registry atualizado |
 | `1.16.7` | cache explícito do Gemini (`cachedContents`): criação e requisição que o referencia |
+| `1.16.8` | chamada de ferramenta de outro provider aceita pelo Gemini 3 (assinatura documentada) |
 
 `RubyLLM::VERSION` acompanha a tag: a partir da `1.16.3` a constante é a
 mesma coisa que a tag, e não mais a versão da base upstream. Ela ficou presa
@@ -530,3 +531,19 @@ Validado contra a API: com cache de 4.973 tokens (prompt + uma ferramenta),
 as duas idas ao modelo de uma rodada com chamada de ferramenta vieram com
 `cachedContentTokenCount` 4.973. O mínimo do cache explícito no 3.8 Flash é
 1.024 tokens (`Cached content is too small ... min_total_token_count=1024`).
+
+### 1.16.8 — histórico de outro provider no Gemini 3
+
+O Gemini 3 recusa, com 400 ("Function call is missing a thought_signature"),
+uma conversa cujo histórico traz uma chamada de ferramenta sem assinatura. É o
+caso de uma conversa que começou em outro provider -- a troca para um modelo
+reserva no meio de uma rodada com ferramentas.
+
+`Gemini::Tools#format_tool_call` passa a dar à primeira chamada do turno a
+assinatura que o Gemini documenta para chamadas que ele não escreveu
+(`skip_thought_signature_validator`), quando nenhuma delas tem assinatura e o
+modelo é da série 3 em diante. A assinatura que o próprio Gemini escreveu
+continua indo como veio, e os modelos anteriores não recebem nada.
+
+Validado contra a API: histórico com chamada de ferramenta sem assinatura,
+`gemini-3.8-flash`, resposta normal.
