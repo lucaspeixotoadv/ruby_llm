@@ -82,11 +82,20 @@ module RubyLLM
           content_blocks = data['content'] || []
 
           text_content = extract_text_content(content_blocks)
-          thinking_content = extract_thinking_content(content_blocks)
-          thinking_signature = extract_thinking_signature(content_blocks)
+          thinking = Thinking.build(
+            text: extract_thinking_content(content_blocks),
+            signature: extract_thinking_signature(content_blocks),
+            blocks: (content_blocks if thinking_blocks?(content_blocks))
+          )
           tool_use_blocks = Tools.find_tool_uses(content_blocks)
 
-          build_message(data, text_content, thinking_content, thinking_signature, tool_use_blocks, response)
+          build_message(data, text_content, thinking, tool_use_blocks, response)
+        end
+
+        THINKING_BLOCK_TYPES = %w[thinking redacted_thinking].freeze
+
+        def thinking_blocks?(blocks)
+          blocks.any? { |block| THINKING_BLOCK_TYPES.include?(block['type']) }
         end
 
         def extract_text_content(blocks)
@@ -106,7 +115,7 @@ module RubyLLM
           thinking_block&.dig('signature') || thinking_block&.dig('data')
         end
 
-        def build_message(data, content, thinking, thinking_signature, tool_use_blocks, response) # rubocop:disable Metrics/ParameterLists
+        def build_message(data, content, thinking, tool_use_blocks, response)
           usage = data['usage'] || {}
           cached_tokens = usage['cache_read_input_tokens']
           cache_creation_tokens = usage['cache_creation_input_tokens']
@@ -121,7 +130,7 @@ module RubyLLM
           Message.new(
             role: :assistant,
             content: content,
-            thinking: Thinking.build(text: thinking, signature: thinking_signature),
+            thinking: thinking,
             tool_calls: Tools.parse_tool_calls(tool_use_blocks),
             input_tokens: usage['input_tokens'],
             output_tokens: usage['output_tokens'],
@@ -133,10 +142,17 @@ module RubyLLM
           )
         end
 
+        # A turn that carries its blocks goes back exactly as it came, whatever
+        # the thinking configuration of this request: current models think by
+        # default, and the API needs every thinking block of a tool-use turn
+        # unchanged and in place (see `Thinking#blocks`). It drops on its own the
+        # blocks the receiving model cannot read.
         def format_message(msg, thinking: nil)
           thinking_enabled = thinking&.enabled?
 
-          if msg.tool_call?
+          if msg.role == :assistant && msg.thinking&.blocks
+            { role: 'assistant', content: RubyLLM::Utils.deep_dup(msg.thinking.blocks) }
+          elsif msg.tool_call?
             format_tool_call_with_thinking(msg, thinking_enabled)
           elsif msg.tool_result?
             Tools.format_tool_result(msg)

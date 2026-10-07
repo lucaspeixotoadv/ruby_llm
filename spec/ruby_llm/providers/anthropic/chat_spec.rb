@@ -380,4 +380,51 @@ RSpec.describe RubyLLM::Providers::Anthropic::Chat do
       expect(message.cache_creation_tokens).to eq(7)
     end
   end
+
+  # Current models think by default and return the reasoning omitted: thinking
+  # blocks with an empty `thinking` and a signature. A tool-use turn can carry
+  # more than one, around its text, and the API refuses the turn back if any of
+  # them is edited, merged or dropped.
+  describe 'thinking blocks of a tool-use turn' do
+    let(:content) do
+      [
+        { 'type' => 'thinking', 'thinking' => '', 'signature' => 'sig-1' },
+        { 'type' => 'text', 'text' => 'Looking it up.' },
+        { 'type' => 'thinking', 'thinking' => '', 'signature' => 'sig-2' },
+        { 'type' => 'tool_use', 'id' => 'toolu_1', 'name' => 'search', 'input' => { 'q' => 'x' } }
+      ]
+    end
+
+    let(:message) do
+      body = { 'model' => 'claude-opus-5-5', 'stop_reason' => 'tool_use', 'content' => content,
+               'usage' => { 'input_tokens' => 10, 'output_tokens' => 5 } }
+      described_class.parse_completion_response(instance_double(Faraday::Response, body: body))
+    end
+
+    it 'keeps the turn as the API returned it' do
+      expect(message.thinking.blocks).to eq(content)
+      expect(message.content).to eq('Looking it up.')
+      expect(message.tool_calls.keys).to eq(['toolu_1'])
+    end
+
+    it 'sends the turn back unchanged, with or without a thinking configuration' do
+      effort = RubyLLM::Thinking::Config.new(effort: :high)
+
+      expect(described_class.format_message(message)).to eq(role: 'assistant', content: content)
+      expect(described_class.format_message(message, thinking: effort)).to eq(role: 'assistant', content: content)
+    end
+
+    it 'does not share the blocks with the payload' do
+      described_class.format_message(message)[:content].first['signature'] = 'changed'
+
+      expect(message.thinking.blocks.first['signature']).to eq('sig-1')
+    end
+
+    it 'keeps no blocks for a turn without thinking' do
+      body = { 'model' => 'claude-haiku-4-5', 'content' => [{ 'type' => 'text', 'text' => 'Hi!' }], 'usage' => {} }
+      plain = described_class.parse_completion_response(instance_double(Faraday::Response, body: body))
+
+      expect(plain.thinking).to be_nil
+    end
+  end
 end
