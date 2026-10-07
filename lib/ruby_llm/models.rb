@@ -379,12 +379,25 @@ module RubyLLM
         data[:max_output_tokens] = provider_model.max_output_tokens if blank_value?(data[:max_output_tokens])
         data[:modalities] = provider_model.modalities.to_h if blank_value?(data[:modalities])
         data[:pricing] = merged_pricing(models_dev_model, provider_model)
-        data[:metadata] = provider_model.metadata.merge(data[:metadata] || {})
+        data[:metadata] = merged_metadata(data[:metadata], provider_model)
         provider_capabilities = provider_model.capabilities - MODELS_DEV_AUTHORITY_CAPABILITIES
         data[:capabilities] = (models_dev_model.capabilities + provider_capabilities).uniq
         data[:embedding_dimensions] = merged_embedding_dimensions(data, provider_model)
         normalize_embedding_modalities(data)
         Model::Info.new(data)
+      end
+
+      # models.dev wins the metadata both sources state, except how a model's
+      # reasoning is steered when its provider's own listing says it
+      # (Anthropic's `/v1/models` does): the API is the first-hand source, and
+      # models.dev has left out facts it states - that Claude Opus 4.7 thinking
+      # can be turned off, for one. A model carried over from the existing
+      # registry is not a listing: its options were read back from an earlier
+      # merge and must not shadow fresh models.dev data.
+      def merged_metadata(models_dev_metadata, provider_model)
+        metadata = provider_model.metadata.merge(models_dev_metadata || {})
+        listed = provider_model.reasoning_options.any? && provider_model.metadata[:source].to_s != 'models.dev'
+        listed ? metadata.merge(reasoning_options: provider_model.reasoning_options) : metadata
       end
 
       # models.dev never states a vector width, so the provider's answer stands

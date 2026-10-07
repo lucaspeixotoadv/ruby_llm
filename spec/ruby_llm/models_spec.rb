@@ -278,6 +278,52 @@ RSpec.describe RubyLLM::Models do
       expect(merged.capabilities).to contain_exactly('function_calling', 'streaming')
     end
 
+    # models.dev states efforts only for Claude Opus 4.7; the API also says its
+    # thinking can be turned off.
+    describe 'reasoning options the provider states' do
+      let(:models_dev_model) do
+        RubyLLM::Model::Info.new(
+          id: 'claude-opus-4-7', provider: 'anthropic', capabilities: ['reasoning'],
+          metadata: { source: 'models.dev',
+                      reasoning_options: [{ type: 'effort', values: %w[low medium high xhigh max] }] }
+        )
+      end
+
+      let(:listed) do
+        [{ type: 'toggle' }, { type: 'effort', values: %w[low medium high xhigh max] }]
+      end
+
+      it 'prefers the provider listing over models.dev' do
+        provider_model = RubyLLM::Model::Info.new(id: 'claude-opus-4-7', provider: 'anthropic',
+                                                  metadata: { reasoning_options: listed })
+
+        merged = described_class.add_provider_metadata(models_dev_model, provider_model)
+
+        expect(merged.reasoning_options).to eq([{ type: 'toggle' },
+                                                { type: 'effort', values: %w[low medium high xhigh max] }])
+        expect(merged.metadata[:source]).to eq('models.dev')
+      end
+
+      it 'keeps models.dev when the provider states nothing' do
+        provider_model = RubyLLM::Model::Info.new(id: 'claude-opus-4-7', provider: 'anthropic')
+
+        merged = described_class.add_provider_metadata(models_dev_model, provider_model)
+
+        expect(merged.reasoning_options).to eq(models_dev_model.reasoning_options)
+      end
+
+      # A model carried over from the registry holds what an earlier merge read,
+      # and must not shadow what models.dev says now.
+      it 'keeps fresh models.dev data over an entry carried from the registry' do
+        carried = RubyLLM::Model::Info.new(id: 'claude-opus-4-7', provider: 'anthropic',
+                                           metadata: { source: 'models.dev', reasoning_options: listed })
+
+        merged = described_class.add_provider_metadata(models_dev_model, carried)
+
+        expect(merged.reasoning_options).to eq(models_dev_model.reasoning_options)
+      end
+    end
+
     it 'uses release_date cast to midnight as created_at' do
       model_data_with_release_date = model_data.merge(release_date: '2025-03-01')
       data = described_class.models_dev_model_to_info(model_data_with_release_date, 'openai', 'openai')

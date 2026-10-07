@@ -38,5 +38,60 @@ RSpec.describe RubyLLM::Providers::Anthropic::Models do
       expect(model.capabilities).to eq([])
       expect(model.pricing.to_h).to eq({})
     end
+
+    # The shape `/v1/models` returns: the full capability tree, with
+    # `supported` at every leaf.
+    context 'with the capabilities the API describes' do
+      def listed(capabilities, max_input_tokens: 1_000_000, max_tokens: 128_000)
+        body = { 'data' => [{ 'id' => 'claude-x', 'display_name' => 'Claude X', 'created_at' => '2026-09-22T00:00:00Z',
+                              'max_input_tokens' => max_input_tokens, 'max_tokens' => max_tokens,
+                              'capabilities' => capabilities }] }
+        described_class.parse_list_models_response(instance_double(response_class, body: body), 'anthropic', nil).first
+      end
+
+      def thinking(**types)
+        { 'supported' => true, 'types' => types.transform_keys(&:to_s).transform_values { |on| { 'supported' => on } } }
+      end
+
+      def effort(*levels)
+        %w[low medium high xhigh max].to_h { |level| [level, { 'supported' => levels.include?(level) }] }
+                                     .merge('supported' => levels.any?)
+      end
+
+      it 'reads the context window, the output ceiling and the capabilities' do
+        model = listed({ 'image_input' => { 'supported' => true }, 'structured_outputs' => { 'supported' => true },
+                         'thinking' => thinking(adaptive: true, enabled: false, disabled: false),
+                         'effort' => effort('low', 'medium', 'high', 'xhigh', 'max') })
+
+        expect(model.context_window).to eq(1_000_000)
+        expect(model.max_output_tokens).to eq(128_000)
+        expect(model.capabilities).to contain_exactly('vision', 'structured_output', 'reasoning')
+      end
+
+      # Claude Opus 5.5: adaptive only, and the API refuses `disabled`.
+      it 'states the efforts of a model whose thinking cannot be turned off' do
+        model = listed({ 'thinking' => thinking(adaptive: true, enabled: false, disabled: false),
+                         'effort' => effort('low', 'medium', 'high', 'xhigh', 'max') })
+
+        expect(model.reasoning_options).to eq([{ type: 'effort', values: %w[low medium high xhigh max] }])
+      end
+
+      # Claude Haiku 5.5: thinking can be turned off.
+      it 'states the toggle when the API takes disabled thinking' do
+        model = listed({ 'thinking' => thinking(adaptive: true, enabled: false, disabled: true),
+                         'effort' => effort('low', 'medium', 'high', 'xhigh', 'max') })
+
+        expect(model.reasoning_option('toggle')).to eq(type: 'toggle')
+      end
+
+      # Claude Haiku 4.5: a thinking budget, and no effort.
+      it 'states a budget for a model that takes one, and no effort when it takes none' do
+        model = listed({ 'thinking' => thinking(adaptive: false, enabled: true, disabled: true), 'effort' => effort },
+                       max_input_tokens: 200_000, max_tokens: 64_000)
+
+        expect(model.reasoning_options).to eq([{ type: 'toggle' }, { type: 'budget_tokens', min: 1024 }])
+        expect(model.reasoning_efforts).to eq([])
+      end
+    end
   end
 end
