@@ -273,7 +273,7 @@ module RubyLLM
           return nil unless thinking&.enabled?
 
           effort = resolve_effort(thinking)
-          return nil if effort == 'none'
+          return disabled_thinking_payload(model) if effort == 'none'
 
           budget = resolve_budget(thinking)
           if budget
@@ -286,6 +286,16 @@ module RubyLLM
           return adaptive_thinking_payload(effort) if model.reasoning_option('effort')
 
           raise ArgumentError, "Anthropic thinking effort is not supported for #{model.id}"
+        end
+
+        # Leaving `thinking` out is not turning it off: current models think by
+        # default. The registry says which models can be told not to think (the
+        # `toggle` option); asking that of one that cannot - Claude Opus 5.5,
+        # whose API refuses `disabled` - fails here instead of thinking anyway.
+        def disabled_thinking_payload(model)
+          return { thinking: { type: 'disabled' } } if model.reasoning_option('toggle')
+
+          raise ArgumentError, "Anthropic thinking cannot be turned off for #{model.id}"
         end
 
         def enabled_thinking_payload(budget)

@@ -325,15 +325,26 @@ RSpec.describe RubyLLM::Providers::Anthropic::Chat do
       )
     end
 
-    it 'omits thinking when effort is none' do
+    it 'turns thinking off when effort is none and the model can be told not to think' do
       payload = render_payload(
-        model_id: 'claude-opus-4-7',
+        model_id: 'claude-haiku-5-5',
         thinking: RubyLLM::Thinking::Config.new(effort: :none),
-        reasoning_options: [effort_option(:low, :medium, :high, :xhigh, :max)]
+        reasoning_options: [{ type: 'toggle' }, effort_option(:low, :medium, :high, :xhigh, :max)]
       )
 
-      expect(payload).not_to have_key(:thinking)
+      expect(payload[:thinking]).to eq(type: 'disabled')
       expect(payload).not_to have_key(:output_config)
+    end
+
+    # Leaving `thinking` out would not turn it off: the model thinks by default.
+    it 'raises when effort is none and the model cannot be told not to think' do
+      expect do
+        render_payload(
+          model_id: 'claude-opus-5-5',
+          thinking: RubyLLM::Thinking::Config.new(effort: :none),
+          reasoning_options: [effort_option(:low, :medium, :high, :xhigh, :max)]
+        )
+      end.to raise_error(ArgumentError, /cannot be turned off/)
     end
 
     it 'raises when a budget is used with effort-only Claude models' do
