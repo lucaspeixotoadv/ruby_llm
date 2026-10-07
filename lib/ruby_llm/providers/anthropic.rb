@@ -20,6 +20,10 @@ module RubyLLM
         true
       end
 
+      def maybe_normalize_temperature(temperature, model)
+        Temperature.normalize(temperature, model)
+      end
+
       def headers
         {
           'x-api-key' => @config.anthropic_api_key,

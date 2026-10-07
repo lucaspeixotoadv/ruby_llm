@@ -36,4 +36,21 @@ RSpec.describe RubyLLM::Providers::Anthropic do
       end
     end
   end
+
+  # Current Claude models answer 400 to any temperature; the registry says so.
+  describe 'temperature' do
+    let(:anthropic_api_base) { nil }
+
+    def model(temperature)
+      RubyLLM::Model::Info.new(id: 'claude-x', provider: 'anthropic', metadata: { temperature: temperature })
+    end
+
+    it 'leaves out a temperature the model refuses' do
+      expect(provider.send(:maybe_normalize_temperature, 0.2, model(false))).to be_nil
+    end
+
+    it 'keeps a temperature the model takes' do
+      expect(provider.send(:maybe_normalize_temperature, 0.2, model(true))).to eq(0.2)
+    end
+  end
 end

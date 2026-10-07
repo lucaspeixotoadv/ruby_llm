@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe RubyLLM::Providers::OpenAI::Temperature do
+RSpec.describe RubyLLM::Providers::Temperature do
   def model(id, temperature: :unstated)
     metadata = temperature == :unstated ? {} : { temperature: temperature }
     RubyLLM::Model::Info.new(id: id, provider: 'openai', metadata: metadata)
