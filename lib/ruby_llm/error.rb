@@ -56,4 +56,16 @@ module RubyLLM
   class ServerError < Error; end
   class ServiceUnavailableError < Error; end
   class UnauthorizedError < Error; end
+
+  # Raised when the provider answers but declines the request: Anthropic's
+  # `stop_reason: "refusal"`, a 200 whose turn carries no usable answer.
+  # `category` is what the provider says the refusal was about, when it says.
+  class RefusalError < Error
+    attr_reader :category
+
+    def initialize(response = nil, message = nil, category: nil)
+      @category = category
+      super(response, message)
+    end
+  end
 end

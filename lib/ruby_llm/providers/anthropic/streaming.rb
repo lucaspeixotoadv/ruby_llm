@@ -14,6 +14,8 @@ module RubyLLM
         end
 
         def build_chunk(data)
+          raise_refusal(data.dig('delta', 'stop_details')) if data.dig('delta', 'stop_reason') == 'refusal'
+
           delta_type = data.dig('delta', 'type')
 
           Chunk.new(

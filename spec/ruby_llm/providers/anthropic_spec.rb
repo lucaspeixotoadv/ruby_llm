@@ -53,4 +53,38 @@ RSpec.describe RubyLLM::Providers::Anthropic do
       expect(provider.send(:maybe_normalize_temperature, 0.2, model(true))).to eq(0.2)
     end
   end
+
+  # A refusal is a 200 whose turn carries no answer.
+  describe 'refusal' do
+    let(:anthropic_api_base) { nil }
+
+    let(:stop_details) { { 'type' => 'refusal', 'category' => 'cyber', 'explanation' => 'Declined.' } }
+
+    it 'raises instead of returning the refused turn as an answer' do
+      body = { 'model' => 'claude-opus-5-5', 'stop_reason' => 'refusal', 'stop_details' => stop_details,
+               'content' => [], 'usage' => { 'input_tokens' => 10, 'output_tokens' => 0 } }
+      response = instance_double(Faraday::Response, body: body)
+
+      expect { provider.send(:parse_completion_response, response) }.to raise_error(RubyLLM::RefusalError) do |error|
+        expect(error.category).to eq('cyber')
+        expect(error.message).to eq('The model declined to answer (cyber): Declined.')
+        expect(error.response).to eq(response)
+      end
+    end
+
+    it 'raises when the refusal ends a stream' do
+      event = { 'type' => 'message_delta', 'delta' => { 'stop_reason' => 'refusal', 'stop_details' => stop_details } }
+
+      expect { provider.send(:build_chunk, event) }.to raise_error(RubyLLM::RefusalError, /cyber/)
+    end
+
+    it 'returns any other turn' do
+      body = { 'model' => 'claude-opus-5-5', 'stop_reason' => 'end_turn',
+               'content' => [{ 'type' => 'text', 'text' => 'Hi!' }], 'usage' => {} }
+
+      response = instance_double(Faraday::Response, body: body)
+
+      expect(provider.send(:parse_completion_response, response).content).to eq('Hi!')
+    end
+  end
 end

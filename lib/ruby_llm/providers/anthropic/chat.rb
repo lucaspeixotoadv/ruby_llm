@@ -79,6 +79,8 @@ module RubyLLM
 
         def parse_completion_response(response)
           data = response.body
+          raise_refusal(data['stop_details'], response) if data['stop_reason'] == 'refusal'
+
           content_blocks = data['content'] || []
 
           text_content = extract_text_content(content_blocks)
@@ -90,6 +92,17 @@ module RubyLLM
           tool_use_blocks = Tools.find_tool_uses(content_blocks)
 
           build_message(data, text_content, thinking, tool_use_blocks, response)
+        end
+
+        # The model declined (`stop_reason: "refusal"`). What came before the
+        # stop is not an answer, so nothing of the turn is returned as one.
+        def raise_refusal(details, response = nil)
+          category = details&.dig('category')
+          message = ['The model declined to answer', category && "(#{category})"].compact.join(' ')
+          explanation = details&.dig('explanation')
+          message = "#{message}: #{explanation}" if explanation
+
+          raise RefusalError.new(response, message, category: category)
         end
 
         THINKING_BLOCK_TYPES = %w[thinking redacted_thinking].freeze
