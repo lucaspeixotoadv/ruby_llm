@@ -523,6 +523,29 @@ end
 
 Provider metadata is passed through verbatim—turn on `RUBYLLM_DEBUG=true` if you want to inspect the final payload while experimenting.
 
+### Strict Mode
+
+Declare `strict` to have the provider hold the model's arguments to the parameters schema (constrained decoding) instead of reading it as guidance:
+
+```ruby
+class BookingTool < RubyLLM::Tool
+  description "Books a table"
+  params({
+    type: "object",
+    properties: { guests: { type: "integer" }, notes: { type: ["string", "null"] } },
+    required: %w[guests notes],
+    additionalProperties: false
+  })
+  strict
+
+  def execute(guests:, notes:)
+    # ...
+  end
+end
+```
+
+Each provider is told in its own terms: OpenAI gets `strict: true` on the function, Anthropic gets `strict: true` on the tool, and Gemini validates the calls of the whole request (`VALIDATED` mode), so it does so only when every tool in the chat is strict. The schema is sent as declared and has to be one the provider's strict mode accepts (OpenAI, for one, wants every property in `required` and `additionalProperties: false` on every object). A tool that decides per instance overrides `strict?`.
+
 ## Advanced: Halting Tool Continuation
 
 After a tool executes, the LLM normally continues the conversation to explain what happened. In rare cases, you might want to skip this and return the tool result directly.

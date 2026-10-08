@@ -30,7 +30,8 @@ module RubyLLM
           if tools.any?
             payload[:tools] = format_tools(tools)
             # Gemini doesn't support controlling parallel tool calls
-            payload[:toolConfig] = build_tool_config(tool_prefs[:choice]) unless tool_prefs[:choice].nil?
+            tool_config = tool_config(tools, tool_prefs[:choice])
+            payload[:toolConfig] = tool_config if tool_config
           end
 
           payload

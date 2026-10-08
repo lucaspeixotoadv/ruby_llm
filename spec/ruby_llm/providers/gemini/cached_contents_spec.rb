@@ -33,6 +33,19 @@ RSpec.describe RubyLLM::Providers::Gemini::CachedContents do
       expect(payload).not_to have_key(:contents)
     end
 
+    it 'holds the calling mode of strict tools, which the request that names it cannot carry' do
+      tool_class.strict
+      payload = provider.cached_content_payload(messages, tools: tools, model: model)
+      request = provider.send(:render_payload, messages, tools: tools, temperature: nil, model: model)
+
+      expect(payload[:toolConfig]).to eq(functionCallingConfig: { mode: 'VALIDATED' })
+      expect(payload[:toolConfig]).to eq(request[:toolConfig])
+    end
+
+    it 'leaves the calling mode out for tools that are not strict' do
+      expect(provider.cached_content_payload(messages, tools: tools, model: model)).not_to have_key(:toolConfig)
+    end
+
     it 'leaves the tools out when there are none' do
       expect(provider.cached_content_payload(messages, tools: {}, model: model)).not_to have_key(:tools)
     end

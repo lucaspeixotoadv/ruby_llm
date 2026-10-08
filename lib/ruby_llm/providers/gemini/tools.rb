@@ -290,6 +290,22 @@ module RubyLLM
           end
         end
 
+        # The calling mode for these tools. Gemini validates function calls with
+        # constrained decoding for the whole request, through the `VALIDATED`
+        # mode, and not per function: it is the mode when every tool is strict
+        # and the model is free to choose. One tool that is not strict leaves the
+        # request in the default mode, since a mixed set has no mode of its own.
+        # A tool choice the caller made keeps the mode it asks for.
+        def tool_config(tools, tool_choice)
+          return { functionCallingConfig: { mode: 'VALIDATED' } } if validated_calls?(tools, tool_choice)
+
+          build_tool_config(tool_choice) unless tool_choice.nil?
+        end
+
+        def validated_calls?(tools, tool_choice)
+          [nil, :auto].include?(tool_choice) && tools.values.all?(&:strict?)
+        end
+
         def build_tool_config(tool_choice)
           {
             functionCallingConfig: {

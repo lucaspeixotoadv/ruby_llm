@@ -18,14 +18,21 @@ module RubyLLM
         CachedContent = Struct.new(:name, :expires_at, :tokens, keyword_init: true)
 
         # What a cache holds for these messages and tools: the same system
-        # instruction and tool declarations a request would carry. Callers can
+        # instruction, tool declarations and calling mode a request would carry
+        # -- the request that names the cache can carry none of them. Callers can
         # key their caches on it, so a changed prompt or tool means another cache.
         def cached_content_payload(messages, tools:, model:)
           payload = { model: "models/#{model.id}" }
           system_instruction = format_system_instruction(messages)
           payload[:systemInstruction] = system_instruction if system_instruction
-          payload[:tools] = format_tools(tools) if tools.any?
+          add_cached_tools(payload, tools) if tools.any?
           payload
+        end
+
+        def add_cached_tools(payload, tools)
+          payload[:tools] = format_tools(tools)
+          tool_config = tool_config(tools, nil)
+          payload[:toolConfig] = tool_config if tool_config
         end
 
         # Stores the payload at Gemini for `ttl` seconds. The expiry is fixed:

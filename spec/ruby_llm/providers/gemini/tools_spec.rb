@@ -186,4 +186,32 @@ RSpec.describe RubyLLM::Providers::Gemini::Tools do
       end
     end
   end
+
+  # Gemini validates function calls for the whole request, not per function.
+  describe '#tool_config' do
+    def tool(strict:)
+      Class.new(RubyLLM::Tool) { strict(enabled: strict) }.new
+    end
+
+    it 'validates the calls when every tool is strict' do
+      tools = { a: tool(strict: true), b: tool(strict: true) }
+
+      expect(test_obj.send(:tool_config, tools, nil)).to eq(functionCallingConfig: { mode: 'VALIDATED' })
+      expect(test_obj.send(:tool_config, tools, :auto)).to eq(functionCallingConfig: { mode: 'VALIDATED' })
+    end
+
+    it 'leaves the default mode when one tool is not strict' do
+      tools = { a: tool(strict: true), b: tool(strict: false) }
+
+      expect(test_obj.send(:tool_config, tools, nil)).to be_nil
+      expect(test_obj.send(:tool_config, tools, :auto)).to eq(functionCallingConfig: { mode: :auto })
+    end
+
+    it 'keeps the mode a tool choice asks for' do
+      tools = { a: tool(strict: true) }
+
+      expect(test_obj.send(:tool_config, tools, :none)).to eq(functionCallingConfig: { mode: :none })
+      expect(test_obj.send(:tool_config, tools, :required)).to eq(functionCallingConfig: { mode: 'any' })
+    end
+  end
 end
