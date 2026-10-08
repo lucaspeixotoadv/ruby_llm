@@ -253,6 +253,33 @@ RSpec.describe RubyLLM::Models do
       )
     end
 
+    it 'carries the prices models.dev publishes for prompts over a size' do
+      cost = {
+        input: 0.1, output: 0.5, cache_read: 0.01, cache_write: 0.125,
+        tiers: [{ input: 0.5, output: 2.5, cache_read: 0.05, cache_write: 0.625,
+                  tier: { type: 'context', size: 100_000 } }],
+        context_over_200k: { input: 9.0, output: 9.0 }
+      }
+
+      data = described_class.models_dev_model_to_info(model_data.merge(cost:), 'anthropic', 'anthropic')
+
+      expect(data[:pricing][:text_tokens][:standard]).to eq(
+        input_per_million: 0.1,
+        output_per_million: 0.5,
+        cache_read_input_per_million: 0.01,
+        cache_write_input_per_million: 0.125,
+        prompt_tiers: [
+          {
+            above_prompt_tokens: 100_000,
+            input_per_million: 0.5,
+            output_per_million: 2.5,
+            cache_read_input_per_million: 0.05,
+            cache_write_input_per_million: 0.625
+          }
+        ]
+      )
+    end
+
     it 'keeps models.dev authoritative for overlapping capabilities when merging provider metadata' do
       models_dev_model = RubyLLM::Model::Info.new(
         id: 'test-model',

@@ -219,6 +219,50 @@
                       "reasoning_output_per_million": {
                         "type": "number",
                         "minimum": 0
+                      },
+                      "prompt_tiers": {
+                        "type": "array",
+                        "description": "Prices for a prompt over above_prompt_tokens tokens (exclusive), replacing the base prices for the whole call",
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "above_prompt_tokens"
+                          ],
+                          "properties": {
+                            "above_prompt_tokens": {
+                              "type": "integer",
+                              "minimum": 0
+                            },
+                            "input_per_million": {
+                              "type": "number",
+                              "minimum": 0
+                            },
+                            "cache_read_input_per_million": {
+                              "type": "number",
+                              "minimum": 0
+                            },
+                            "cache_write_input_per_million": {
+                              "type": "number",
+                              "minimum": 0
+                            },
+                            "cached_input_per_million": {
+                              "type": "number",
+                              "minimum": 0
+                            },
+                            "cache_creation_input_per_million": {
+                              "type": "number",
+                              "minimum": 0
+                            },
+                            "output_per_million": {
+                              "type": "number",
+                              "minimum": 0
+                            },
+                            "reasoning_output_per_million": {
+                              "type": "number",
+                              "minimum": 0
+                            }
+                          }
+                        }
                       }
                     },
                     "not": {
@@ -272,6 +316,50 @@
                             "reasoning_output_per_million": {
                               "type": "number",
                               "minimum": 0
+                            },
+                            "prompt_tiers": {
+                              "type": "array",
+                              "description": "Prices for a prompt over above_prompt_tokens tokens (exclusive), replacing the base prices for the whole call",
+                              "items": {
+                                "type": "object",
+                                "required": [
+                                  "above_prompt_tokens"
+                                ],
+                                "properties": {
+                                  "above_prompt_tokens": {
+                                    "type": "integer",
+                                    "minimum": 0
+                                  },
+                                  "input_per_million": {
+                                    "type": "number",
+                                    "minimum": 0
+                                  },
+                                  "cache_read_input_per_million": {
+                                    "type": "number",
+                                    "minimum": 0
+                                  },
+                                  "cache_write_input_per_million": {
+                                    "type": "number",
+                                    "minimum": 0
+                                  },
+                                  "cached_input_per_million": {
+                                    "type": "number",
+                                    "minimum": 0
+                                  },
+                                  "cache_creation_input_per_million": {
+                                    "type": "number",
+                                    "minimum": 0
+                                  },
+                                  "output_per_million": {
+                                    "type": "number",
+                                    "minimum": 0
+                                  },
+                                  "reasoning_output_per_million": {
+                                    "type": "number",
+                                    "minimum": 0
+                                  }
+                                }
+                              }
                             }
                           }
                         }

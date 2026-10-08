@@ -9,6 +9,10 @@ module RubyLLM
     # PricingSchedule and the reader methods resolve the price in effect now.
     # Use #at to resolve the price in effect at some other moment - which is what
     # a consumer needs when pricing a call it made in the past.
+    #
+    # A set of prices may also change with the size of the prompt (see
+    # PricingTier). The readers then answer for a prompt of unknown size - the
+    # base prices - unless given +prompt_tokens+; #for_prompt pins a size.
     class PricingCategory
       attr_reader :standard_schedule, :batch_schedule
 
@@ -17,39 +21,44 @@ module RubyLLM
         @batch_schedule = build_slot(data[:batch])
       end
 
-      def standard(at: nil)
-        resolve(@standard_schedule, at)
+      def standard(at: nil, prompt_tokens: nil)
+        resolve(@standard_schedule, at)&.for_prompt(prompt_tokens)
       end
 
-      def batch(at: nil)
-        resolve(@batch_schedule, at)
+      def batch(at: nil, prompt_tokens: nil)
+        resolve(@batch_schedule, at)&.for_prompt(prompt_tokens)
       end
 
       # This category as it stood at a given time.
       def at(time)
-        Resolved.new(self, time)
+        Resolved.new(self, time:)
       end
 
-      def input(at: nil)
-        standard(at:)&.input_per_million
+      # This category for a prompt of a given size.
+      def for_prompt(prompt_tokens)
+        Resolved.new(self, prompt_tokens:)
       end
 
-      def output(at: nil)
-        standard(at:)&.output_per_million
+      def input(at: nil, prompt_tokens: nil)
+        standard(at:, prompt_tokens:)&.input_per_million
       end
 
-      def cache_read_input(at: nil)
-        tier = standard(at:)
+      def output(at: nil, prompt_tokens: nil)
+        standard(at:, prompt_tokens:)&.output_per_million
+      end
+
+      def cache_read_input(at: nil, prompt_tokens: nil)
+        tier = standard(at:, prompt_tokens:)
         tier&.cache_read_input_per_million || tier&.cached_input_per_million
       end
 
-      def cache_write_input(at: nil)
-        tier = standard(at:)
+      def cache_write_input(at: nil, prompt_tokens: nil)
+        tier = standard(at:, prompt_tokens:)
         tier&.cache_write_input_per_million || tier&.cache_creation_input_per_million
       end
 
-      def reasoning_output(at: nil)
-        standard(at:)&.reasoning_output_per_million
+      def reasoning_output(at: nil, prompt_tokens: nil)
+        standard(at:, prompt_tokens:)&.reasoning_output_per_million
       end
 
       alias cached_input cache_read_input
@@ -71,16 +80,26 @@ module RubyLLM
         result
       end
 
-      # A PricingCategory pinned to a moment in time, so the ordinary readers
-      # answer for that moment.
+      # A PricingCategory pinned to a moment in time and to a prompt size, so the
+      # ordinary readers answer for that moment and that size. Either may be
+      # left open, and pinned later.
       class Resolved
-        def initialize(category, time)
+        def initialize(category, time: nil, prompt_tokens: nil)
           @category = category
           @time = time
+          @prompt_tokens = prompt_tokens
+        end
+
+        def at(time)
+          Resolved.new(@category, time:, prompt_tokens: @prompt_tokens)
+        end
+
+        def for_prompt(prompt_tokens)
+          Resolved.new(@category, time: @time, prompt_tokens:)
         end
 
         %i[standard batch input output cache_read_input cache_write_input reasoning_output].each do |name|
-          define_method(name) { @category.public_send(name, at: @time) }
+          define_method(name) { @category.public_send(name, at: @time, prompt_tokens: @prompt_tokens) }
         end
 
         alias cached_input cache_read_input

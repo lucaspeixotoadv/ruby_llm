@@ -231,6 +231,14 @@ puts cost.total
 
 Costs use RubyLLM's normalized token buckets: standard input, billable output, cache read, cache write, and separately priced thinking when the model registry exposes a distinct reasoning-token price. See [Tracking Token Usage]({% link _core_features/chat.md %}#tracking-token-usage) for the provider comparison table and what RubyLLM exposes consistently across providers.
 
+Some models charge more once the prompt grows past a size (Claude Haiku 5.5 above 100,000 tokens, Gemini Pro above 200,000, GPT-5.5 above 272,000). The registry records those prices as `prompt_tiers`, and a cost prices every component of the call at the tier its prompt falls in. The prompt size is `tokens.prompt`: standard input plus cache reads and writes, which is how the providers measure it. `cost.text_pricing` returns the prices that were applied:
+
+```ruby
+cost = model.cost_for(response.tokens)
+cost.text_pricing.input # the input price for this call's prompt size
+model.pricing.text_tokens.for_prompt(250_000).input
+```
+
 Most applications use the shorter helpers on messages, chats, and agents:
 
 ```ruby
