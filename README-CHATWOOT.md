@@ -28,6 +28,7 @@ O Chatwoot consome **sempre uma tag imutável**, nunca a branch.
 | `1.16.8` | chamada de ferramenta de outro provider aceita pelo Gemini 3 (assinatura documentada) |
 | `1.16.9` | Anthropic com os modelos Claude 5.x: raciocínio devolvido íntegro, temperatura, recusa, `disabled`, `/v1/models`; registry atualizado |
 | `1.16.10` | ferramenta em modo estrito: `strict: true` na OpenAI e na Anthropic, modo `VALIDATED` no Gemini; preço por faixa de tamanho do prompt (`prompt_tiers`) |
+| `1.16.11` | escrita no cache de 1 hora da Anthropic separada da de 5 minutos, em tokens, preço e custo |
 
 `RubyLLM::VERSION` acompanha a tag: a partir da `1.16.3` a constante é a
 mesma coisa que a tag, e não mais a versão da base upstream. Ela ficou presa
@@ -708,3 +709,30 @@ faixa pelo `Tokens#prompt` da chamada (entrada + leitura + escrita de cache, a
 regra dos três providers) e expõe em `#text_pricing` os preços aplicados.
 Modelo sem faixa: nada muda. O `rake models` lê as faixas (`tiers`) do
 models.dev. Detalhes em `docs/_advanced/models.md`.
+
+### 1.16.11 — escrita no cache de 1 hora da Anthropic
+
+A Anthropic grava o cache de prompt por 5 minutos (1,25x a entrada) ou por 1
+hora (2x a entrada), e informa quanto da escrita foi para cada prazo
+(`usage.cache_creation.ephemeral_1h_input_tokens`). A lib somava tudo em
+`cache_creation_tokens` e precificava pelo preço de 5 minutos: a escrita de 1
+hora saía subestimada.
+
+- **Tokens**: `Tokens#cache_creation` continua sendo a escrita inteira (o que
+  a API chama de `cache_creation_input_tokens`, e o que entra em
+  `Tokens#prompt`). `Tokens#cache_creation_1h` (alias `cache_write_1h`) é a
+  parte de 1 hora; nula quando a resposta não detalha a escrita. O parser da
+  Anthropic preenche os dois, na resposta inteira e no streaming.
+- **Preço**: `cache_write_1h_input_per_million` no registro (schema,
+  `PricingTier`, `PricingCategory#cache_write_1h_input`, com `prompt_tiers` e
+  `schedule`). Preenchido nos modelos Claude da página oficial de preços
+  (https://platform.claude.com/docs/en/about-claude/pricing), Haiku 5.5 com a
+  faixa acima de 100 mil tokens. O models.dev ainda não publica esse preço; o
+  `rake models` lê `cost.cache_write_1h` quando publicar. Até lá, um refresh do
+  registro apaga o valor e ele tem de ser reposto (a escrita de 1 hora volta a
+  ser desconhecida, e não zero).
+- **Custo**: `RubyLLM::Cost` ganha o componente `cache_write_1h` (a parte de 1
+  hora pelo preço de 1 hora); `cache_write` passa a ser o resto da escrita, pelo
+  preço de 5 minutos. Cada componente é um número de tokens vezes um preço, e
+  o custo gravado de cada um se reproduz pelo preço gravado. Com tokens de 1
+  hora e sem preço de 1 hora, o componente é `missing?` e o total, nulo.
