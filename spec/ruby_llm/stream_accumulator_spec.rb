@@ -54,4 +54,15 @@ RSpec.describe RubyLLM::StreamAccumulator do
       )
     end
   end
+
+  describe 'content with think tags' do
+    it 'keeps the text as the provider sent it' do
+      accumulator = described_class.new
+      ['<think>a</think>', 'b'].each { |text| accumulator.add(RubyLLM::Chunk.new(role: :assistant, content: text)) }
+      message = accumulator.to_message(nil)
+
+      expect(message.content).to eq('<think>a</think>b')
+      expect(message.thinking).to be_nil
+    end
+  end
 end
