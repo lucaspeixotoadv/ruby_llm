@@ -27,7 +27,7 @@ O Chatwoot consome **sempre uma tag imutável**, nunca a branch.
 | `1.16.7` | cache explícito do Gemini (`cachedContents`): criação e requisição que o referencia |
 | `1.16.8` | chamada de ferramenta de outro provider aceita pelo Gemini 3 (assinatura documentada) |
 | `1.16.9` | Anthropic com os modelos Claude 5.x: raciocínio devolvido íntegro, temperatura, recusa, `disabled`, `/v1/models`; registry atualizado |
-| `1.16.10` | ferramenta em modo estrito: `strict: true` na OpenAI e na Anthropic, modo `VALIDATED` no Gemini |
+| `1.16.10` | ferramenta em modo estrito: `strict: true` na OpenAI e na Anthropic, modo `VALIDATED` no Gemini; preço por faixa de tamanho do prompt (`prompt_tiers`) |
 
 `RubyLLM::VERSION` acompanha a tag: a partir da `1.16.3` a constante é a
 mesma coisa que a tag, e não mais a versão da base upstream. Ela ficou presa
@@ -694,3 +694,17 @@ estritos por natureza).
 
 Quais ferramentas vão estritas, e o schema estrito de cada provider, é decisão
 do produto (`Llm::StrictContract` e `Llm::StrictSchema`).
+
+### 1.16.10 — preço por faixa de tamanho do prompt
+
+Alguns modelos cobram mais quando o prompt passa de um tamanho (Claude Haiku
+5.5 acima de 100 mil tokens, Gemini Pro acima de 200 mil, vários GPT acima de
+272 mil), e o preço mais alto vale para a chamada inteira. O registro guardava
+só a primeira faixa, e o custo dessas chamadas saía subestimado.
+
+Um conjunto de preços pode ter `prompt_tiers`, cada uma com
+`above_prompt_tokens` e os preços daquela faixa. `RubyLLM::Cost` escolhe a
+faixa pelo `Tokens#prompt` da chamada (entrada + leitura + escrita de cache, a
+regra dos três providers) e expõe em `#text_pricing` os preços aplicados.
+Modelo sem faixa: nada muda. O `rake models` lê as faixas (`tiers`) do
+models.dev. Detalhes em `docs/_advanced/models.md`.
