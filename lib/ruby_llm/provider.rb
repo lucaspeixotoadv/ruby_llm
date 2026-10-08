@@ -40,7 +40,7 @@ module RubyLLM
       self.class.configuration_requirements
     end
 
-    # rubocop:disable Metrics/ParameterLists
+    # rubocop:disable-next Metrics/ParameterLists
     def complete(messages, tools:, temperature:, model:, params: {}, headers: {}, schema: nil, thinking: nil,
                  tool_prefs: nil, &)
       normalized_temperature = maybe_normalize_temperature(temperature, model)
@@ -66,7 +66,6 @@ module RubyLLM
         sync_response @connection, payload, headers
       end
     end
-    # rubocop:enable Metrics/ParameterLists
 
     # The last word on the payload, after the caller's params are merged into it:
     # a provider drops what a param makes redundant (see

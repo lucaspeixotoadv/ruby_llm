@@ -14,7 +14,7 @@ module RubyLLM
           "models/#{@model}:generateContent"
         end
 
-        # rubocop:disable Metrics/ParameterLists,Lint/UnusedMethodArgument
+        # rubocop:disable-next Metrics/ParameterLists,Lint/UnusedMethodArgument
         def render_payload(messages, tools:, temperature:, model:, stream: false, schema: nil,
                            thinking: nil, tool_prefs: nil)
           tool_prefs ||= {}
@@ -22,15 +22,10 @@ module RubyLLM
           @tool_result_display_names = Set.new
           payload = {
             contents: format_messages(messages.reject { |msg| msg.role == :system }),
-            generationConfig: {}
+            generationConfig: generation_config(model, temperature: temperature, schema: schema, thinking: thinking)
           }
           system_instruction = format_system_instruction(messages)
           payload[:systemInstruction] = system_instruction if system_instruction
-
-          payload[:generationConfig][:temperature] = temperature unless temperature.nil?
-
-          payload[:generationConfig].merge!(structured_output_config(schema, model)) if schema
-          payload[:generationConfig][:thinkingConfig] = build_thinking_config(model, thinking) if thinking&.enabled?
 
           if tools.any?
             payload[:tools] = format_tools(tools)
@@ -40,7 +35,14 @@ module RubyLLM
 
           payload
         end
-        # rubocop:enable Metrics/ParameterLists,Lint/UnusedMethodArgument
+
+        def generation_config(model, temperature:, schema:, thinking:)
+          config = {}
+          config[:temperature] = temperature unless temperature.nil?
+          config.merge!(structured_output_config(schema, model)) if schema
+          config[:thinkingConfig] = build_thinking_config(model, thinking) if thinking&.enabled?
+          config
+        end
 
         def build_thinking_config(_model, thinking)
           config = { includeThoughts: true }

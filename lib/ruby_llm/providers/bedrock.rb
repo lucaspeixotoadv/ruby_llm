@@ -23,7 +23,7 @@ module RubyLLM
         true
       end
 
-      # rubocop:disable Metrics/ParameterLists
+      # rubocop:disable-next Metrics/ParameterLists
       def complete(messages, tools:, temperature:, model:, params: {}, headers: {}, schema: nil, thinking: nil,
                    tool_prefs: nil, &)
         normalized_params = normalize_params(params, model:)
@@ -41,7 +41,6 @@ module RubyLLM
           &
         )
       end
-      # rubocop:enable Metrics/ParameterLists
 
       def parse_error(response)
         return if response.body.nil? || response.body.empty?

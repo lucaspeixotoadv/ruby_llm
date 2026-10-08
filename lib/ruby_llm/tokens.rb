@@ -5,7 +5,7 @@ module RubyLLM
   class Tokens
     attr_reader :input, :output, :cached, :cache_creation, :thinking
 
-    # rubocop:disable Metrics/ParameterLists
+    # rubocop:disable-next Metrics/ParameterLists
     def initialize(input: nil, output: nil, cached: nil, cache_creation: nil, thinking: nil, reasoning: nil)
       @input = input
       @output = output
@@ -13,9 +13,8 @@ module RubyLLM
       @cache_creation = cache_creation
       @thinking = thinking || reasoning
     end
-    # rubocop:enable Metrics/ParameterLists
 
-    # rubocop:disable Metrics/ParameterLists
+    # rubocop:disable-next Metrics/ParameterLists
     def self.build(input: nil, output: nil, cached: nil, cache_creation: nil, thinking: nil, reasoning: nil)
       return nil if [input, output, cached, cache_creation, thinking, reasoning].all?(&:nil?)
 
@@ -28,7 +27,6 @@ module RubyLLM
         reasoning: reasoning
       )
     end
-    # rubocop:enable Metrics/ParameterLists
 
     def to_h
       {

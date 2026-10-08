@@ -7,7 +7,7 @@ module RubyLLM
       module Chat
         module_function
 
-        # rubocop:disable Metrics/ParameterLists,Metrics/PerceivedComplexity
+        # rubocop:disable-next Metrics/ParameterLists,Metrics/PerceivedComplexity
         def render_payload(messages, tools:, temperature:, model:, stream: false, schema: nil,
                            thinking: nil, tool_prefs: nil)
           tool_prefs ||= {}
@@ -48,7 +48,6 @@ module RubyLLM
           payload[:stream_options] = { include_usage: true } if stream
           payload
         end
-        # rubocop:enable Metrics/ParameterLists,Metrics/PerceivedComplexity
 
         def parse_completion_response(response)
           data = response.body

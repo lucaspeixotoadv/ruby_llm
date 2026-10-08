@@ -335,7 +335,7 @@ module RubyLLM
         @message = messages_association.create!(role: :assistant, content: '')
       end
 
-      # rubocop:disable Metrics/PerceivedComplexity
+      # rubocop:disable-next Metrics/PerceivedComplexity
       def persist_message_completion(message)
         return unless message
 
@@ -374,7 +374,6 @@ module RubyLLM
           persist_tool_calls(message.tool_calls) if message.tool_calls.present?
         end
       end
-      # rubocop:enable Metrics/PerceivedComplexity
 
       def persist_tool_calls(tool_calls, message_record: @message)
         tool_call_klass = message_record.tool_calls_association.klass

@@ -11,7 +11,7 @@ module RubyLLM
           'v1/messages'
         end
 
-        # rubocop:disable Metrics/ParameterLists
+        # rubocop:disable-next Metrics/ParameterLists
         def render_payload(messages, tools:, temperature:, model:, stream: false,
                            schema: nil, thinking: nil, tool_prefs: nil)
           tool_prefs ||= {}
@@ -22,7 +22,6 @@ module RubyLLM
             add_optional_fields(payload, system_content:, tools:, tool_prefs:, temperature:, schema:)
           end
         end
-        # rubocop:enable Metrics/ParameterLists
 
         def separate_messages(messages)
           messages.partition { |msg| msg.role == :system }

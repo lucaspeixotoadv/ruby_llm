@@ -23,7 +23,7 @@ module RubyLLM
       new(amounts:, missing:, has_tokens: true)
     end
 
-    # rubocop:disable Metrics/ParameterLists
+    # rubocop:disable-next Metrics/ParameterLists
     def initialize(tokens: nil, model: nil, amounts: nil, missing: [], has_tokens: nil, category: :text_tokens,
                    input_details: nil, at: nil)
       @tokens = tokens
@@ -38,7 +38,6 @@ module RubyLLM
       # historical usage against a price that has since changed.
       @at = at
     end
-    # rubocop:enable Metrics/ParameterLists
 
     def input
       amount_for(:input)
