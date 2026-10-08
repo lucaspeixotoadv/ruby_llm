@@ -28,7 +28,7 @@ O Chatwoot consome **sempre uma tag imutável**, nunca a branch.
 | `1.16.8` | chamada de ferramenta de outro provider aceita pelo Gemini 3 (assinatura documentada) |
 | `1.16.9` | Anthropic com os modelos Claude 5.x: raciocínio devolvido íntegro, temperatura, recusa, `disabled`, `/v1/models`; registry atualizado |
 | `1.16.10` | ferramenta em modo estrito: `strict: true` na OpenAI e na Anthropic, modo `VALIDATED` no Gemini; preço por faixa de tamanho do prompt (`prompt_tiers`) |
-| `1.16.11` | escrita no cache de 1 hora da Anthropic separada da de 5 minutos, em tokens, preço e custo |
+| `1.16.11` | escrita no cache de 1 hora da Anthropic separada da de 5 minutos, em tokens, preço e custo; correções de ReDoS do upstream (CVE-2026-67987 e 67991) |
 
 `RubyLLM::VERSION` acompanha a tag: a partir da `1.16.3` a constante é a
 mesma coisa que a tag, e não mais a versão da base upstream. Ela ficou presa
@@ -736,3 +736,20 @@ hora saía subestimada.
   preço de 5 minutos. Cada componente é um número de tokens vezes um preço, e
   o custo gravado de cada um se reproduz pelo preço gravado. Com tokens de 1
   hora e sem preço de 1 hora, o componente é `missing?` e o total, nulo.
+
+### 1.16.11 — correções de ReDoS trazidas do upstream
+
+As advisories CVE-2026-67987, 67989 e 67991 (regex de tempo polinomial no Ruby
+3.1) só têm correção na linha 2.0 do upstream; aqui elas foram portadas:
+
+- **67991** (`9d75b033`): o nome de ferramentas e agentes (`Tool#name`,
+  `Agent.prompt_agent_path`) passa por `Utils.underscore`, com lookarounds de
+  largura fixa no lugar da regex que voltava atrás.
+- **67987** (`5e88411f`): sai a leitura de tags `<think>` do conteúdo, no
+  caminho síncrono e no streaming. Nenhum provider suportado devolve raciocínio
+  assim; ele vem dos campos próprios.
+- **67989**: não se aplica. As regex de `voxtral` da Mistral não existem neste
+  fork.
+
+O `bundler-audit` continua apontando as três, porque a base de advisories só
+reconhece como corrigidas as versões a partir da 2.0.
