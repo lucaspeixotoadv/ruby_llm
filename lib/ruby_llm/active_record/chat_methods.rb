@@ -350,13 +350,11 @@ module RubyLLM
             input_tokens: message.input_tokens,
             output_tokens: message.output_tokens
           }
-          attrs[:cached_tokens] = message.cached_tokens if @message.has_attribute?(:cached_tokens)
-          if @message.has_attribute?(:cache_creation_tokens)
-            attrs[:cache_creation_tokens] = message.cache_creation_tokens
+          %i[cached_tokens cache_creation_tokens cache_creation_1h_tokens thinking_tokens].each do |column|
+            attrs[column] = message.public_send(column) if @message.has_attribute?(column)
           end
           attrs[:thinking_text] = message.thinking&.text if @message.has_attribute?(:thinking_text)
           attrs[:thinking_signature] = message.thinking&.signature if @message.has_attribute?(:thinking_signature)
-          attrs[:thinking_tokens] = message.thinking_tokens if @message.has_attribute?(:thinking_tokens)
 
           # Add model association dynamically
           attrs[self.class.model_association_name] = model_association

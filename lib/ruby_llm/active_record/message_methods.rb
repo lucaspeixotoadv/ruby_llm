@@ -39,6 +39,7 @@ module RubyLLM
           output: output_tokens,
           cached: cached_value,
           cache_creation: cache_creation_value,
+          cache_creation_1h: cache_creation_1h_value,
           thinking: thinking_tokens_value
         )
       end
@@ -53,6 +54,10 @@ module RubyLLM
 
       def cache_write_tokens
         cache_creation_value
+      end
+
+      def cache_write_1h_tokens
+        cache_creation_1h_value
       end
 
       def to_partial_path
@@ -87,6 +92,10 @@ module RubyLLM
 
       def cache_creation_value
         has_attribute?(:cache_creation_tokens) ? self[:cache_creation_tokens] : nil
+      end
+
+      def cache_creation_1h_value
+        has_attribute?(:cache_creation_1h_tokens) ? self[:cache_creation_1h_tokens] : nil
       end
 
       def thinking_tokens_value

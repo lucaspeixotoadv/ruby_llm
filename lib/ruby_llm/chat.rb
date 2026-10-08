@@ -271,6 +271,7 @@ module RubyLLM
           event[:output_tokens] = result.output_tokens
           event[:cached_tokens] = result.cached_tokens
           event[:cache_creation_tokens] = result.cache_creation_tokens
+          event[:cache_creation_1h_tokens] = result.cache_creation_1h_tokens
           event[:thinking_tokens] = result.thinking_tokens
         end
       end

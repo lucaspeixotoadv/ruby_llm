@@ -19,6 +19,7 @@ module RubyLLM
         output: options[:output_tokens],
         cached: options[:cached_tokens],
         cache_creation: options[:cache_creation_tokens],
+        cache_creation_1h: options[:cache_creation_1h_tokens],
         thinking: options[:thinking_tokens],
         reasoning: options[:reasoning_tokens]
       )
@@ -64,12 +65,20 @@ module RubyLLM
       tokens&.cache_creation
     end
 
+    def cache_creation_1h_tokens
+      tokens&.cache_creation_1h
+    end
+
     def cache_read_tokens
       tokens&.cache_read
     end
 
     def cache_write_tokens
       tokens&.cache_write
+    end
+
+    def cache_write_1h_tokens
+      tokens&.cache_write_1h
     end
 
     def thinking_tokens

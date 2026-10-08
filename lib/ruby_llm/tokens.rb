@@ -2,27 +2,37 @@
 
 module RubyLLM
   # Represents token usage for a response.
+  #
+  # +cache_creation+ is every token written to the prompt cache, as the
+  # provider reports it. Anthropic writes to a 5-minute or a 1-hour cache, at
+  # different prices, and says how much of the write went to each:
+  # +cache_creation_1h+ is the part of +cache_creation+ that went to the 1-hour
+  # cache, nil when the provider did not break the write down.
   class Tokens
-    attr_reader :input, :output, :cached, :cache_creation, :thinking
+    attr_reader :input, :output, :cached, :cache_creation, :cache_creation_1h, :thinking
 
     # rubocop:disable-next Metrics/ParameterLists
-    def initialize(input: nil, output: nil, cached: nil, cache_creation: nil, thinking: nil, reasoning: nil)
+    def initialize(input: nil, output: nil, cached: nil, cache_creation: nil, cache_creation_1h: nil, thinking: nil,
+                   reasoning: nil)
       @input = input
       @output = output
       @cached = cached
       @cache_creation = cache_creation
+      @cache_creation_1h = cache_creation_1h
       @thinking = thinking || reasoning
     end
 
     # rubocop:disable-next Metrics/ParameterLists
-    def self.build(input: nil, output: nil, cached: nil, cache_creation: nil, thinking: nil, reasoning: nil)
-      return nil if [input, output, cached, cache_creation, thinking, reasoning].all?(&:nil?)
+    def self.build(input: nil, output: nil, cached: nil, cache_creation: nil, cache_creation_1h: nil, thinking: nil,
+                   reasoning: nil)
+      return nil if [input, output, cached, cache_creation, cache_creation_1h, thinking, reasoning].all?(&:nil?)
 
       new(
         input: input,
         output: output,
         cached: cached,
         cache_creation: cache_creation,
+        cache_creation_1h: cache_creation_1h,
         thinking: thinking,
         reasoning: reasoning
       )
@@ -34,6 +44,7 @@ module RubyLLM
         output_tokens: output,
         cached_tokens: cached,
         cache_creation_tokens: cache_creation,
+        cache_creation_1h_tokens: cache_creation_1h,
         thinking_tokens: thinking
       }.compact
     end
@@ -61,6 +72,10 @@ module RubyLLM
 
     def cache_write
       cache_creation
+    end
+
+    def cache_write_1h
+      cache_creation_1h
     end
   end
 end

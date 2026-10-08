@@ -17,6 +17,7 @@ module RubyLLM
       @output_tokens = nil
       @cached_tokens = nil
       @cache_creation_tokens = nil
+      @cache_creation_1h_tokens = nil
       @thinking_tokens = nil
       @inside_think_tag = false
       @pending_think_tag = +''
@@ -47,6 +48,7 @@ module RubyLLM
           output: @output_tokens,
           cached: @cached_tokens,
           cache_creation: @cache_creation_tokens,
+          cache_creation_1h: @cache_creation_1h_tokens,
           thinking: @thinking_tokens
         ),
         model_id: model_id,
@@ -131,6 +133,7 @@ module RubyLLM
       @output_tokens = chunk.output_tokens if chunk.output_tokens
       @cached_tokens = chunk.cached_tokens if chunk.cached_tokens
       @cache_creation_tokens = chunk.cache_creation_tokens if chunk.cache_creation_tokens
+      @cache_creation_1h_tokens = chunk.cache_creation_1h_tokens if chunk.cache_creation_1h_tokens
       @thinking_tokens = chunk.thinking_tokens if chunk.thinking_tokens
     end
 

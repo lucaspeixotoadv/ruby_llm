@@ -129,11 +129,6 @@ module RubyLLM
 
         def build_message(data, content, thinking, tool_use_blocks, response)
           usage = data['usage'] || {}
-          cached_tokens = usage['cache_read_input_tokens']
-          cache_creation_tokens = usage['cache_creation_input_tokens']
-          if cache_creation_tokens.nil? && usage['cache_creation'].is_a?(Hash)
-            cache_creation_tokens = usage['cache_creation'].values.compact.sum
-          end
           thinking_tokens = usage.dig('output_tokens_details', 'thinking_tokens') ||
                             usage.dig('output_tokens_details', 'reasoning_tokens') ||
                             usage['thinking_tokens'] ||
@@ -146,12 +141,31 @@ module RubyLLM
             tool_calls: Tools.parse_tool_calls(tool_use_blocks),
             input_tokens: usage['input_tokens'],
             output_tokens: usage['output_tokens'],
-            cached_tokens: cached_tokens,
-            cache_creation_tokens: cache_creation_tokens,
+            cached_tokens: usage['cache_read_input_tokens'],
+            cache_creation_tokens: cache_creation_tokens(usage),
+            cache_creation_1h_tokens: cache_creation_1h_tokens(usage),
             thinking_tokens: thinking_tokens,
             model_id: data['model'],
             raw: response
           )
+        end
+
+        # Every token written to the cache. `cache_creation_input_tokens` is the
+        # sum of the `cache_creation` breakdown, which is read when the total
+        # is missing.
+        def cache_creation_tokens(usage)
+          total = usage['cache_creation_input_tokens']
+          return total if total
+
+          breakdown = usage['cache_creation']
+          breakdown.values.compact.sum if breakdown.is_a?(Hash)
+        end
+
+        # The part of the write that went to the 1-hour cache, priced apart from
+        # the 5-minute one. nil when the response does not break the write down.
+        def cache_creation_1h_tokens(usage)
+          breakdown = usage['cache_creation']
+          breakdown['ephemeral_1h_input_tokens'] if breakdown.is_a?(Hash)
         end
 
         # A turn that carries its blocks goes back exactly as it came, whatever

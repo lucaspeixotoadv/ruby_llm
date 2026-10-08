@@ -94,4 +94,22 @@ RSpec.describe RubyLLM::Providers::Anthropic::Models do
       end
     end
   end
+
+  describe 'the cache write of a stream event' do
+    it 'reads the 1-hour part from the message_start usage' do
+      data = { 'type' => 'message_start',
+               'message' => { 'usage' => { 'cache_creation_input_tokens' => 248,
+                                           'cache_creation' => { 'ephemeral_5m_input_tokens' => 148,
+                                                                 'ephemeral_1h_input_tokens' => 100 } } } }
+
+      expect(described_class.extract_cache_creation_tokens(data)).to eq(248)
+      expect(described_class.extract_cache_creation_1h_tokens(data)).to eq(100)
+    end
+
+    it 'has no 1-hour part when the event does not break the write down' do
+      data = { 'type' => 'message_delta', 'usage' => { 'output_tokens' => 5 } }
+
+      expect(described_class.extract_cache_creation_1h_tokens(data)).to be_nil
+    end
+  end
 end

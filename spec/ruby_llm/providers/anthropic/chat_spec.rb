@@ -389,6 +389,25 @@ RSpec.describe RubyLLM::Providers::Anthropic::Chat do
       expect(message.output_tokens).to eq(5)
       expect(message.cached_tokens).to eq(21)
       expect(message.cache_creation_tokens).to eq(7)
+      expect(message.cache_creation_1h_tokens).to be_nil
+    end
+
+    it 'separates the write to the 1-hour cache from the total write' do
+      usage = { 'input_tokens' => 50, 'output_tokens' => 5, 'cache_creation_input_tokens' => 248,
+                'cache_creation' => { 'ephemeral_5m_input_tokens' => 148, 'ephemeral_1h_input_tokens' => 100 } }
+      response = instance_double(Faraday::Response, body: { 'content' => [], 'usage' => usage })
+
+      message = described_class.parse_completion_response(response)
+
+      expect(message.cache_creation_tokens).to eq(248)
+      expect(message.cache_creation_1h_tokens).to eq(100)
+    end
+
+    it 'sums the breakdown when the total write is missing' do
+      usage = { 'cache_creation' => { 'ephemeral_5m_input_tokens' => 148, 'ephemeral_1h_input_tokens' => 100 } }
+      response = instance_double(Faraday::Response, body: { 'content' => [], 'usage' => usage })
+
+      expect(described_class.parse_completion_response(response).cache_creation_tokens).to eq(248)
     end
   end
 

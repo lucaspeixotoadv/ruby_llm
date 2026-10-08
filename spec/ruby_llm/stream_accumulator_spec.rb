@@ -4,6 +4,17 @@ require 'spec_helper'
 
 RSpec.describe RubyLLM::StreamAccumulator do
   describe '#add' do
+    it 'keeps the write to the 1-hour cache' do
+      accumulator = described_class.new
+      accumulator.add(RubyLLM::Chunk.new(role: :assistant, content: nil, cache_creation_tokens: 248,
+                                         cache_creation_1h_tokens: 100))
+      accumulator.add(RubyLLM::Chunk.new(role: :assistant, content: 'Hi', output_tokens: 5))
+
+      message = accumulator.to_message(nil)
+
+      expect([message.cache_creation_tokens, message.cache_creation_1h_tokens]).to eq([248, 100])
+    end
+
     it 'handles tool call deltas that omit arguments' do
       accumulator = described_class.new
       tool_call = RubyLLM::ToolCall.new(id: 'call_1', name: 'weather', arguments: nil)

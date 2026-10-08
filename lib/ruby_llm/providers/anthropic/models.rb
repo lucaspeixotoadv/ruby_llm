@@ -87,14 +87,17 @@ module RubyLLM
         end
 
         def extract_cache_creation_tokens(data)
-          direct = data.dig('message', 'usage',
-                            'cache_creation_input_tokens') || data.dig('usage', 'cache_creation_input_tokens')
-          return direct if direct
+          Chat.cache_creation_tokens(extract_usage(data))
+        end
 
-          breakdown = data.dig('message', 'usage', 'cache_creation') || data.dig('usage', 'cache_creation')
-          return unless breakdown.is_a?(Hash)
+        def extract_cache_creation_1h_tokens(data)
+          Chat.cache_creation_1h_tokens(extract_usage(data))
+        end
 
-          breakdown.values.compact.sum
+        # The usage of a stream event: `message_start` carries it in the
+        # message, `message_delta` at the top.
+        def extract_usage(data)
+          data.dig('message', 'usage') || data['usage'] || {}
         end
       end
     end
