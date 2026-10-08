@@ -21,6 +21,7 @@ module RubyLLM
         output_per_million
         cache_read_input_per_million
         cache_write_input_per_million
+        cache_write_1h_input_per_million
         cached_input_per_million
         cache_creation_input_per_million
         reasoning_output_per_million

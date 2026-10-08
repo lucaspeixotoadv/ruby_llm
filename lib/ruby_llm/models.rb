@@ -538,12 +538,15 @@ module RubyLLM
         pricing
       end
 
+      # `cache_write` is the 5-minute cache write. models.dev does not publish
+      # Anthropic's 1-hour write yet; `cache_write_1h` is read when it does.
       def models_dev_text_prices(cost)
         {
           input_per_million: cost[:input],
           output_per_million: cost[:output],
           cache_read_input_per_million: cost[:cache_read],
           cache_write_input_per_million: cost[:cache_write],
+          cache_write_1h_input_per_million: cost[:cache_write_1h],
           reasoning_output_per_million: cost[:reasoning]
         }.compact
       end

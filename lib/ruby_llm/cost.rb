@@ -2,8 +2,15 @@
 
 module RubyLLM
   # Represents the cost of token usage for a model response.
+  #
+  # Each component is a number of tokens times the one price that applies to
+  # them. A cache write is two components because Anthropic charges two prices
+  # for it: +cache_write_1h+ is the part written to the 1-hour cache, at the
+  # 1-hour price, and +cache_write+ is the rest of the write (Tokens#cache_write
+  # minus Tokens#cache_write_1h), at the price of the default 5-minute cache -
+  # the whole write, for a provider that does not break it down.
   class Cost
-    COMPONENTS = %i[input output cache_read cache_write thinking].freeze
+    COMPONENTS = %i[input output cache_read cache_write cache_write_1h thinking].freeze
     PER_MILLION = 1_000_000.0
 
     attr_reader :tokens, :model, :category
@@ -55,6 +62,10 @@ module RubyLLM
       amount_for(:cache_write)
     end
 
+    def cache_write_1h
+      amount_for(:cache_write_1h)
+    end
+
     def thinking
       amount_for(:thinking)
     end
@@ -73,6 +84,7 @@ module RubyLLM
 
     alias cached_input cache_read
     alias cache_creation cache_write
+    alias cache_creation_1h cache_write_1h
 
     def total
       return nil unless tokens?
@@ -90,6 +102,7 @@ module RubyLLM
         output: output,
         cache_read: cache_read,
         cache_write: cache_write,
+        cache_write_1h: cache_write_1h,
         thinking: thinking,
         total: total
       }.compact
@@ -148,7 +161,9 @@ module RubyLLM
       when :cache_read
         tokens.cache_read
       when :cache_write
-        tokens.cache_write
+        cache_write_5m_tokens
+      when :cache_write_1h
+        tokens.cache_write_1h
       when :thinking
         tokens.thinking if thinking_priced_separately?
       end
@@ -164,9 +179,17 @@ module RubyLLM
         text_pricing.cache_read_input
       when :cache_write
         text_pricing.cache_write_input
+      when :cache_write_1h
+        text_pricing.cache_write_1h_input
       when :thinking
         text_pricing.reasoning_output
       end
+    end
+
+    def cache_write_5m_tokens
+      return tokens.cache_write if tokens.cache_write.nil? || tokens.cache_write_1h.nil?
+
+      tokens.cache_write - tokens.cache_write_1h
     end
 
     def image_pricing

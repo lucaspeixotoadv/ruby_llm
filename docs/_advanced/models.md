@@ -48,6 +48,7 @@ The registry stores crucial information about each model, including:
 *   **`output_price_per_million`**: Cost in USD per 1 million output tokens.
 *   **`cache_read_input_price_per_million`**: Cost in USD per 1 million cache read tokens, when available. v1.15+
 *   **`cache_write_input_price_per_million`**: Cost in USD per 1 million cache write tokens, when available. v1.15+
+*   **`cache_write_1h_input_price_per_million`**: Cost in USD per 1 million tokens written to Anthropic's 1-hour cache, when available.
 *   **`family`**: A broader classification (e.g., `gpt4o`).
 
 This registry allows RubyLLM to validate models, route requests correctly, provide capability information, and offer convenient filtering.
@@ -230,6 +231,8 @@ puts cost.total
 ```
 
 Costs use RubyLLM's normalized token buckets: standard input, billable output, cache read, cache write, and separately priced thinking when the model registry exposes a distinct reasoning-token price. See [Tracking Token Usage]({% link _core_features/chat.md %}#tracking-token-usage) for the provider comparison table and what RubyLLM exposes consistently across providers.
+
+Anthropic charges a write to its 1-hour cache more than one to the default 5-minute cache, and says how much of the write went to each. `tokens.cache_write_1h` is the 1-hour part of `tokens.cache_write`; `cost.cache_write_1h` prices it at `cache_write_1h_input_price_per_million`, and `cost.cache_write` prices the rest of the write at the 5-minute price. Without a known 1-hour price, a 1-hour write leaves `cost.cache_write_1h` and `cost.total` unknown (`nil`).
 
 Some models charge more once the prompt grows past a size (Claude Haiku 5.5 above 100,000 tokens, Gemini Pro above 200,000, GPT-5.5 above 272,000). The registry records those prices as `prompt_tiers`, and a cost prices every component of the call at the tier its prompt falls in. The prompt size is `tokens.prompt`: standard input plus cache reads and writes, which is how the providers measure it. `cost.text_pricing` returns the prices that were applied:
 

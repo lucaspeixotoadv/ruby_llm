@@ -57,6 +57,18 @@ RSpec.describe RubyLLM::Model::PricingTier do
       expect([10_000, 64_000, 200_000].map { |size| prices.for_prompt(size).input_per_million }).to eq([1.0, 2.0, 3.0])
     end
 
+    it 'answers the 1-hour cache write price of the tier the prompt falls in' do
+      prices = described_class.new(
+        cache_write_1h_input_per_million: 0.2,
+        prompt_tiers: [{ above_prompt_tokens: 100_000, cache_write_1h_input_per_million: 1.0 }]
+      )
+      category = RubyLLM::Model::PricingCategory.new(standard: prices.to_h)
+
+      expect(category.cache_write_1h_input).to eq(0.2)
+      expect(category.for_prompt(100_001).cache_write_1h_input).to eq(1.0)
+      expect(category.at(Time.now).for_prompt(100_001).cache_write_1h_input).to eq(1.0)
+    end
+
     it 'does not lend a cheaper price to a tier that leaves it out' do
       prices = described_class.new(
         input_per_million: 1.0, cache_read_input_per_million: 0.1,
@@ -87,7 +99,7 @@ RSpec.describe RubyLLM::Model::PricingTier do
             schedule: [
               { effective_until: '2027-01-01', input_per_million: 1.0,
                 prompt_tiers: [{ above_prompt_tokens: 200_000, input_per_million: 2.0 }] },
-              { effective_from: '2027-01-01', input_per_million: 3.0,
+              { effective_from: '2027-01-01', input_per_million: 3.0, cache_write_1h_input_per_million: 6.0,
                 prompt_tiers: [{ above_prompt_tokens: 200_000, input_per_million: 6.0 }] }
             ]
           }
@@ -96,6 +108,8 @@ RSpec.describe RubyLLM::Model::PricingTier do
 
       expect(scheduled.at(Time.utc(2026, 6, 1)).text_tokens.for_prompt(250_000).input).to eq(2.0)
       expect(scheduled.text_tokens.for_prompt(250_000).at(Time.utc(2027, 6, 1)).input).to eq(6.0)
+      expect(scheduled.text_tokens.at(Time.utc(2027, 6, 1)).cache_write_1h_input).to eq(6.0)
+      expect(scheduled.text_tokens.at(Time.utc(2026, 6, 1)).cache_write_1h_input).to be_nil
     end
   end
 

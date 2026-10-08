@@ -57,6 +57,12 @@ module RubyLLM
         tier&.cache_write_input_per_million || tier&.cache_creation_input_per_million
       end
 
+      # The price of a write to the 1-hour cache, which Anthropic charges apart
+      # from the 5-minute write (#cache_write_input). Unknown unless stated.
+      def cache_write_1h_input(at: nil, prompt_tokens: nil)
+        standard(at:, prompt_tokens:)&.cache_write_1h_input_per_million
+      end
+
       def reasoning_output(at: nil, prompt_tokens: nil)
         standard(at:, prompt_tokens:)&.reasoning_output_per_million
       end
@@ -98,7 +104,8 @@ module RubyLLM
           Resolved.new(@category, time: @time, prompt_tokens:)
         end
 
-        %i[standard batch input output cache_read_input cache_write_input reasoning_output].each do |name|
+        %i[standard batch input output cache_read_input cache_write_input cache_write_1h_input
+           reasoning_output].each do |name|
           define_method(name) { @category.public_send(name, at: @time, prompt_tokens: @prompt_tokens) }
         end
 

@@ -221,6 +221,10 @@ module RubyLLM
         pricing.text_tokens.cache_write_input
       end
 
+      def cache_write_1h_input_price_per_million
+        pricing.text_tokens.cache_write_1h_input
+      end
+
       alias cached_input_price_per_million cache_read_input_price_per_million
       alias cache_creation_input_price_per_million cache_write_input_price_per_million
 

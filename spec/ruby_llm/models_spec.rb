@@ -280,6 +280,16 @@ RSpec.describe RubyLLM::Models do
       )
     end
 
+    it 'carries the 1-hour cache write price when models.dev publishes it' do
+      cost = { input: 1.0, cache_write: 1.25, cache_write_1h: 2.0 }
+
+      data = described_class.models_dev_model_to_info(model_data.merge(cost:), 'anthropic', 'anthropic')
+
+      expect(data[:pricing][:text_tokens][:standard]).to eq(
+        input_per_million: 1.0, cache_write_input_per_million: 1.25, cache_write_1h_input_per_million: 2.0
+      )
+    end
+
     it 'keeps models.dev authoritative for overlapping capabilities when merging provider metadata' do
       models_dev_model = RubyLLM::Model::Info.new(
         id: 'test-model',

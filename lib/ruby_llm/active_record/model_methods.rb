@@ -92,6 +92,7 @@ module RubyLLM
                :supports_embedding_dimensions?, :status, :deprecated?,
                :input_price_per_million, :output_price_per_million,
                :cache_read_input_price_per_million, :cache_write_input_price_per_million,
+               :cache_write_1h_input_price_per_million,
                :cached_input_price_per_million, :cache_creation_input_price_per_million,
                :function_calling?, :structured_output?, :batch?,
                :reasoning?, :citations?, :streaming?, :provider_class, :label,

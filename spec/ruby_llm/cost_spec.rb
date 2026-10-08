@@ -196,6 +196,64 @@ RSpec.describe RubyLLM::Cost do
     end
   end
 
+  # Anthropic writes to a 5-minute or a 1-hour cache, and charges each at its
+  # own price; the response says how much of the write went to the 1-hour one.
+  describe 'the 1-hour cache write' do
+    let(:model) do
+      RubyLLM::Model::Info.new(
+        id: 'claude-model', name: 'Claude Model', provider: 'anthropic',
+        pricing: { text_tokens: { standard: { input_per_million: 1.0, cache_write_input_per_million: 1.25,
+                                              cache_write_1h_input_per_million: 2.0 } } }
+      )
+    end
+
+    it 'prices the 1-hour part at the 1-hour price and the rest at the 5-minute price' do
+      tokens = RubyLLM::Tokens.new(input: 1_000, cache_creation: 1_000, cache_creation_1h: 400)
+      cost = described_class.new(tokens:, model:)
+
+      expect(cost.cache_write).to be_within(1e-12).of(600 * 1.25 / 1_000_000)
+      expect(cost.cache_write_1h).to be_within(1e-12).of(400 * 2.0 / 1_000_000)
+      expect(cost.total).to be_within(1e-12).of((1_000 + 750 + 800) / 1_000_000.0)
+      expect(cost.to_h).to include(:cache_write_1h)
+    end
+
+    it 'prices the whole write at the 5-minute price when it is not broken down' do
+      tokens = RubyLLM::Tokens.new(cache_creation: 1_000)
+      cost = described_class.new(tokens:, model:)
+
+      expect(cost.cache_write).to be_within(1e-12).of(1_000 * 1.25 / 1_000_000)
+      expect(cost.cache_write_1h).to be_nil
+      expect(cost.missing?(:cache_write_1h)).to be(false)
+    end
+
+    it 'is unknown, and not zero, without a 1-hour price' do
+      unpriced = RubyLLM::Model::Info.new(
+        id: 'no-1h', name: 'No 1h', provider: 'anthropic',
+        pricing: { text_tokens: { standard: { input_per_million: 1.0, cache_write_input_per_million: 1.25 } } }
+      )
+      cost = described_class.new(tokens: RubyLLM::Tokens.new(cache_creation: 1_000, cache_creation_1h: 400),
+                                 model: unpriced)
+
+      expect(cost.missing?(:cache_write_1h)).to be(true)
+      expect(cost.cache_write_1h).to be_nil
+      expect(cost.cache_write).to be_within(1e-12).of(600 * 1.25 / 1_000_000)
+      expect(cost.total).to be_nil
+      expect(described_class.aggregate([cost]).missing?(:cache_write_1h)).to be(true)
+    end
+
+    it 'needs no 1-hour price when nothing went to the 1-hour cache' do
+      unpriced = RubyLLM::Model::Info.new(
+        id: 'no-1h', name: 'No 1h', provider: 'anthropic',
+        pricing: { text_tokens: { standard: { cache_write_input_per_million: 1.25 } } }
+      )
+      cost = described_class.new(tokens: RubyLLM::Tokens.new(cache_creation: 100, cache_creation_1h: 0),
+                                 model: unpriced)
+
+      expect(cost.cache_write_1h).to eq(0.0)
+      expect(cost.total).to be_within(1e-12).of(100 * 1.25 / 1_000_000)
+    end
+  end
+
   describe '.aggregate' do
     it 'sums costs while preserving nil for missing pricing' do
       priced = described_class.new(tokens: RubyLLM::Tokens.new(input: 10), model:)

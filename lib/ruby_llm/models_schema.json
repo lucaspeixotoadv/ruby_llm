@@ -204,6 +204,10 @@
                         "type": "number",
                         "minimum": 0
                       },
+                      "cache_write_1h_input_per_million": {
+                        "type": "number",
+                        "minimum": 0
+                      },
                       "cached_input_per_million": {
                         "type": "number",
                         "minimum": 0
@@ -242,6 +246,10 @@
                               "minimum": 0
                             },
                             "cache_write_input_per_million": {
+                              "type": "number",
+                              "minimum": 0
+                            },
+                            "cache_write_1h_input_per_million": {
                               "type": "number",
                               "minimum": 0
                             },
@@ -301,6 +309,10 @@
                               "type": "number",
                               "minimum": 0
                             },
+                            "cache_write_1h_input_per_million": {
+                              "type": "number",
+                              "minimum": 0
+                            },
                             "cached_input_per_million": {
                               "type": "number",
                               "minimum": 0
@@ -339,6 +351,10 @@
                                     "minimum": 0
                                   },
                                   "cache_write_input_per_million": {
+                                    "type": "number",
+                                    "minimum": 0
+                                  },
+                                  "cache_write_1h_input_per_million": {
                                     "type": "number",
                                     "minimum": 0
                                   },
