@@ -3,7 +3,18 @@
 module RubyLLM
   # Provides utility functions for data manipulation within the RubyLLM library
   module Utils
+    # Word boundaries in a CamelCase name: a lowercase letter or digit before a
+    # capital, and the last capital of an acronym before the next word
+    # ('HTTPProxy' -> 'HTTP' + 'Proxy'). Fixed-width lookarounds leave nothing to
+    # backtrack into (CVE-2026-67991, ported from upstream 9d75b033).
+    UNDERSCORE_BOUNDARY = /(?<=[a-z\d])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])/
+
     module_function
+
+    # Acronym-aware underscoring: 'HTTPProxyTool' -> 'http_proxy_tool'.
+    def underscore(name)
+      name.gsub(UNDERSCORE_BOUNDARY, '_').downcase
+    end
 
     def hash_get(hash, key)
       hash[key.to_sym] || hash[key.to_s]
