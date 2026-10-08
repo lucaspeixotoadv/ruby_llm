@@ -471,6 +471,17 @@ política de egress durante a coleta, então a validação usou a página do Goo
 Cloud. Os preços por token de Vertex e da Developer API historicamente
 coincidem, mas isso não foi confirmado contra `ai.google.dev`.
 
+## CI
+
+Um workflow só, `.github/workflows/ci.yml`, e sob demanda ("Run workflow"):
+gitleaks, RuboCop e a suíte em **Ruby 3.4 + Rails 7.1**, a combinação em que o
+Chatwoot roda. Roda-se antes de publicar uma tag.
+
+Os workflows do upstream saíram: disparavam em `main`, que este fork não usa,
+testavam uma matriz de versões que ninguém consome aqui e tinham um job de
+release que publicaria a gem -- e o Chatwoot consome o fork por git ref, nunca
+pela gem.
+
 ## Fronteira
 
 O RubyLLM responde fatos técnicos: o modelo existe, pertence a que provider,
