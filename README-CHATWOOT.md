@@ -29,6 +29,7 @@ O Chatwoot consome **sempre uma tag imutável**, nunca a branch.
 | `1.16.9` | Anthropic com os modelos Claude 5.x: raciocínio devolvido íntegro, temperatura, recusa, `disabled`, `/v1/models`; registry atualizado |
 | `1.16.10` | ferramenta em modo estrito: `strict: true` na OpenAI e na Anthropic, modo `VALIDATED` no Gemini; preço por faixa de tamanho do prompt (`prompt_tiers`) |
 | `1.16.11` | escrita no cache de 1 hora da Anthropic separada da de 5 minutos, em tokens, preço e custo; correções de ReDoS do upstream (CVE-2026-67987 e 67991) |
+| `1.16.12` | a atualização do registro mantém os preços que só ele tem (ex.: escrita no cache de 1 hora), em vez de apagá-los |
 
 `RubyLLM::VERSION` acompanha a tag: a partir da `1.16.3` a constante é a
 mesma coisa que a tag, e não mais a versão da base upstream. Ela ficou presa
@@ -753,3 +754,17 @@ As advisories CVE-2026-67987, 67989 e 67991 (regex de tempo polinomial no Ruby
 
 O `bundler-audit` continua apontando as três, porque a base de advisories só
 reconhece como corrigidas as versões a partir da 2.0.
+
+### 1.16.12 — a atualização do registro mantém os preços que só ele tem
+
+`Models.refresh!` trocava o preço inteiro de um modelo pelo do models.dev (ou o
+da listagem do provider). Nenhuma das duas fontes publica tudo o que a página de
+preços do provider publica: o models.dev não tem a escrita no cache de 1 hora
+da Anthropic. Cada atualização apagava esse preço, gravado aqui a partir da
+página oficial, e o custo das chamadas que o pagam virava desconhecido.
+
+As fontes novas continuam vencendo todo preço que declaram; o que elas deixam de
+fora fica com o valor do registro (`with_registry_prices`), pela mesma razão por
+que um modelo que não apareceu na listagem é mantido. Isso vale para a
+atualização em runtime do Chatwoot (`Llm::ModelRegistry`, diária), que parte do
+registro em uso.
