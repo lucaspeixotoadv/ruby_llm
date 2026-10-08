@@ -26,6 +26,7 @@ O Chatwoot consome **sempre uma tag imutável**, nunca a branch.
 | `1.16.6` | arquivos em resultado de tool chegam ao modelo como arquivo, em todo provider; registry atualizado |
 | `1.16.7` | cache explícito do Gemini (`cachedContents`): criação e requisição que o referencia |
 | `1.16.8` | chamada de ferramenta de outro provider aceita pelo Gemini 3 (assinatura documentada) |
+| `1.16.9` | Anthropic com os modelos Claude 5.x: raciocínio devolvido íntegro, temperatura, recusa, `disabled`, `/v1/models`; registry atualizado |
 
 `RubyLLM::VERSION` acompanha a tag: a partir da `1.16.3` a constante é a
 mesma coisa que a tag, e não mais a versão da base upstream. Ela ficou presa
@@ -547,3 +548,91 @@ continua indo como veio, e os modelos anteriores não recebem nada.
 
 Validado contra a API: histórico com chamada de ferramenta sem assinatura,
 `gemini-3.8-flash`, resposta normal.
+
+### 1.16.9 — Anthropic: modelos Claude 5.x de ponta a ponta
+
+**O problema**
+
+Os modelos atuais da Anthropic (Claude Opus 5.5, Sonnet 5.5, Haiku 5.5,
+Fable 5.1) mudaram o contrato que o provider assumia, e cinco defeitos
+apareciam assim que se usava um deles com ferramentas:
+
+- **raciocínio devolvido errado.** Esses modelos pensam por padrão e devolvem
+  o raciocínio *omitido*: blocos `thinking` com texto vazio e uma assinatura.
+  Um turno de ferramentas pode trazer mais de um, entre o texto e as
+  chamadas. A lib guardava só o primeiro, juntava os textos e, sem texto,
+  devolvia a assinatura como `redacted_thinking` — e só quando o chamador
+  tinha pedido `with_thinking`. A API recusa (400) um turno cujo raciocínio
+  volta editado, fundido ou pela metade, e pede os blocos de volta em todo
+  turno de ferramentas;
+- **temperatura enviada a quem a recusa.** O registry afirma
+  `temperature: false` para os modelos atuais, e a API responde 400 a
+  qualquer temperatura; o provider da Anthropic não consultava o registry;
+- **recusa lida como resposta.** `stop_reason: "refusal"` é um 200 sem
+  resposta utilizável, e saía como uma mensagem vazia;
+- **`effort: :none` não desligava nada.** Omitir `thinking` não desliga o
+  raciocínio desses modelos: ele é o padrão. E no Opus 5.5 ele não pode ser
+  desligado (`disabled` dá 400);
+- **o registry ficava com a palavra do models.dev sobre raciocínio**, mesmo
+  quando a própria API diz outra coisa: o models.dev não afirma que o
+  raciocínio do Opus 4.7/4.8 e do Opus 5 pode ser desligado, e a API afirma.
+
+**A correção**
+
+- `Thinking#blocks` guarda o turno exatamente como a API o devolveu, quando
+  ele traz raciocínio; o provider o devolve igual, em qualquer configuração de
+  raciocínio da requisição. A API descarta sozinha o que o modelo de destino
+  não lê. `text` e `signature` continuam sendo o resumo legível.
+- `Providers::Temperature` (antes `OpenAI::Temperature`) vale também para a
+  Anthropic: temperatura recusada pelo registry é omitida.
+- `RubyLLM::RefusalError` (subclasse de `RubyLLM::Error`), com `category`
+  vinda de `stop_details`, levantado na resposta síncrona e no `message_delta`
+  do streaming.
+- `with_thinking(effort: :none)` manda `thinking: {type: "disabled"}` quando o
+  registry diz que o modelo aceita (`toggle`), e levanta `ArgumentError` quando
+  não aceita — em vez de deixar o modelo pensar em silêncio.
+- `Anthropic::Models` lê de `/v1/models` a janela de contexto, o teto de saída,
+  as capacidades e, da árvore `capabilities`, as `reasoning_options`: os
+  esforços aceitos, `toggle` quando `thinking.types.disabled` é aceito e
+  `budget_tokens` quando `enabled` é. Na fusão com o models.dev, as opções de
+  raciocínio que a listagem do provider afirma vencem; um modelo carregado do
+  registry anterior não conta como listagem.
+
+**Payloads**
+
+| Chamada | Antes | Depois |
+|---|---|---|
+| turno de ferramentas com 2 blocos `thinking` omitidos, sem `with_thinking` | blocos descartados | turno devolvido igual |
+| o mesmo, com `with_thinking(effort:)` | 1 `redacted_thinking` com a assinatura (400) | turno devolvido igual |
+| `claude-opus-5-5` + `with_temperature(0.2)` | `temperature: 0.2` (400) | omitida |
+| `claude-haiku-4-5` + `with_temperature(0.2)` | `0.2` | `0.2` |
+| `stop_reason: "refusal"` | mensagem vazia | `RubyLLM::RefusalError` |
+| `claude-haiku-5-5` + `effort: :none` | `thinking` omitido (pensa) | `thinking: {type: "disabled"}` |
+| `claude-opus-5-5` + `effort: :none` | `thinking` omitido (pensa) | `ArgumentError` |
+
+**Ressalvas**
+
+- O streaming continua montando o raciocínio pelo acumulador genérico (texto
+  e primeira assinatura), sem `Thinking#blocks`: um turno de ferramentas
+  transmitido por streaming ainda não volta íntegro.
+- O Haiku 5.5 tem preço por faixa de tamanho do prompt (acima de 100 mil
+  tokens a entrada custa 5x). O models.dev publica as faixas (`cost.tiers`) e
+  o registry guarda só a primeira: acima de 100 mil tokens o custo sai
+  subestimado.
+- A escrita de cache de 1 hora custa 2x a entrada, e o registry só tem o preço
+  da de 5 minutos (`cache_write_input_per_million`).
+- Os modelos 5.5 e o Fable 5.1 recusam `tool_choice` forçado (`any`/`tool`); o
+  registry não descreve isso, e a lib manda o que o chamador pedir.
+
+**Registry**
+
+Atualizado pelo caminho oficial a partir do models.dev, sem chave de provider:
+entram `claude-sonnet-5-5` e `claude-haiku-5-5`. As opções de raciocínio de
+`/v1/models` só chegam ao `models.json` num `rake models` com
+`ANTHROPIC_API_KEY`.
+
+**Consumo no Chatwoot**
+
+`RubyLLM::RefusalError` é falha do provider como as outras (não adianta repetir
+no mesmo modelo; o modelo reserva pode assumir). O raciocínio dos turnos com
+ferramentas volta íntegro sem nada do lado de cá.
