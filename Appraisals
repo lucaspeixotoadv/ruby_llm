@@ -3,6 +3,8 @@
 appraise 'rails-7.1' do
   group :development do
     gem 'rails', '~> 7.1.0'
+    # ActiveSupport 7.1 passes `quirks_mode:` to JSON, which json 3 removed.
+    gem 'json', '< 3'
   end
 end
 
