@@ -28,8 +28,10 @@ group :development do # rubocop:disable Metrics/BlockLength
   gem 'rubocop-performance', '~> 1.27.0'
   gem 'rubocop-rake', '~> 0.7.1'
   gem 'rubocop-rspec', '~> 3.10.2'
-  gem 'simplecov', '>= 0.21'
-  gem 'simplecov-cobertura'
+  # Pinned for the same reason as RuboCop: bin/rspec-queue speaks the 0.22 API
+  # (`SimpleCov.running`), which SimpleCov 1.x removed.
+  gem 'simplecov', '~> 0.22.0'
+  gem 'simplecov-cobertura', '~> 2.1'
   gem 'test-queue'
 
   # database drivers for MRI and JRuby
