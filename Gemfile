@@ -22,10 +22,12 @@ group :development do # rubocop:disable Metrics/BlockLength
   gem 'rake', '>= 13.0'
   gem 'reline'
   gem 'rspec', '~> 3.12'
-  gem 'rubocop', '>= 1.0'
-  gem 'rubocop-performance'
-  gem 'rubocop-rake', '>= 0.6'
-  gem 'rubocop-rspec'
+  # The linter is pinned: the lock file is not versioned (this is a gem), and
+  # an unpinned RuboCop brings new cops that fail the lint of untouched code.
+  gem 'rubocop', '~> 1.91.0'
+  gem 'rubocop-performance', '~> 1.27.0'
+  gem 'rubocop-rake', '~> 0.7.1'
+  gem 'rubocop-rspec', '~> 3.10.2'
   gem 'simplecov', '>= 0.21'
   gem 'simplecov-cobertura'
   gem 'test-queue'
