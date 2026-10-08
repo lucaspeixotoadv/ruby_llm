@@ -42,6 +42,19 @@ module RubyLLM
       thinking
     end
 
+    # The size of the whole prompt the provider processed: the standard input
+    # plus what was read from and written to the cache. Every provider counts a
+    # prompt this way when its price depends on the prompt's size - Anthropic's
+    # total input tokens, Gemini's promptTokenCount, OpenAI's input tokens -,
+    # and `input` never repeats the cache buckets, so their sum is that size.
+    # nil when the provider reported none of them.
+    def prompt
+      buckets = [input, cache_read, cache_write]
+      return nil if buckets.all?(&:nil?)
+
+      buckets.sum(&:to_i)
+    end
+
     def cache_read
       cached
     end

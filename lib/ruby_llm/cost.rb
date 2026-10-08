@@ -61,6 +61,16 @@ module RubyLLM
 
     alias reasoning thinking
 
+    # The text-token prices this cost applies: the ones in effect at the call's
+    # moment and, for a model whose price depends on the prompt's size, the
+    # ones for this call's prompt (Tokens#prompt). A consumer that records what
+    # a call was charged reads the prices from here rather than from the
+    # model's registry entry, which states the prices for a prompt of unknown
+    # size.
+    def text_pricing
+      pricing_category(:text_tokens)
+    end
+
     alias cached_input cache_read
     alias cache_creation cache_write
 
@@ -159,10 +169,6 @@ module RubyLLM
       end
     end
 
-    def text_pricing
-      pricing_category(:text_tokens)
-    end
-
     def image_pricing
       pricing_category(:images)
     end
@@ -172,7 +178,8 @@ module RubyLLM
       return RubyLLM::Model::PricingCategory.new unless pricing
 
       category = pricing.public_send(name)
-      @at ? category.at(@at) : category
+      category = category.at(@at) if @at
+      category.for_prompt(tokens&.prompt)
     end
 
     def output_pricing

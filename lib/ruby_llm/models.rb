@@ -523,13 +523,9 @@ module RubyLLM
       def models_dev_pricing(cost)
         return {} unless cost
 
-        text_standard = {
-          input_per_million: cost[:input],
-          output_per_million: cost[:output],
-          cache_read_input_per_million: cost[:cache_read],
-          cache_write_input_per_million: cost[:cache_write],
-          reasoning_output_per_million: cost[:reasoning]
-        }.compact
+        text_standard = models_dev_text_prices(cost)
+        prompt_tiers = models_dev_prompt_tiers(cost[:tiers])
+        text_standard[:prompt_tiers] = prompt_tiers if text_standard.any? && prompt_tiers.any?
 
         audio_standard = {
           input_per_million: cost[:input_audio],
@@ -540,6 +536,30 @@ module RubyLLM
         pricing[:text_tokens] = { standard: text_standard } if text_standard.any?
         pricing[:audio_tokens] = { standard: audio_standard } if audio_standard.any?
         pricing
+      end
+
+      def models_dev_text_prices(cost)
+        {
+          input_per_million: cost[:input],
+          output_per_million: cost[:output],
+          cache_read_input_per_million: cost[:cache_read],
+          cache_write_input_per_million: cost[:cache_write],
+          reasoning_output_per_million: cost[:reasoning]
+        }.compact
+      end
+
+      # models.dev publishes the prices that apply once the prompt grows past a
+      # size as `tiers`, each `{ tier: { type: 'context', size: N }, input:,
+      # output:, ... }`: the prices of a call whose prompt is over N tokens. The
+      # older `context_over_200k` key repeats the 200k tier and is not read.
+      def models_dev_prompt_tiers(tiers)
+        Array(tiers).filter_map do |tier|
+          next unless tier.is_a?(Hash) && tier.dig(:tier, :type).to_s == 'context'
+
+          size = tier.dig(:tier, :size)
+          prices = models_dev_text_prices(tier)
+          { above_prompt_tokens: size }.merge(prices) if size && prices.any?
+        end
       end
 
       def models_dev_metadata(model_data, provider_key)
