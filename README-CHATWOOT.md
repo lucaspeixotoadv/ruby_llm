@@ -30,6 +30,7 @@ O Chatwoot consome **sempre uma tag imutável**, nunca a branch.
 | `1.16.10` | ferramenta em modo estrito: `strict: true` na OpenAI e na Anthropic, modo `VALIDATED` no Gemini; preço por faixa de tamanho do prompt (`prompt_tiers`) |
 | `1.16.11` | escrita no cache de 1 hora da Anthropic separada da de 5 minutos, em tokens, preço e custo; correções de ReDoS do upstream (CVE-2026-67987 e 67991) |
 | `1.16.12` | a atualização do registro mantém os preços que só ele tem (ex.: escrita no cache de 1 hora), em vez de apagá-los |
+| `1.16.13` | o registro embarcado na gem é a base desses preços: o registro publicado que já os perdeu os recupera na atualização seguinte |
 
 `RubyLLM::VERSION` acompanha a tag: a partir da `1.16.3` a constante é a
 mesma coisa que a tag, e não mais a versão da base upstream. Ela ficou presa
@@ -764,7 +765,12 @@ da Anthropic. Cada atualização apagava esse preço, gravado aqui a partir da
 página oficial, e o custo das chamadas que o pagam virava desconhecido.
 
 As fontes novas continuam vencendo todo preço que declaram; o que elas deixam de
-fora fica com o valor do registro (`with_registry_prices`), pela mesma razão por
-que um modelo que não apareceu na listagem é mantido. Isso vale para a
-atualização em runtime do Chatwoot (`Llm::ModelRegistry`, diária), que parte do
-registro em uso.
+fora fica com o valor do registro, pela mesma razão por que um modelo que não
+apareceu na listagem é mantido. Isso vale para a atualização em runtime do
+Chatwoot (`Llm::ModelRegistry`, diária).
+
+**1.16.13.** Só o registro em uso não bastava: o Chatwoot publica o registro
+atualizado no Redis e atualiza de novo a partir dele, então o preço perdido numa
+atualização anterior nunca voltava. Agora o `models.json` embarcado na gem, onde
+cada versão grava os preços das páginas oficiais, entra por baixo do registro em
+uso (`Model::RegistryPrices`).
