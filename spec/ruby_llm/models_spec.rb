@@ -305,7 +305,8 @@ RSpec.describe RubyLLM::Models do
                  cache_write_1h_input_per_million: 0.2 })
       end
 
-      def refreshed(models_dev_standard)
+      def refreshed(models_dev_standard, bundled: [])
+        allow(described_class).to receive(:read_from_json).and_return(bundled)
         merged = described_class.merge_with_existing(
           [existing], { models: [], fetched_providers: [] }, { models: [priced(models_dev_standard)], fetched: true }
         )
@@ -315,6 +316,19 @@ RSpec.describe RubyLLM::Models do
       it 'keeps a price the fresh sources do not state' do
         expect(refreshed({ input_per_million: 0.1, cache_write_input_per_million: 0.125 }))
           .to include(cache_write_1h_input_per_million: 0.2)
+      end
+
+      # An app that publishes its refreshed registry refreshes from it again:
+      # the price lost on an earlier refresh comes back from the bundled one.
+      it 'takes a price the registry in use lost from the bundled registry' do
+        published = priced({ input_per_million: 0.1, cache_write_input_per_million: 0.125 })
+        allow(described_class).to receive(:read_from_json).and_return([existing])
+        merged = described_class.merge_with_existing(
+          [published], { models: [], fetched_providers: [] },
+          { models: [priced({ input_per_million: 0.1, cache_write_input_per_million: 0.125 })], fetched: true }
+        )
+
+        expect(merged.first.pricing.text_tokens.standard.to_h).to include(cache_write_1h_input_per_million: 0.2)
       end
 
       it 'lets a price the fresh sources state win' do

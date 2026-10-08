@@ -253,28 +253,7 @@ module RubyLLM
                               existing_models.select { |model| model.metadata[:source] == 'models.dev' }
                             end
 
-        with_registry_prices(merge_models(provider_models, models_dev_models), existing_models)
-      end
-
-      # Keeps the prices only the existing registry states.
-      #
-      # models.dev and the provider listings win every price they state, but
-      # neither publishes everything a provider's pricing page does - models.dev
-      # has no 1-hour cache write, for one. Replacing a model's pricing wholesale
-      # would drop such a price on every refresh and leave the cost of the calls
-      # that pay it unknown. A price absent from the fresh sources is weak
-      # evidence, as an unlisted model is: the registry's own value is kept
-      # until a source states another.
-      def with_registry_prices(models, existing_models)
-        existing_by_key = index_by_key(existing_models)
-
-        models.map do |model|
-          existing = existing_by_key["#{model.provider}:#{model.id}"]
-          next model unless existing
-
-          pricing = Utils.deep_merge(existing.pricing.to_h, model.pricing.to_h)
-          pricing == model.pricing.to_h ? model : Model::Info.new(model.to_h.merge(pricing:))
-        end
+        Model::RegistryPrices.apply(merge_models(provider_models, models_dev_models), read_from_json, existing_models)
       end
 
       def merge_models(provider_models, models_dev_models)
