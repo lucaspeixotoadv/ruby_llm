@@ -723,7 +723,16 @@
           "input_per_million": 0.1,
           "output_per_million": 0.5,
           "cache_read_input_per_million": 0.01,
-          "cache_write_input_per_million": 0.125
+          "cache_write_input_per_million": 0.125,
+          "prompt_tiers": [
+            {
+              "above_prompt_tokens": 100000,
+              "input_per_million": 0.5,
+              "output_per_million": 2.5,
+              "cache_read_input_per_million": 0.05,
+              "cache_write_input_per_million": 0.625
+            }
+          ]
         }
       }
     },
@@ -27847,7 +27856,15 @@
         "standard": {
           "input_per_million": 1.25,
           "output_per_million": 10,
-          "cache_read_input_per_million": 0.125
+          "cache_read_input_per_million": 0.125,
+          "prompt_tiers": [
+            {
+              "above_prompt_tokens": 200000,
+              "input_per_million": 2.5,
+              "output_per_million": 15,
+              "cache_read_input_per_million": 0.25
+            }
+          ]
         }
       }
     },
@@ -28769,7 +28786,15 @@
         "standard": {
           "input_per_million": 2,
           "output_per_million": 12,
-          "cache_read_input_per_million": 0.2
+          "cache_read_input_per_million": 0.2,
+          "prompt_tiers": [
+            {
+              "above_prompt_tokens": 200000,
+              "input_per_million": 4,
+              "output_per_million": 18,
+              "cache_read_input_per_million": 0.4
+            }
+          ]
         }
       }
     },
@@ -28859,7 +28884,15 @@
         "standard": {
           "input_per_million": 2,
           "output_per_million": 12,
-          "cache_read_input_per_million": 0.2
+          "cache_read_input_per_million": 0.2,
+          "prompt_tiers": [
+            {
+              "above_prompt_tokens": 200000,
+              "input_per_million": 4,
+              "output_per_million": 18,
+              "cache_read_input_per_million": 0.4
+            }
+          ]
         }
       }
     },
@@ -36466,7 +36499,15 @@
         "standard": {
           "input_per_million": 2.5,
           "output_per_million": 15,
-          "cache_read_input_per_million": 0.25
+          "cache_read_input_per_million": 0.25,
+          "prompt_tiers": [
+            {
+              "above_prompt_tokens": 272000,
+              "input_per_million": 5,
+              "output_per_million": 22.5,
+              "cache_read_input_per_million": 0.5
+            }
+          ]
         }
       }
     },
@@ -36780,7 +36821,14 @@
       "text_tokens": {
         "standard": {
           "input_per_million": 30,
-          "output_per_million": 180
+          "output_per_million": 180,
+          "prompt_tiers": [
+            {
+              "above_prompt_tokens": 272000,
+              "input_per_million": 60,
+              "output_per_million": 270
+            }
+          ]
         }
       }
     },
@@ -36892,7 +36940,15 @@
         "standard": {
           "input_per_million": 5,
           "output_per_million": 30,
-          "cache_read_input_per_million": 0.5
+          "cache_read_input_per_million": 0.5,
+          "prompt_tiers": [
+            {
+              "above_prompt_tokens": 272000,
+              "input_per_million": 10,
+              "output_per_million": 45,
+              "cache_read_input_per_million": 1
+            }
+          ]
         }
       }
     },
@@ -37008,7 +37064,14 @@
       "text_tokens": {
         "standard": {
           "input_per_million": 30,
-          "output_per_million": 180
+          "output_per_million": 180,
+          "prompt_tiers": [
+            {
+              "above_prompt_tokens": 272000,
+              "input_per_million": 60,
+              "output_per_million": 270
+            }
+          ]
         }
       }
     },
@@ -37208,7 +37271,16 @@
           "input_per_million": 0.2,
           "output_per_million": 1.2,
           "cache_read_input_per_million": 0.02,
-          "cache_write_input_per_million": 0.25
+          "cache_write_input_per_million": 0.25,
+          "prompt_tiers": [
+            {
+              "above_prompt_tokens": 272000,
+              "input_per_million": 0.4,
+              "output_per_million": 1.8,
+              "cache_read_input_per_million": 0.04,
+              "cache_write_input_per_million": 0.5
+            }
+          ]
         }
       }
     },
@@ -37295,7 +37367,16 @@
           "input_per_million": 4,
           "output_per_million": 20,
           "cache_read_input_per_million": 0.4,
-          "cache_write_input_per_million": 5
+          "cache_write_input_per_million": 5,
+          "prompt_tiers": [
+            {
+              "above_prompt_tokens": 272000,
+              "input_per_million": 8,
+              "output_per_million": 30,
+              "cache_read_input_per_million": 0.8,
+              "cache_write_input_per_million": 10
+            }
+          ]
         }
       }
     },
@@ -37382,7 +37463,16 @@
           "input_per_million": 2,
           "output_per_million": 12,
           "cache_read_input_per_million": 0.2,
-          "cache_write_input_per_million": 2.5
+          "cache_write_input_per_million": 2.5,
+          "prompt_tiers": [
+            {
+              "above_prompt_tokens": 272000,
+              "input_per_million": 4,
+              "output_per_million": 18,
+              "cache_read_input_per_million": 0.4,
+              "cache_write_input_per_million": 5
+            }
+          ]
         }
       }
     },
@@ -37469,7 +37559,16 @@
           "input_per_million": 10,
           "output_per_million": 50,
           "cache_read_input_per_million": 1,
-          "cache_write_input_per_million": 12.5
+          "cache_write_input_per_million": 12.5,
+          "prompt_tiers": [
+            {
+              "above_prompt_tokens": 272000,
+              "input_per_million": 20,
+              "output_per_million": 75,
+              "cache_read_input_per_million": 2,
+              "cache_write_input_per_million": 25
+            }
+          ]
         }
       }
     },
@@ -37555,7 +37654,16 @@
           "input_per_million": 0.1,
           "output_per_million": 0.5,
           "cache_read_input_per_million": 0.01,
-          "cache_write_input_per_million": 0.125
+          "cache_write_input_per_million": 0.125,
+          "prompt_tiers": [
+            {
+              "above_prompt_tokens": 272000,
+              "input_per_million": 0.2,
+              "output_per_million": 0.75,
+              "cache_read_input_per_million": 0.02,
+              "cache_write_input_per_million": 0.25
+            }
+          ]
         }
       }
     },
@@ -37642,7 +37750,16 @@
           "input_per_million": 2,
           "output_per_million": 10,
           "cache_read_input_per_million": 0.2,
-          "cache_write_input_per_million": 2.5
+          "cache_write_input_per_million": 2.5,
+          "prompt_tiers": [
+            {
+              "above_prompt_tokens": 272000,
+              "input_per_million": 4,
+              "output_per_million": 15,
+              "cache_read_input_per_million": 0.4,
+              "cache_write_input_per_million": 5
+            }
+          ]
         }
       }
     },
@@ -37729,7 +37846,16 @@
           "input_per_million": 2,
           "output_per_million": 10,
           "cache_read_input_per_million": 0.1,
-          "cache_write_input_per_million": 2.5
+          "cache_write_input_per_million": 2.5,
+          "prompt_tiers": [
+            {
+              "above_prompt_tokens": 272000,
+              "input_per_million": 4,
+              "output_per_million": 15,
+              "cache_read_input_per_million": 0.2,
+              "cache_write_input_per_million": 5
+            }
+          ]
         }
       }
     },
@@ -78505,7 +78631,16 @@
           "input_per_million": 0.1,
           "output_per_million": 0.5,
           "cache_read_input_per_million": 0.01,
-          "cache_write_input_per_million": 0.125
+          "cache_write_input_per_million": 0.125,
+          "prompt_tiers": [
+            {
+              "above_prompt_tokens": 100000,
+              "input_per_million": 0.5,
+              "output_per_million": 2.5,
+              "cache_read_input_per_million": 0.05,
+              "cache_write_input_per_million": 0.625
+            }
+          ]
         }
       }
     },
@@ -80291,7 +80426,15 @@
         "standard": {
           "input_per_million": 1.25,
           "output_per_million": 10,
-          "cache_read_input_per_million": 0.125
+          "cache_read_input_per_million": 0.125,
+          "prompt_tiers": [
+            {
+              "above_prompt_tokens": 200000,
+              "input_per_million": 2.5,
+              "output_per_million": 15,
+              "cache_read_input_per_million": 0.25
+            }
+          ]
         }
       }
     },
@@ -80981,7 +81124,15 @@
         "standard": {
           "input_per_million": 2,
           "output_per_million": 12,
-          "cache_read_input_per_million": 0.2
+          "cache_read_input_per_million": 0.2,
+          "prompt_tiers": [
+            {
+              "above_prompt_tokens": 200000,
+              "input_per_million": 4,
+              "output_per_million": 18,
+              "cache_read_input_per_million": 0.4
+            }
+          ]
         }
       }
     },
@@ -81067,7 +81218,15 @@
         "standard": {
           "input_per_million": 2,
           "output_per_million": 12,
-          "cache_read_input_per_million": 0.2
+          "cache_read_input_per_million": 0.2,
+          "prompt_tiers": [
+            {
+              "above_prompt_tokens": 200000,
+              "input_per_million": 4,
+              "output_per_million": 18,
+              "cache_read_input_per_million": 0.4
+            }
+          ]
         }
       }
     },
