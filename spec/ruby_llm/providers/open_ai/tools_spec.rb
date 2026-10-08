@@ -182,4 +182,25 @@ RSpec.describe RubyLLM::Providers::OpenAI::Tools do
       expect(result).to be_nil
     end
   end
+
+  describe '.tool_for' do
+    let(:tool_class) do
+      Class.new(RubyLLM::Tool) do
+        def self.name = 'LookupCase'
+        description 'Looks up a case'
+        params({ 'type' => 'object', 'properties' => { 'document' => { 'type' => 'string' } },
+                 'required' => ['document'], 'additionalProperties' => false })
+      end
+    end
+
+    it 'marks the function strict when the tool is' do
+      tool_class.strict
+
+      expect(described_class.tool_for(tool_class.new)[:function]).to include(strict: true)
+    end
+
+    it 'leaves strict out otherwise' do
+      expect(described_class.tool_for(tool_class.new)[:function]).not_to have_key(:strict)
+    end
+  end
 end

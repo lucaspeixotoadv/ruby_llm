@@ -63,6 +63,19 @@ module RubyLLM
       def provider_params
         @provider_params ||= {}
       end
+
+      # Asks the provider to hold the model's arguments to the parameters schema
+      # (constrained decoding) instead of reading it as guidance. Each provider
+      # is told in its own terms. The schema goes as declared, so it has to be
+      # one the provider's strict mode accepts.
+      def strict(enabled: true)
+        @strict = enabled
+        self
+      end
+
+      def strict?
+        @strict == true
+      end
     end
 
     def name
@@ -86,6 +99,10 @@ module RubyLLM
 
     def provider_params
       self.class.provider_params
+    end
+
+    def strict?
+      self.class.strict?
     end
 
     def params_schema

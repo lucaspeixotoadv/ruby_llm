@@ -38,6 +38,7 @@ module RubyLLM
               parameters: parameters_schema
             }
           }
+          definition[:function][:strict] = true if tool.strict?
 
           return definition if tool.provider_params.empty?
 

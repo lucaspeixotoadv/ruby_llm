@@ -14,6 +14,27 @@ RSpec.describe RubyLLM::Tool do
     end
   end
 
+  describe '.strict' do
+    it 'leaves a tool out of strict mode until it asks for it' do
+      stub_const('LooseTool', Class.new(described_class))
+
+      expect(LooseTool.new).not_to be_strict
+    end
+
+    it 'puts the tool in strict mode' do
+      stub_const('StrictTool', Class.new(described_class) { strict })
+
+      expect(StrictTool).to be_strict
+      expect(StrictTool.new).to be_strict
+    end
+
+    it 'can be turned off' do
+      stub_const('UnstrictTool', Class.new(described_class) { strict enabled: false })
+
+      expect(UnstrictTool.new).not_to be_strict
+    end
+  end
+
   describe '.param' do
     it 'accepts description as an alias for desc' do
       stub_const('ParamDescriptionTool', Class.new(described_class) do

@@ -287,4 +287,38 @@ RSpec.describe RubyLLM::Providers::Anthropic::Tools do
       expect(described_class.parse_tool_calls([])).to be_nil
     end
   end
+
+  describe '.function_for' do
+    let(:tool_class) do
+      Class.new(RubyLLM::Tool) do
+        def self.name = 'LookupCase'
+        description 'Looks up a case'
+        params({ 'type' => 'object', 'properties' => { 'document' => { 'type' => 'string' } },
+                 'required' => ['document'], 'additionalProperties' => false })
+      end
+    end
+
+    it 'marks the tool strict when it is' do
+      tool_class.strict
+
+      expect(described_class.function_for(tool_class.new)).to include(strict: true)
+    end
+
+    it 'leaves strict out otherwise' do
+      expect(described_class.function_for(tool_class.new)).not_to have_key(:strict)
+    end
+
+    # Anthropic refuses the marker in a strict tool: "For 'object' type,
+    # property 'strict' is not supported".
+    it 'leaves the strict marker of a built schema out of a strict tool' do
+      built = Class.new(RubyLLM::Tool) do
+        def self.name = 'Weather'
+        description 'Gets the weather'
+        param :city, desc: 'The city'
+        strict
+      end
+
+      expect(described_class.function_for(built.new)[:input_schema]).not_to have_key('strict')
+    end
+  end
 end

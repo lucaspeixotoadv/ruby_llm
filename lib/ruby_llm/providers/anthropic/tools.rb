@@ -73,10 +73,19 @@ module RubyLLM
             description: tool.description,
             input_schema: input_schema || default_input_schema
           }
+          strict_declaration(declaration) if tool.strict?
 
           return declaration if tool.provider_params.empty?
 
           RubyLLM::Utils.deep_merge(declaration, tool.provider_params)
+        end
+
+        # A strict tool is validated against `input_schema` as JSON Schema, and
+        # the API refuses a key it does not know there -- such as the `strict`
+        # marker RubyLLM writes into the schemas it builds.
+        def strict_declaration(declaration)
+          declaration[:input_schema] = declaration[:input_schema].except('strict', :strict)
+          declaration[:strict] = true
         end
 
         def extract_tool_calls(data)
