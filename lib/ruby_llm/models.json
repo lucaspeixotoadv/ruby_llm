@@ -693,6 +693,88 @@
     }
   },
   {
+    "id": "claude-haiku-5-5",
+    "name": "Claude Haiku 5.5",
+    "provider": "anthropic",
+    "family": "claude-haiku",
+    "created_at": "2026-10-07 00:00:00 UTC",
+    "context_window": 1000000,
+    "max_output_tokens": 128000,
+    "knowledge_cutoff": null,
+    "modalities": {
+      "input": [
+        "text",
+        "image",
+        "pdf"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "capabilities": [
+      "function_calling",
+      "structured_output",
+      "reasoning",
+      "vision"
+    ],
+    "pricing": {
+      "text_tokens": {
+        "standard": {
+          "input_per_million": 0.1,
+          "output_per_million": 0.5,
+          "cache_read_input_per_million": 0.01,
+          "cache_write_input_per_million": 0.125
+        }
+      }
+    },
+    "metadata": {
+      "source": "models.dev",
+      "provider_id": "anthropic",
+      "open_weights": false,
+      "attachment": true,
+      "temperature": false,
+      "last_updated": "2026-10-07",
+      "reasoning_options": [
+        {
+          "type": "toggle"
+        },
+        {
+          "type": "effort",
+          "values": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ]
+        }
+      ],
+      "cost": {
+        "input": 0.1,
+        "output": 0.5,
+        "cache_read": 0.01,
+        "cache_write": 0.125,
+        "tiers": [
+          {
+            "input": 0.5,
+            "output": 2.5,
+            "cache_read": 0.05,
+            "cache_write": 0.625,
+            "tier": {
+              "type": "context",
+              "size": 100000
+            }
+          }
+        ]
+      },
+      "limit": {
+        "context": 1000000,
+        "output": 128000
+      },
+      "knowledge": "2026-06"
+    }
+  },
+  {
     "id": "claude-opus-4-0",
     "name": "Claude Opus 4 (latest)",
     "provider": "anthropic",
@@ -1534,7 +1616,7 @@
     "provider": "anthropic",
     "family": "claude-sonnet",
     "created_at": "2025-09-29 00:00:00 UTC",
-    "context_window": 1000000,
+    "context_window": 200000,
     "max_output_tokens": 64000,
     "knowledge_cutoff": "2025-07-31",
     "modalities": {
@@ -1583,7 +1665,7 @@
         "cache_write": 3.75
       },
       "limit": {
-        "context": 1000000,
+        "context": 200000,
         "output": 64000
       },
       "knowledge": "2025-07-31"
@@ -1595,7 +1677,7 @@
     "provider": "anthropic",
     "family": "claude-sonnet",
     "created_at": "2025-09-29 00:00:00 UTC",
-    "context_window": 1000000,
+    "context_window": 200000,
     "max_output_tokens": 64000,
     "knowledge_cutoff": "2025-07-31",
     "modalities": {
@@ -1644,7 +1726,7 @@
         "cache_write": 3.75
       },
       "limit": {
-        "context": 1000000,
+        "context": 200000,
         "output": 64000
       },
       "knowledge": "2025-07-31"
@@ -1788,6 +1870,73 @@
         "output": 128000
       },
       "knowledge": "2026-01-31"
+    }
+  },
+  {
+    "id": "claude-sonnet-5-5",
+    "name": "Claude Sonnet 5.5",
+    "provider": "anthropic",
+    "family": "claude-sonnet",
+    "created_at": "2026-09-28 00:00:00 UTC",
+    "context_window": 1000000,
+    "max_output_tokens": 128000,
+    "knowledge_cutoff": null,
+    "modalities": {
+      "input": [
+        "text",
+        "image",
+        "pdf"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "capabilities": [
+      "function_calling",
+      "structured_output",
+      "reasoning",
+      "vision"
+    ],
+    "pricing": {
+      "text_tokens": {
+        "standard": {
+          "input_per_million": 2,
+          "output_per_million": 10,
+          "cache_read_input_per_million": 0.1,
+          "cache_write_input_per_million": 2.5
+        }
+      }
+    },
+    "metadata": {
+      "source": "models.dev",
+      "provider_id": "anthropic",
+      "open_weights": false,
+      "attachment": true,
+      "temperature": false,
+      "last_updated": "2026-09-28",
+      "reasoning_options": [
+        {
+          "type": "effort",
+          "values": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ]
+        }
+      ],
+      "cost": {
+        "input": 2,
+        "output": 10,
+        "cache_read": 0.1,
+        "cache_write": 2.5
+      },
+      "limit": {
+        "context": 1000000,
+        "output": 128000
+      },
+      "knowledge": "2026-06"
     }
   },
   {
@@ -11653,6 +11802,87 @@
     }
   },
   {
+    "id": "anthropic.claude-haiku-5-5",
+    "name": "Claude Haiku 5.5",
+    "provider": "bedrock",
+    "family": "claude-haiku",
+    "created_at": "2026-10-07 00:00:00 UTC",
+    "context_window": 1000000,
+    "max_output_tokens": 128000,
+    "knowledge_cutoff": null,
+    "modalities": {
+      "input": [
+        "text",
+        "image",
+        "pdf"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "capabilities": [
+      "function_calling",
+      "reasoning",
+      "vision"
+    ],
+    "pricing": {
+      "text_tokens": {
+        "standard": {
+          "input_per_million": 0.1,
+          "output_per_million": 0.5,
+          "cache_read_input_per_million": 0.01,
+          "cache_write_input_per_million": 0.125
+        }
+      }
+    },
+    "metadata": {
+      "source": "models.dev",
+      "provider_id": "amazon-bedrock",
+      "open_weights": false,
+      "attachment": true,
+      "temperature": false,
+      "last_updated": "2026-10-07",
+      "reasoning_options": [
+        {
+          "type": "toggle"
+        },
+        {
+          "type": "effort",
+          "values": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ]
+        }
+      ],
+      "cost": {
+        "input": 0.1,
+        "output": 0.5,
+        "cache_read": 0.01,
+        "cache_write": 0.125,
+        "tiers": [
+          {
+            "input": 0.5,
+            "output": 2.5,
+            "cache_read": 0.05,
+            "cache_write": 0.625,
+            "tier": {
+              "type": "context",
+              "size": 100000
+            }
+          }
+        ]
+      },
+      "limit": {
+        "context": 1000000,
+        "output": 128000
+      },
+      "knowledge": "2026-06"
+    }
+  },
+  {
     "id": "anthropic.claude-opus-4-1-20250805-v1:0",
     "name": "Claude Opus 4.1",
     "provider": "bedrock",
@@ -12341,6 +12571,72 @@
     }
   },
   {
+    "id": "anthropic.claude-sonnet-5-5",
+    "name": "Claude Sonnet 5.5",
+    "provider": "bedrock",
+    "family": "claude-sonnet",
+    "created_at": "2026-09-28 00:00:00 UTC",
+    "context_window": 1000000,
+    "max_output_tokens": 128000,
+    "knowledge_cutoff": null,
+    "modalities": {
+      "input": [
+        "text",
+        "image",
+        "pdf"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "capabilities": [
+      "function_calling",
+      "reasoning",
+      "vision"
+    ],
+    "pricing": {
+      "text_tokens": {
+        "standard": {
+          "input_per_million": 2,
+          "output_per_million": 10,
+          "cache_read_input_per_million": 0.2,
+          "cache_write_input_per_million": 2.5
+        }
+      }
+    },
+    "metadata": {
+      "source": "models.dev",
+      "provider_id": "amazon-bedrock",
+      "open_weights": false,
+      "attachment": true,
+      "temperature": false,
+      "last_updated": "2026-09-28",
+      "reasoning_options": [
+        {
+          "type": "effort",
+          "values": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ]
+        }
+      ],
+      "cost": {
+        "input": 2,
+        "output": 10,
+        "cache_read": 0.2,
+        "cache_write": 2.5
+      },
+      "limit": {
+        "context": 1000000,
+        "output": 128000
+      },
+      "knowledge": "2026-06"
+    }
+  },
+  {
     "id": "apac.amazon.nova-lite-v1:0",
     "name": "Nova Lite (APAC)",
     "provider": "bedrock",
@@ -12624,6 +12920,87 @@
           "min": 1024
         }
       ]
+    }
+  },
+  {
+    "id": "au.anthropic.claude-haiku-5-5",
+    "name": "Claude Haiku 5.5 (AU)",
+    "provider": "bedrock",
+    "family": "claude-haiku",
+    "created_at": "2026-10-07 00:00:00 UTC",
+    "context_window": 1000000,
+    "max_output_tokens": 128000,
+    "knowledge_cutoff": null,
+    "modalities": {
+      "input": [
+        "text",
+        "image",
+        "pdf"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "capabilities": [
+      "function_calling",
+      "reasoning",
+      "vision"
+    ],
+    "pricing": {
+      "text_tokens": {
+        "standard": {
+          "input_per_million": 0.11,
+          "output_per_million": 0.55,
+          "cache_read_input_per_million": 0.011,
+          "cache_write_input_per_million": 0.1375
+        }
+      }
+    },
+    "metadata": {
+      "source": "models.dev",
+      "provider_id": "amazon-bedrock",
+      "open_weights": false,
+      "attachment": true,
+      "temperature": false,
+      "last_updated": "2026-10-07",
+      "reasoning_options": [
+        {
+          "type": "toggle"
+        },
+        {
+          "type": "effort",
+          "values": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ]
+        }
+      ],
+      "cost": {
+        "input": 0.11,
+        "output": 0.55,
+        "cache_read": 0.011,
+        "cache_write": 0.1375,
+        "tiers": [
+          {
+            "input": 0.55,
+            "output": 2.75,
+            "cache_read": 0.055,
+            "cache_write": 0.6875,
+            "tier": {
+              "type": "context",
+              "size": 100000
+            }
+          }
+        ]
+      },
+      "limit": {
+        "context": 1000000,
+        "output": 128000
+      },
+      "knowledge": "2026-06"
     }
   },
   {
@@ -14010,6 +14387,87 @@
     }
   },
   {
+    "id": "eu.anthropic.claude-haiku-5-5",
+    "name": "Claude Haiku 5.5 (EU)",
+    "provider": "bedrock",
+    "family": "claude-haiku",
+    "created_at": "2026-10-07 00:00:00 UTC",
+    "context_window": 1000000,
+    "max_output_tokens": 128000,
+    "knowledge_cutoff": null,
+    "modalities": {
+      "input": [
+        "text",
+        "image",
+        "pdf"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "capabilities": [
+      "function_calling",
+      "reasoning",
+      "vision"
+    ],
+    "pricing": {
+      "text_tokens": {
+        "standard": {
+          "input_per_million": 0.11,
+          "output_per_million": 0.55,
+          "cache_read_input_per_million": 0.011,
+          "cache_write_input_per_million": 0.1375
+        }
+      }
+    },
+    "metadata": {
+      "source": "models.dev",
+      "provider_id": "amazon-bedrock",
+      "open_weights": false,
+      "attachment": true,
+      "temperature": false,
+      "last_updated": "2026-10-07",
+      "reasoning_options": [
+        {
+          "type": "toggle"
+        },
+        {
+          "type": "effort",
+          "values": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ]
+        }
+      ],
+      "cost": {
+        "input": 0.11,
+        "output": 0.55,
+        "cache_read": 0.011,
+        "cache_write": 0.1375,
+        "tiers": [
+          {
+            "input": 0.55,
+            "output": 2.75,
+            "cache_read": 0.055,
+            "cache_write": 0.6875,
+            "tier": {
+              "type": "context",
+              "size": 100000
+            }
+          }
+        ]
+      },
+      "limit": {
+        "context": 1000000,
+        "output": 128000
+      },
+      "knowledge": "2026-06"
+    }
+  },
+  {
     "id": "eu.anthropic.claude-opus-4-5-20251101-v1:0",
     "name": "Claude Opus 4.5 (EU)",
     "provider": "bedrock",
@@ -14698,6 +15156,72 @@
     }
   },
   {
+    "id": "eu.anthropic.claude-sonnet-5-5",
+    "name": "Claude Sonnet 5.5 (EU)",
+    "provider": "bedrock",
+    "family": "claude-sonnet",
+    "created_at": "2026-09-28 00:00:00 UTC",
+    "context_window": 1000000,
+    "max_output_tokens": 128000,
+    "knowledge_cutoff": null,
+    "modalities": {
+      "input": [
+        "text",
+        "image",
+        "pdf"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "capabilities": [
+      "function_calling",
+      "reasoning",
+      "vision"
+    ],
+    "pricing": {
+      "text_tokens": {
+        "standard": {
+          "input_per_million": 2.2,
+          "output_per_million": 11,
+          "cache_read_input_per_million": 0.22,
+          "cache_write_input_per_million": 2.75
+        }
+      }
+    },
+    "metadata": {
+      "source": "models.dev",
+      "provider_id": "amazon-bedrock",
+      "open_weights": false,
+      "attachment": true,
+      "temperature": false,
+      "last_updated": "2026-09-28",
+      "reasoning_options": [
+        {
+          "type": "effort",
+          "values": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ]
+        }
+      ],
+      "cost": {
+        "input": 2.2,
+        "output": 11,
+        "cache_read": 0.22,
+        "cache_write": 2.75
+      },
+      "limit": {
+        "context": 1000000,
+        "output": 128000
+      },
+      "knowledge": "2026-06"
+    }
+  },
+  {
     "id": "eu.mistral.pixtral-large-2502-v1:0",
     "name": "Pixtral Large (25.02) (EU)",
     "provider": "bedrock",
@@ -15006,6 +15530,87 @@
           "min": 1024
         }
       ]
+    }
+  },
+  {
+    "id": "global.anthropic.claude-haiku-5-5",
+    "name": "Claude Haiku 5.5 (Global)",
+    "provider": "bedrock",
+    "family": "claude-haiku",
+    "created_at": "2026-10-07 00:00:00 UTC",
+    "context_window": 1000000,
+    "max_output_tokens": 128000,
+    "knowledge_cutoff": null,
+    "modalities": {
+      "input": [
+        "text",
+        "image",
+        "pdf"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "capabilities": [
+      "function_calling",
+      "reasoning",
+      "vision"
+    ],
+    "pricing": {
+      "text_tokens": {
+        "standard": {
+          "input_per_million": 0.1,
+          "output_per_million": 0.5,
+          "cache_read_input_per_million": 0.01,
+          "cache_write_input_per_million": 0.125
+        }
+      }
+    },
+    "metadata": {
+      "source": "models.dev",
+      "provider_id": "amazon-bedrock",
+      "open_weights": false,
+      "attachment": true,
+      "temperature": false,
+      "last_updated": "2026-10-07",
+      "reasoning_options": [
+        {
+          "type": "toggle"
+        },
+        {
+          "type": "effort",
+          "values": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ]
+        }
+      ],
+      "cost": {
+        "input": 0.1,
+        "output": 0.5,
+        "cache_read": 0.01,
+        "cache_write": 0.125,
+        "tiers": [
+          {
+            "input": 0.5,
+            "output": 2.5,
+            "cache_read": 0.05,
+            "cache_write": 0.625,
+            "tier": {
+              "type": "context",
+              "size": 100000
+            }
+          }
+        ]
+      },
+      "limit": {
+        "context": 1000000,
+        "output": 128000
+      },
+      "knowledge": "2026-06"
     }
   },
   {
@@ -15697,6 +16302,72 @@
     }
   },
   {
+    "id": "global.anthropic.claude-sonnet-5-5",
+    "name": "Claude Sonnet 5.5 (Global)",
+    "provider": "bedrock",
+    "family": "claude-sonnet",
+    "created_at": "2026-09-28 00:00:00 UTC",
+    "context_window": 1000000,
+    "max_output_tokens": 128000,
+    "knowledge_cutoff": null,
+    "modalities": {
+      "input": [
+        "text",
+        "image",
+        "pdf"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "capabilities": [
+      "function_calling",
+      "reasoning",
+      "vision"
+    ],
+    "pricing": {
+      "text_tokens": {
+        "standard": {
+          "input_per_million": 2,
+          "output_per_million": 10,
+          "cache_read_input_per_million": 0.2,
+          "cache_write_input_per_million": 2.5
+        }
+      }
+    },
+    "metadata": {
+      "source": "models.dev",
+      "provider_id": "amazon-bedrock",
+      "open_weights": false,
+      "attachment": true,
+      "temperature": false,
+      "last_updated": "2026-09-28",
+      "reasoning_options": [
+        {
+          "type": "effort",
+          "values": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ]
+        }
+      ],
+      "cost": {
+        "input": 2,
+        "output": 10,
+        "cache_read": 0.2,
+        "cache_write": 2.5
+      },
+      "limit": {
+        "context": 1000000,
+        "output": 128000
+      },
+      "knowledge": "2026-06"
+    }
+  },
+  {
     "id": "global.moonshotai.kimi-k3",
     "name": "Kimi K3 (Global)",
     "provider": "bedrock",
@@ -16265,6 +16936,91 @@
     }
   },
   {
+    "id": "global.openai.gpt-6.1-sol",
+    "name": "GPT-6.1 Sol (Global)",
+    "provider": "bedrock",
+    "family": "gpt-sol",
+    "created_at": "2026-09-29 00:00:00 UTC",
+    "context_window": 1050000,
+    "max_output_tokens": 128000,
+    "knowledge_cutoff": "2026-04-30",
+    "modalities": {
+      "input": [
+        "text",
+        "image"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "capabilities": [
+      "function_calling",
+      "structured_output",
+      "reasoning",
+      "vision"
+    ],
+    "pricing": {
+      "text_tokens": {
+        "standard": {
+          "input_per_million": 2,
+          "output_per_million": 10,
+          "cache_read_input_per_million": 0.1,
+          "cache_write_input_per_million": 2.5
+        }
+      }
+    },
+    "metadata": {
+      "source": "models.dev",
+      "provider_id": "amazon-bedrock",
+      "open_weights": false,
+      "attachment": true,
+      "temperature": false,
+      "last_updated": "2026-09-29",
+      "reasoning_options": [
+        {
+          "type": "effort",
+          "values": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ]
+        }
+      ],
+      "cost": {
+        "input": 2,
+        "output": 10,
+        "cache_read": 0.1,
+        "cache_write": 2.5,
+        "tiers": [
+          {
+            "input": 4,
+            "output": 15,
+            "cache_read": 0.2,
+            "cache_write": 5,
+            "tier": {
+              "type": "context",
+              "size": 272000
+            }
+          }
+        ],
+        "context_over_200k": {
+          "input": 4,
+          "output": 15,
+          "cache_read": 0.2,
+          "cache_write": 5
+        }
+      },
+      "limit": {
+        "context": 1050000,
+        "input": 922000,
+        "output": 128000
+      },
+      "knowledge": "2026-04-30"
+    }
+  },
+  {
     "id": "global.xai.grok-4.6",
     "name": "Grok 4.6 (Global)",
     "provider": "bedrock",
@@ -16324,6 +17080,133 @@
         "output": 500000
       },
       "knowledge": "2026-02-01"
+    }
+  },
+  {
+    "id": "global.xai.grok-4.7",
+    "name": "Grok 4.7 (Global)",
+    "provider": "bedrock",
+    "family": "grok",
+    "created_at": "2026-09-21 00:00:00 UTC",
+    "context_window": 500000,
+    "max_output_tokens": 500000,
+    "knowledge_cutoff": null,
+    "modalities": {
+      "input": [
+        "text",
+        "image",
+        "pdf"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "capabilities": [
+      "function_calling",
+      "structured_output",
+      "reasoning",
+      "vision"
+    ],
+    "pricing": {
+      "text_tokens": {
+        "standard": {
+          "input_per_million": 2,
+          "output_per_million": 6,
+          "cache_read_input_per_million": 0.5
+        }
+      }
+    },
+    "metadata": {
+      "source": "models.dev",
+      "provider_id": "amazon-bedrock",
+      "open_weights": false,
+      "attachment": true,
+      "temperature": true,
+      "last_updated": "2026-09-28",
+      "reasoning_options": [
+        {
+          "type": "effort",
+          "values": [
+            "low",
+            "medium",
+            "high",
+            "xhigh"
+          ]
+        }
+      ],
+      "cost": {
+        "input": 2,
+        "output": 6,
+        "cache_read": 0.5
+      },
+      "limit": {
+        "context": 500000,
+        "output": 500000
+      },
+      "knowledge": "2026-05"
+    }
+  },
+  {
+    "id": "global.zai.glm-5.3",
+    "name": "GLM-5.3 (Global)",
+    "provider": "bedrock",
+    "family": "glm",
+    "created_at": "2026-08-14 00:00:00 UTC",
+    "context_window": 1000000,
+    "max_output_tokens": 128000,
+    "knowledge_cutoff": null,
+    "modalities": {
+      "input": [
+        "text"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "capabilities": [
+      "function_calling",
+      "structured_output",
+      "reasoning"
+    ],
+    "pricing": {
+      "text_tokens": {
+        "standard": {
+          "input_per_million": 1.68,
+          "output_per_million": 5.28,
+          "cache_read_input_per_million": 0.312,
+          "cache_write_input_per_million": 2.1
+        }
+      }
+    },
+    "metadata": {
+      "source": "models.dev",
+      "provider_id": "amazon-bedrock",
+      "open_weights": true,
+      "attachment": false,
+      "temperature": true,
+      "last_updated": "2026-08-14",
+      "interleaved": true,
+      "reasoning_options": [
+        {
+          "type": "effort",
+          "values": [
+            "none",
+            "low",
+            "high",
+            "max"
+          ]
+        }
+      ],
+      "cost": {
+        "input": 1.68,
+        "output": 5.28,
+        "cache_read": 0.312,
+        "cache_write": 2.1
+      },
+      "limit": {
+        "context": 1000000,
+        "output": 128000
+      }
     }
   },
   {
@@ -16714,6 +17597,207 @@
     }
   },
   {
+    "id": "in.anthropic.claude-haiku-4-5-20251001-v1:0",
+    "name": "Claude Haiku 4.5 (India)",
+    "provider": "bedrock",
+    "family": "claude-haiku",
+    "created_at": "2025-10-15 00:00:00 UTC",
+    "context_window": 200000,
+    "max_output_tokens": 64000,
+    "knowledge_cutoff": "2025-02-28",
+    "modalities": {
+      "input": [
+        "text",
+        "image",
+        "pdf"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "capabilities": [
+      "function_calling",
+      "reasoning",
+      "vision"
+    ],
+    "pricing": {
+      "text_tokens": {
+        "standard": {
+          "input_per_million": 1.1,
+          "output_per_million": 5.5,
+          "cache_read_input_per_million": 0.11,
+          "cache_write_input_per_million": 1.375
+        }
+      }
+    },
+    "metadata": {
+      "source": "models.dev",
+      "provider_id": "amazon-bedrock",
+      "open_weights": false,
+      "attachment": true,
+      "temperature": true,
+      "last_updated": "2025-10-15",
+      "reasoning_options": [
+        {
+          "type": "toggle"
+        },
+        {
+          "type": "budget_tokens",
+          "min": 1024
+        }
+      ],
+      "cost": {
+        "input": 1.1,
+        "output": 5.5,
+        "cache_read": 0.11,
+        "cache_write": 1.375
+      },
+      "limit": {
+        "context": 200000,
+        "output": 64000
+      },
+      "knowledge": "2025-02-28"
+    }
+  },
+  {
+    "id": "in.anthropic.claude-opus-5",
+    "name": "Claude Opus 5 (India)",
+    "provider": "bedrock",
+    "family": "claude-opus",
+    "created_at": "2026-07-24 00:00:00 UTC",
+    "context_window": 1000000,
+    "max_output_tokens": 128000,
+    "knowledge_cutoff": null,
+    "modalities": {
+      "input": [
+        "text",
+        "image",
+        "pdf"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "capabilities": [
+      "function_calling",
+      "reasoning",
+      "vision"
+    ],
+    "pricing": {
+      "text_tokens": {
+        "standard": {
+          "input_per_million": 5.5,
+          "output_per_million": 27.5,
+          "cache_read_input_per_million": 0.55,
+          "cache_write_input_per_million": 6.875
+        }
+      }
+    },
+    "metadata": {
+      "source": "models.dev",
+      "provider_id": "amazon-bedrock",
+      "open_weights": false,
+      "attachment": true,
+      "temperature": false,
+      "last_updated": "2026-07-24",
+      "reasoning_options": [
+        {
+          "type": "toggle"
+        },
+        {
+          "type": "effort",
+          "values": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ]
+        }
+      ],
+      "cost": {
+        "input": 5.5,
+        "output": 27.5,
+        "cache_read": 0.55,
+        "cache_write": 6.875
+      },
+      "limit": {
+        "context": 1000000,
+        "output": 128000
+      },
+      "knowledge": "2026-05"
+    }
+  },
+  {
+    "id": "in.anthropic.claude-sonnet-5",
+    "name": "Claude Sonnet 5 (India)",
+    "provider": "bedrock",
+    "family": "claude-sonnet",
+    "created_at": "2026-06-30 00:00:00 UTC",
+    "context_window": 1000000,
+    "max_output_tokens": 128000,
+    "knowledge_cutoff": "2026-01-31",
+    "modalities": {
+      "input": [
+        "text",
+        "image",
+        "pdf"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "capabilities": [
+      "function_calling",
+      "reasoning",
+      "vision"
+    ],
+    "pricing": {
+      "text_tokens": {
+        "standard": {
+          "input_per_million": 2.2,
+          "output_per_million": 11,
+          "cache_read_input_per_million": 0.22,
+          "cache_write_input_per_million": 2.75
+        }
+      }
+    },
+    "metadata": {
+      "source": "models.dev",
+      "provider_id": "amazon-bedrock",
+      "open_weights": false,
+      "attachment": true,
+      "temperature": false,
+      "last_updated": "2026-06-30",
+      "reasoning_options": [
+        {
+          "type": "toggle"
+        },
+        {
+          "type": "effort",
+          "values": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ]
+        }
+      ],
+      "cost": {
+        "input": 2.2,
+        "output": 11,
+        "cache_read": 0.22,
+        "cache_write": 2.75
+      },
+      "limit": {
+        "context": 1000000,
+        "output": 128000
+      },
+      "knowledge": "2026-01-31"
+    }
+  },
+  {
     "id": "in.openai.gpt-5.6-luna",
     "name": "GPT-5.6 Luna (India)",
     "provider": "bedrock",
@@ -17016,6 +18100,87 @@
         "output": 64000
       },
       "knowledge": "2025-02-28"
+    }
+  },
+  {
+    "id": "jp.anthropic.claude-haiku-5-5",
+    "name": "Claude Haiku 5.5 (JP)",
+    "provider": "bedrock",
+    "family": "claude-haiku",
+    "created_at": "2026-10-07 00:00:00 UTC",
+    "context_window": 1000000,
+    "max_output_tokens": 128000,
+    "knowledge_cutoff": null,
+    "modalities": {
+      "input": [
+        "text",
+        "image",
+        "pdf"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "capabilities": [
+      "function_calling",
+      "reasoning",
+      "vision"
+    ],
+    "pricing": {
+      "text_tokens": {
+        "standard": {
+          "input_per_million": 0.11,
+          "output_per_million": 0.55,
+          "cache_read_input_per_million": 0.011,
+          "cache_write_input_per_million": 0.1375
+        }
+      }
+    },
+    "metadata": {
+      "source": "models.dev",
+      "provider_id": "amazon-bedrock",
+      "open_weights": false,
+      "attachment": true,
+      "temperature": false,
+      "last_updated": "2026-10-07",
+      "reasoning_options": [
+        {
+          "type": "toggle"
+        },
+        {
+          "type": "effort",
+          "values": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ]
+        }
+      ],
+      "cost": {
+        "input": 0.11,
+        "output": 0.55,
+        "cache_read": 0.011,
+        "cache_write": 0.1375,
+        "tiers": [
+          {
+            "input": 0.55,
+            "output": 2.75,
+            "cache_read": 0.055,
+            "cache_write": 0.6875,
+            "tier": {
+              "type": "context",
+              "size": 100000
+            }
+          }
+        ]
+      },
+      "limit": {
+        "context": 1000000,
+        "output": 128000
+      },
+      "knowledge": "2026-06"
     }
   },
   {
@@ -20141,6 +21306,92 @@
     }
   },
   {
+    "id": "openai.gpt-6.1-sol",
+    "name": "GPT-6.1 Sol",
+    "provider": "bedrock",
+    "family": "gpt-sol",
+    "created_at": "2026-09-29 00:00:00 UTC",
+    "context_window": 1050000,
+    "max_output_tokens": 128000,
+    "knowledge_cutoff": "2026-04-30",
+    "modalities": {
+      "input": [
+        "text",
+        "image",
+        "pdf"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "capabilities": [
+      "function_calling",
+      "structured_output",
+      "reasoning",
+      "vision"
+    ],
+    "pricing": {
+      "text_tokens": {
+        "standard": {
+          "input_per_million": 2.2,
+          "output_per_million": 11,
+          "cache_read_input_per_million": 0.11,
+          "cache_write_input_per_million": 2.75
+        }
+      }
+    },
+    "metadata": {
+      "source": "models.dev",
+      "provider_id": "amazon-bedrock",
+      "open_weights": false,
+      "attachment": true,
+      "temperature": false,
+      "last_updated": "2026-09-29",
+      "reasoning_options": [
+        {
+          "type": "effort",
+          "values": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ]
+        }
+      ],
+      "cost": {
+        "input": 2.2,
+        "output": 11,
+        "cache_read": 0.11,
+        "cache_write": 2.75,
+        "tiers": [
+          {
+            "input": 4.4,
+            "output": 16.5,
+            "cache_read": 0.22,
+            "cache_write": 5.5,
+            "tier": {
+              "type": "context",
+              "size": 272000
+            }
+          }
+        ],
+        "context_over_200k": {
+          "input": 4.4,
+          "output": 16.5,
+          "cache_read": 0.22,
+          "cache_write": 5.5
+        }
+      },
+      "limit": {
+        "context": 1050000,
+        "input": 922000,
+        "output": 128000
+      },
+      "knowledge": "2026-04-30"
+    }
+  },
+  {
     "id": "openai.gpt-oss-120b",
     "name": "gpt-oss-120b",
     "provider": "bedrock",
@@ -21811,6 +23062,87 @@
     }
   },
   {
+    "id": "us.anthropic.claude-haiku-5-5",
+    "name": "Claude Haiku 5.5 (US)",
+    "provider": "bedrock",
+    "family": "claude-haiku",
+    "created_at": "2026-10-07 00:00:00 UTC",
+    "context_window": 1000000,
+    "max_output_tokens": 128000,
+    "knowledge_cutoff": null,
+    "modalities": {
+      "input": [
+        "text",
+        "image",
+        "pdf"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "capabilities": [
+      "function_calling",
+      "reasoning",
+      "vision"
+    ],
+    "pricing": {
+      "text_tokens": {
+        "standard": {
+          "input_per_million": 0.11,
+          "output_per_million": 0.55,
+          "cache_read_input_per_million": 0.011,
+          "cache_write_input_per_million": 0.1375
+        }
+      }
+    },
+    "metadata": {
+      "source": "models.dev",
+      "provider_id": "amazon-bedrock",
+      "open_weights": false,
+      "attachment": true,
+      "temperature": false,
+      "last_updated": "2026-10-07",
+      "reasoning_options": [
+        {
+          "type": "toggle"
+        },
+        {
+          "type": "effort",
+          "values": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ]
+        }
+      ],
+      "cost": {
+        "input": 0.11,
+        "output": 0.55,
+        "cache_read": 0.011,
+        "cache_write": 0.1375,
+        "tiers": [
+          {
+            "input": 0.55,
+            "output": 2.75,
+            "cache_read": 0.055,
+            "cache_write": 0.6875,
+            "tier": {
+              "type": "context",
+              "size": 100000
+            }
+          }
+        ]
+      },
+      "limit": {
+        "context": 1000000,
+        "output": 128000
+      },
+      "knowledge": "2026-06"
+    }
+  },
+  {
     "id": "us.anthropic.claude-opus-4-1-20250805-v1:0",
     "name": "Claude Opus 4.1 (US)",
     "provider": "bedrock",
@@ -22768,6 +24100,72 @@
         "output": 128000
       },
       "knowledge": "2026-01-31"
+    }
+  },
+  {
+    "id": "us.anthropic.claude-sonnet-5-5",
+    "name": "Claude Sonnet 5.5 (US)",
+    "provider": "bedrock",
+    "family": "claude-sonnet",
+    "created_at": "2026-09-28 00:00:00 UTC",
+    "context_window": 1000000,
+    "max_output_tokens": 128000,
+    "knowledge_cutoff": null,
+    "modalities": {
+      "input": [
+        "text",
+        "image",
+        "pdf"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "capabilities": [
+      "function_calling",
+      "reasoning",
+      "vision"
+    ],
+    "pricing": {
+      "text_tokens": {
+        "standard": {
+          "input_per_million": 2.2,
+          "output_per_million": 11,
+          "cache_read_input_per_million": 0.22,
+          "cache_write_input_per_million": 2.75
+        }
+      }
+    },
+    "metadata": {
+      "source": "models.dev",
+      "provider_id": "amazon-bedrock",
+      "open_weights": false,
+      "attachment": true,
+      "temperature": false,
+      "last_updated": "2026-09-28",
+      "reasoning_options": [
+        {
+          "type": "effort",
+          "values": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ]
+        }
+      ],
+      "cost": {
+        "input": 2.2,
+        "output": 11,
+        "cache_read": 0.22,
+        "cache_write": 2.75
+      },
+      "limit": {
+        "context": 1000000,
+        "output": 128000
+      },
+      "knowledge": "2026-06"
     }
   },
   {
@@ -23869,6 +25267,91 @@
     }
   },
   {
+    "id": "us.openai.gpt-6.1-sol",
+    "name": "GPT-6.1 Sol (US)",
+    "provider": "bedrock",
+    "family": "gpt-sol",
+    "created_at": "2026-09-29 00:00:00 UTC",
+    "context_window": 1050000,
+    "max_output_tokens": 128000,
+    "knowledge_cutoff": "2026-04-30",
+    "modalities": {
+      "input": [
+        "text",
+        "image"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "capabilities": [
+      "function_calling",
+      "structured_output",
+      "reasoning",
+      "vision"
+    ],
+    "pricing": {
+      "text_tokens": {
+        "standard": {
+          "input_per_million": 2.2,
+          "output_per_million": 11,
+          "cache_read_input_per_million": 0.11,
+          "cache_write_input_per_million": 2.75
+        }
+      }
+    },
+    "metadata": {
+      "source": "models.dev",
+      "provider_id": "amazon-bedrock",
+      "open_weights": false,
+      "attachment": true,
+      "temperature": false,
+      "last_updated": "2026-09-29",
+      "reasoning_options": [
+        {
+          "type": "effort",
+          "values": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ]
+        }
+      ],
+      "cost": {
+        "input": 2.2,
+        "output": 11,
+        "cache_read": 0.11,
+        "cache_write": 2.75,
+        "tiers": [
+          {
+            "input": 4.4,
+            "output": 16.5,
+            "cache_read": 0.22,
+            "cache_write": 5.5,
+            "tier": {
+              "type": "context",
+              "size": 272000
+            }
+          }
+        ],
+        "context_over_200k": {
+          "input": 4.4,
+          "output": 16.5,
+          "cache_read": 0.22,
+          "cache_write": 5.5
+        }
+      },
+      "limit": {
+        "context": 1050000,
+        "input": 922000,
+        "output": 128000
+      },
+      "knowledge": "2026-04-30"
+    }
+  },
+  {
     "id": "us.stability.stable-conservative-upscale-v1:0",
     "name": "Stable Image Conservative Upscale",
     "provider": "bedrock",
@@ -24472,6 +25955,133 @@
         "output": 500000
       },
       "knowledge": "2026-02-01"
+    }
+  },
+  {
+    "id": "us.xai.grok-4.7",
+    "name": "Grok 4.7 (US)",
+    "provider": "bedrock",
+    "family": "grok",
+    "created_at": "2026-09-21 00:00:00 UTC",
+    "context_window": 500000,
+    "max_output_tokens": 500000,
+    "knowledge_cutoff": null,
+    "modalities": {
+      "input": [
+        "text",
+        "image",
+        "pdf"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "capabilities": [
+      "function_calling",
+      "structured_output",
+      "reasoning",
+      "vision"
+    ],
+    "pricing": {
+      "text_tokens": {
+        "standard": {
+          "input_per_million": 2.2,
+          "output_per_million": 6.6,
+          "cache_read_input_per_million": 0.55
+        }
+      }
+    },
+    "metadata": {
+      "source": "models.dev",
+      "provider_id": "amazon-bedrock",
+      "open_weights": false,
+      "attachment": true,
+      "temperature": true,
+      "last_updated": "2026-09-28",
+      "reasoning_options": [
+        {
+          "type": "effort",
+          "values": [
+            "low",
+            "medium",
+            "high",
+            "xhigh"
+          ]
+        }
+      ],
+      "cost": {
+        "input": 2.2,
+        "output": 6.6,
+        "cache_read": 0.55
+      },
+      "limit": {
+        "context": 500000,
+        "output": 500000
+      },
+      "knowledge": "2026-05"
+    }
+  },
+  {
+    "id": "us.zai.glm-5.3",
+    "name": "GLM-5.3 (US)",
+    "provider": "bedrock",
+    "family": "glm",
+    "created_at": "2026-08-14 00:00:00 UTC",
+    "context_window": 1000000,
+    "max_output_tokens": 128000,
+    "knowledge_cutoff": null,
+    "modalities": {
+      "input": [
+        "text"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "capabilities": [
+      "function_calling",
+      "structured_output",
+      "reasoning"
+    ],
+    "pricing": {
+      "text_tokens": {
+        "standard": {
+          "input_per_million": 1.848,
+          "output_per_million": 5.808,
+          "cache_read_input_per_million": 0.3432,
+          "cache_write_input_per_million": 2.31
+        }
+      }
+    },
+    "metadata": {
+      "source": "models.dev",
+      "provider_id": "amazon-bedrock",
+      "open_weights": true,
+      "attachment": false,
+      "temperature": true,
+      "last_updated": "2026-08-14",
+      "interleaved": true,
+      "reasoning_options": [
+        {
+          "type": "effort",
+          "values": [
+            "none",
+            "low",
+            "high",
+            "max"
+          ]
+        }
+      ],
+      "cost": {
+        "input": 1.848,
+        "output": 5.808,
+        "cache_read": 0.3432,
+        "cache_write": 2.31
+      },
+      "limit": {
+        "context": 1000000,
+        "output": 128000
+      }
     }
   },
   {
@@ -25298,10 +26908,10 @@
     "pricing": {
       "text_tokens": {
         "standard": {
-          "input_per_million": 0.435,
-          "output_per_million": 0.87,
-          "cache_read_input_per_million": 0.003625,
-          "reasoning_output_per_million": 0.87
+          "input_per_million": 0.66,
+          "output_per_million": 1.98,
+          "cache_read_input_per_million": 0.022,
+          "reasoning_output_per_million": 1.98
         }
       }
     },
@@ -25331,10 +26941,10 @@
         }
       ],
       "cost": {
-        "input": 0.435,
-        "output": 0.87,
-        "reasoning": 0.87,
-        "cache_read": 0.003625
+        "input": 0.66,
+        "output": 1.98,
+        "reasoning": 1.98,
+        "cache_read": 0.022
       },
       "limit": {
         "context": 1000000,
@@ -28881,11 +30491,11 @@
   },
   {
     "id": "codestral-2508",
-    "name": "Codestral",
+    "name": "Codestral 25.08",
     "provider": "mistral",
     "family": "codestral",
-    "created_at": "2025-08-29 22:00:00 UTC",
-    "context_window": 32768,
+    "created_at": "2025-07-30 00:00:00 UTC",
+    "context_window": 256000,
     "max_output_tokens": 8192,
     "knowledge_cutoff": null,
     "modalities": {
@@ -28897,16 +30507,39 @@
       ]
     },
     "capabilities": [
-      "streaming",
       "function_calling",
       "structured_output",
+      "streaming",
       "batch",
       "predicted_outputs"
     ],
-    "pricing": {},
+    "pricing": {
+      "text_tokens": {
+        "standard": {
+          "input_per_million": 0.3,
+          "output_per_million": 0.9,
+          "cache_read_input_per_million": 0.03
+        }
+      }
+    },
     "metadata": {
       "object": "model",
-      "owned_by": "mistralai"
+      "owned_by": "mistralai",
+      "source": "models.dev",
+      "provider_id": "mistral",
+      "open_weights": false,
+      "attachment": false,
+      "temperature": true,
+      "last_updated": "2025-07-30",
+      "cost": {
+        "input": 0.3,
+        "output": 0.9,
+        "cache_read": 0.03
+      },
+      "limit": {
+        "context": 256000,
+        "output": 8192
+      }
     }
   },
   {
@@ -28996,7 +30629,8 @@
       "text_tokens": {
         "standard": {
           "input_per_million": 0.3,
-          "output_per_million": 0.9
+          "output_per_million": 0.9,
+          "cache_read_input_per_million": 0.03
         }
       }
     },
@@ -29011,7 +30645,8 @@
       "last_updated": "2025-01-04",
       "cost": {
         "input": 0.3,
-        "output": 0.9
+        "output": 0.9,
+        "cache_read": 0.03
       },
       "limit": {
         "context": 256000,
@@ -29318,6 +30953,66 @@
     }
   },
   {
+    "id": "glm-5-2",
+    "name": "GLM-5.2",
+    "provider": "mistral",
+    "family": "glm",
+    "created_at": "2026-06-13 00:00:00 UTC",
+    "context_window": 1048576,
+    "max_output_tokens": 131072,
+    "knowledge_cutoff": null,
+    "modalities": {
+      "input": [
+        "text"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "capabilities": [
+      "function_calling",
+      "structured_output",
+      "reasoning"
+    ],
+    "pricing": {
+      "text_tokens": {
+        "standard": {
+          "input_per_million": 1.4,
+          "output_per_million": 4.4,
+          "cache_read_input_per_million": 0.14
+        }
+      }
+    },
+    "metadata": {
+      "source": "models.dev",
+      "provider_id": "mistral",
+      "open_weights": true,
+      "attachment": false,
+      "temperature": true,
+      "last_updated": "2026-06-13",
+      "status": "deprecated",
+      "reasoning_options": [
+        {
+          "type": "effort",
+          "values": [
+            "none",
+            "high",
+            "max"
+          ]
+        }
+      ],
+      "cost": {
+        "input": 1.4,
+        "output": 4.4,
+        "cache_read": 0.14
+      },
+      "limit": {
+        "context": 1048576,
+        "output": 131072
+      }
+    }
+  },
+  {
     "id": "labs-devstral-small-2512",
     "name": "Devstral Small 2",
     "provider": "mistral",
@@ -29364,6 +31059,65 @@
         "output": 256000
       },
       "knowledge": "2025-12"
+    }
+  },
+  {
+    "id": "labs-leanstral-1-5-1",
+    "name": "Leanstral 1.5",
+    "provider": "mistral",
+    "family": "leanstral",
+    "created_at": "2026-06-30 00:00:00 UTC",
+    "context_window": 262144,
+    "max_output_tokens": 128000,
+    "knowledge_cutoff": null,
+    "modalities": {
+      "input": [
+        "text",
+        "image"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "capabilities": [
+      "function_calling",
+      "structured_output",
+      "reasoning",
+      "vision"
+    ],
+    "pricing": {
+      "text_tokens": {
+        "standard": {
+          "input_per_million": 0,
+          "output_per_million": 0
+        }
+      }
+    },
+    "metadata": {
+      "source": "models.dev",
+      "provider_id": "mistral",
+      "open_weights": true,
+      "attachment": true,
+      "temperature": true,
+      "last_updated": "2026-06-30",
+      "status": "deprecated",
+      "reasoning_options": [
+        {
+          "type": "effort",
+          "values": [
+            "none",
+            "high"
+          ]
+        }
+      ],
+      "cost": {
+        "input": 0,
+        "output": 0
+      },
+      "limit": {
+        "context": 262144,
+        "output": 128000
+      }
     }
   },
   {
@@ -29431,12 +31185,13 @@
     "provider": "mistral",
     "family": "magistral-medium",
     "created_at": "2025-03-17 00:00:00 UTC",
-    "context_window": 128000,
+    "context_window": 262144,
     "max_output_tokens": 16384,
     "knowledge_cutoff": null,
     "modalities": {
       "input": [
-        "text"
+        "text",
+        "image"
       ],
       "output": [
         "text"
@@ -29445,6 +31200,7 @@
     "capabilities": [
       "function_calling",
       "reasoning",
+      "vision",
       "streaming",
       "batch"
     ],
@@ -29462,7 +31218,7 @@
       "source": "models.dev",
       "provider_id": "mistral",
       "open_weights": true,
-      "attachment": false,
+      "attachment": true,
       "temperature": true,
       "last_updated": "2025-03-20",
       "cost": {
@@ -29470,11 +31226,20 @@
         "output": 5
       },
       "limit": {
-        "context": 128000,
+        "context": 262144,
         "output": 16384
       },
       "knowledge": "2025-06",
-      "reasoning_options": []
+      "reasoning_options": [
+        {
+          "type": "effort",
+          "values": [
+            "none",
+            "high"
+          ]
+        }
+      ],
+      "status": "deprecated"
     }
   },
   {
@@ -29587,32 +31352,57 @@
   },
   {
     "id": "ministral-14b-2512",
-    "name": "Ministral 14b 2512",
+    "name": "Ministral 3 14B",
     "provider": "mistral",
     "family": "ministral",
-    "created_at": null,
-    "context_window": 32768,
-    "max_output_tokens": 8192,
+    "created_at": "2025-12-02 00:00:00 UTC",
+    "context_window": 262144,
+    "max_output_tokens": 262144,
     "knowledge_cutoff": null,
     "modalities": {
       "input": [
-        "text"
+        "text",
+        "image"
       ],
       "output": [
         "text"
       ]
     },
     "capabilities": [
-      "streaming",
       "function_calling",
       "structured_output",
+      "vision",
+      "streaming",
       "batch",
       "distillation"
     ],
-    "pricing": {},
+    "pricing": {
+      "text_tokens": {
+        "standard": {
+          "input_per_million": 0.2,
+          "output_per_million": 0.2,
+          "cache_read_input_per_million": 0.02
+        }
+      }
+    },
     "metadata": {
       "object": "model",
-      "owned_by": "mistralai"
+      "owned_by": "mistralai",
+      "source": "models.dev",
+      "provider_id": "mistral",
+      "open_weights": true,
+      "attachment": true,
+      "temperature": true,
+      "last_updated": "2025-12-02",
+      "cost": {
+        "input": 0.2,
+        "output": 0.2,
+        "cache_read": 0.02
+      },
+      "limit": {
+        "context": 262144,
+        "output": 262144
+      }
     }
   },
   {
@@ -29647,32 +31437,57 @@
   },
   {
     "id": "ministral-3b-2512",
-    "name": "Ministral 3B",
+    "name": "Ministral 3 3B",
     "provider": "mistral",
     "family": "ministral",
-    "created_at": null,
-    "context_window": 32768,
-    "max_output_tokens": 8192,
+    "created_at": "2025-12-02 00:00:00 UTC",
+    "context_window": 131072,
+    "max_output_tokens": 262144,
     "knowledge_cutoff": null,
     "modalities": {
       "input": [
-        "text"
+        "text",
+        "image"
       ],
       "output": [
         "text"
       ]
     },
     "capabilities": [
-      "streaming",
       "function_calling",
       "structured_output",
+      "vision",
+      "streaming",
       "batch",
       "distillation"
     ],
-    "pricing": {},
+    "pricing": {
+      "text_tokens": {
+        "standard": {
+          "input_per_million": 0.1,
+          "output_per_million": 0.1,
+          "cache_read_input_per_million": 0.01
+        }
+      }
+    },
     "metadata": {
       "object": "model",
-      "owned_by": "mistralai"
+      "owned_by": "mistralai",
+      "source": "models.dev",
+      "provider_id": "mistral",
+      "open_weights": true,
+      "attachment": true,
+      "temperature": true,
+      "last_updated": "2025-12-02",
+      "cost": {
+        "input": 0.1,
+        "output": 0.1,
+        "cache_read": 0.01
+      },
+      "limit": {
+        "context": 131072,
+        "output": 262144
+      }
     }
   },
   {
@@ -29681,12 +31496,13 @@
     "provider": "mistral",
     "family": "ministral",
     "created_at": "2024-10-01 00:00:00 UTC",
-    "context_window": 128000,
+    "context_window": 131072,
     "max_output_tokens": 128000,
     "knowledge_cutoff": null,
     "modalities": {
       "input": [
-        "text"
+        "text",
+        "image"
       ],
       "output": [
         "text"
@@ -29694,6 +31510,7 @@
     },
     "capabilities": [
       "function_calling",
+      "vision",
       "streaming",
       "batch",
       "distillation"
@@ -29712,7 +31529,7 @@
       "source": "models.dev",
       "provider_id": "mistral",
       "open_weights": true,
-      "attachment": false,
+      "attachment": true,
       "temperature": true,
       "last_updated": "2024-10-04",
       "cost": {
@@ -29720,7 +31537,7 @@
         "output": 0.04
       },
       "limit": {
-        "context": 128000,
+        "context": 131072,
         "output": 128000
       },
       "knowledge": "2024-10"
@@ -29728,32 +31545,57 @@
   },
   {
     "id": "ministral-8b-2512",
-    "name": "Ministral 8B",
+    "name": "Ministral 3 8B",
     "provider": "mistral",
     "family": "ministral",
-    "created_at": null,
-    "context_window": 32768,
-    "max_output_tokens": 8192,
+    "created_at": "2025-12-02 00:00:00 UTC",
+    "context_window": 262144,
+    "max_output_tokens": 262144,
     "knowledge_cutoff": null,
     "modalities": {
       "input": [
-        "text"
+        "text",
+        "image"
       ],
       "output": [
         "text"
       ]
     },
     "capabilities": [
-      "streaming",
       "function_calling",
       "structured_output",
+      "vision",
+      "streaming",
       "batch",
       "distillation"
     ],
-    "pricing": {},
+    "pricing": {
+      "text_tokens": {
+        "standard": {
+          "input_per_million": 0.15,
+          "output_per_million": 0.15,
+          "cache_read_input_per_million": 0.015
+        }
+      }
+    },
     "metadata": {
       "object": "model",
-      "owned_by": "mistralai"
+      "owned_by": "mistralai",
+      "source": "models.dev",
+      "provider_id": "mistral",
+      "open_weights": true,
+      "attachment": true,
+      "temperature": true,
+      "last_updated": "2025-12-02",
+      "cost": {
+        "input": 0.15,
+        "output": 0.15,
+        "cache_read": 0.015
+      },
+      "limit": {
+        "context": 262144,
+        "output": 262144
+      }
     }
   },
   {
@@ -29762,12 +31604,13 @@
     "provider": "mistral",
     "family": "ministral",
     "created_at": "2024-10-01 00:00:00 UTC",
-    "context_window": 128000,
+    "context_window": 262144,
     "max_output_tokens": 128000,
     "knowledge_cutoff": null,
     "modalities": {
       "input": [
-        "text"
+        "text",
+        "image"
       ],
       "output": [
         "text"
@@ -29775,6 +31618,7 @@
     },
     "capabilities": [
       "function_calling",
+      "vision",
       "streaming",
       "batch",
       "distillation"
@@ -29793,7 +31637,7 @@
       "source": "models.dev",
       "provider_id": "mistral",
       "open_weights": true,
-      "attachment": false,
+      "attachment": true,
       "temperature": true,
       "last_updated": "2024-10-04",
       "cost": {
@@ -29801,7 +31645,7 @@
         "output": 0.1
       },
       "limit": {
-        "context": 128000,
+        "context": 262144,
         "output": 128000
       },
       "knowledge": "2024-10"
@@ -30014,7 +31858,8 @@
         "context": 131072,
         "output": 16384
       },
-      "knowledge": "2024-11"
+      "knowledge": "2024-11",
+      "status": "deprecated"
     }
   },
   {
@@ -30046,7 +31891,8 @@
       "text_tokens": {
         "standard": {
           "input_per_million": 0.5,
-          "output_per_million": 1.5
+          "output_per_million": 1.5,
+          "cache_read_input_per_million": 0.05
         }
       }
     },
@@ -30061,13 +31907,75 @@
       "last_updated": "2025-12-02",
       "cost": {
         "input": 0.5,
-        "output": 1.5
+        "output": 1.5,
+        "cache_read": 0.05
       },
       "limit": {
         "context": 262144,
         "output": 262144
       },
       "knowledge": "2024-11"
+    }
+  },
+  {
+    "id": "mistral-large-4",
+    "name": "Mistral Large 4",
+    "provider": "mistral",
+    "family": "mistral-large",
+    "created_at": "2026-10-06 00:00:00 UTC",
+    "context_window": 524288,
+    "max_output_tokens": 262144,
+    "knowledge_cutoff": null,
+    "modalities": {
+      "input": [
+        "text",
+        "image"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "capabilities": [
+      "function_calling",
+      "structured_output",
+      "reasoning",
+      "vision"
+    ],
+    "pricing": {
+      "text_tokens": {
+        "standard": {
+          "input_per_million": 0.68,
+          "output_per_million": 2.09,
+          "cache_read_input_per_million": 0.07
+        }
+      }
+    },
+    "metadata": {
+      "source": "models.dev",
+      "provider_id": "mistral",
+      "open_weights": false,
+      "attachment": true,
+      "temperature": true,
+      "last_updated": "2026-10-06",
+      "status": "beta",
+      "reasoning_options": [
+        {
+          "type": "effort",
+          "values": [
+            "none",
+            "high"
+          ]
+        }
+      ],
+      "cost": {
+        "input": 0.68,
+        "output": 2.09,
+        "cache_read": 0.07
+      },
+      "limit": {
+        "context": 524288,
+        "output": 262144
+      }
     }
   },
   {
@@ -30099,7 +32007,8 @@
       "text_tokens": {
         "standard": {
           "input_per_million": 0.5,
-          "output_per_million": 1.5
+          "output_per_million": 1.5,
+          "cache_read_input_per_million": 0.05
         }
       }
     },
@@ -30114,7 +32023,8 @@
       "last_updated": "2025-12-02",
       "cost": {
         "input": 0.5,
-        "output": 1.5
+        "output": 1.5,
+        "cache_read": 0.05
       },
       "limit": {
         "context": 262144,
@@ -30204,7 +32114,8 @@
         "context": 131072,
         "output": 131072
       },
-      "knowledge": "2025-05"
+      "knowledge": "2025-05",
+      "status": "deprecated"
     }
   },
   {
@@ -30257,7 +32168,8 @@
         "context": 262144,
         "output": 262144
       },
-      "knowledge": "2025-05"
+      "knowledge": "2025-05",
+      "status": "deprecated"
     }
   },
   {
@@ -30291,7 +32203,8 @@
       "text_tokens": {
         "standard": {
           "input_per_million": 1.5,
-          "output_per_million": 7.5
+          "output_per_million": 7.5,
+          "cache_read_input_per_million": 0.15
         }
       }
     },
@@ -30315,7 +32228,8 @@
       ],
       "cost": {
         "input": 1.5,
-        "output": 7.5
+        "output": 7.5,
+        "cache_read": 0.15
       },
       "limit": {
         "context": 262144,
@@ -30481,7 +32395,8 @@
       "text_tokens": {
         "standard": {
           "input_per_million": 1.5,
-          "output_per_million": 7.5
+          "output_per_million": 7.5,
+          "cache_read_input_per_million": 0.15
         }
       }
     },
@@ -30496,7 +32411,8 @@
       "last_updated": "2026-04-29",
       "cost": {
         "input": 1.5,
-        "output": 7.5
+        "output": 7.5,
+        "cache_read": 0.15
       },
       "limit": {
         "context": 262144,
@@ -30635,7 +32551,8 @@
         "context": 128000,
         "output": 128000
       },
-      "knowledge": "2024-07"
+      "knowledge": "2024-07",
+      "status": "deprecated"
     }
   },
   {
@@ -30740,7 +32657,8 @@
         "context": 128000,
         "output": 16384
       },
-      "knowledge": "2025-03"
+      "knowledge": "2025-03",
+      "status": "deprecated"
     }
   },
   {
@@ -30749,7 +32667,7 @@
     "provider": "mistral",
     "family": "mistral-small",
     "created_at": "2026-03-16 00:00:00 UTC",
-    "context_window": 256000,
+    "context_window": 262144,
     "max_output_tokens": 256000,
     "knowledge_cutoff": null,
     "modalities": {
@@ -30773,7 +32691,8 @@
       "text_tokens": {
         "standard": {
           "input_per_million": 0.15,
-          "output_per_million": 0.6
+          "output_per_million": 0.6,
+          "cache_read_input_per_million": 0.015
         }
       }
     },
@@ -30797,10 +32716,11 @@
       ],
       "cost": {
         "input": 0.15,
-        "output": 0.6
+        "output": 0.6,
+        "cache_read": 0.015
       },
       "limit": {
-        "context": 256000,
+        "context": 262144,
         "output": 256000
       },
       "knowledge": "2025-06"
@@ -30812,7 +32732,7 @@
     "provider": "mistral",
     "family": "mistral-small",
     "created_at": "2026-03-16 00:00:00 UTC",
-    "context_window": 256000,
+    "context_window": 262144,
     "max_output_tokens": 256000,
     "knowledge_cutoff": null,
     "modalities": {
@@ -30836,7 +32756,8 @@
       "text_tokens": {
         "standard": {
           "input_per_million": 0.15,
-          "output_per_million": 0.6
+          "output_per_million": 0.6,
+          "cache_read_input_per_million": 0.015
         }
       }
     },
@@ -30860,10 +32781,11 @@
       ],
       "cost": {
         "input": 0.15,
-        "output": 0.6
+        "output": 0.6,
+        "cache_read": 0.015
       },
       "limit": {
-        "context": 256000,
+        "context": 262144,
         "output": 256000
       },
       "knowledge": "2025-06"
@@ -31057,7 +32979,8 @@
         "context": 8000,
         "output": 8000
       },
-      "knowledge": "2023-12"
+      "knowledge": "2023-12",
+      "status": "deprecated"
     }
   },
   {
@@ -31183,7 +33106,8 @@
         "context": 64000,
         "output": 64000
       },
-      "knowledge": "2024-04"
+      "knowledge": "2024-04",
+      "status": "deprecated"
     }
   },
   {
@@ -31229,7 +33153,8 @@
         "context": 32000,
         "output": 32000
       },
-      "knowledge": "2024-01"
+      "knowledge": "2024-01",
+      "status": "deprecated"
     }
   },
   {
@@ -31277,7 +33202,8 @@
         "context": 128000,
         "output": 128000
       },
-      "knowledge": "2024-09"
+      "knowledge": "2024-09",
+      "status": "deprecated"
     }
   },
   {
@@ -31325,7 +33251,8 @@
         "context": 128000,
         "output": 128000
       },
-      "knowledge": "2024-11"
+      "knowledge": "2024-11",
+      "status": "deprecated"
     }
   },
   {
@@ -31558,28 +33485,51 @@
   },
   {
     "id": "voxtral-small-2507",
-    "name": "Voxtral Small 2507",
+    "name": "Voxtral Small",
     "provider": "mistral",
-    "family": "mistral",
-    "created_at": null,
+    "family": "voxtral",
+    "created_at": "2025-07-15 00:00:00 UTC",
     "context_window": 32768,
-    "max_output_tokens": 8192,
+    "max_output_tokens": 32000,
     "knowledge_cutoff": null,
     "modalities": {
       "input": [
-        "text"
+        "text",
+        "audio"
       ],
       "output": [
         "text"
       ]
     },
     "capabilities": [
+      "function_calling",
       "streaming"
     ],
-    "pricing": {},
+    "pricing": {
+      "text_tokens": {
+        "standard": {
+          "input_per_million": 0.1,
+          "output_per_million": 0.4
+        }
+      }
+    },
     "metadata": {
       "object": "model",
-      "owned_by": "mistralai"
+      "owned_by": "mistralai",
+      "source": "models.dev",
+      "provider_id": "mistral",
+      "open_weights": true,
+      "attachment": true,
+      "temperature": true,
+      "last_updated": "2025-07-15",
+      "cost": {
+        "input": 0.1,
+        "output": 0.4
+      },
+      "limit": {
+        "context": 32768,
+        "output": 32000
+      }
     }
   },
   {
@@ -31588,7 +33538,7 @@
     "provider": "mistral",
     "family": "voxtral",
     "created_at": "2025-07-15 00:00:00 UTC",
-    "context_window": 32000,
+    "context_window": 32768,
     "max_output_tokens": 32000,
     "knowledge_cutoff": null,
     "modalities": {
@@ -31626,7 +33576,7 @@
         "output": 0.3
       },
       "limit": {
-        "context": 32000,
+        "context": 32768,
         "output": 32000
       }
     }
@@ -31637,7 +33587,7 @@
     "provider": "mistral",
     "family": "glm",
     "created_at": "2026-06-13 00:00:00 UTC",
-    "context_window": 1000000,
+    "context_window": 1048576,
     "max_output_tokens": 131072,
     "knowledge_cutoff": null,
     "modalities": {
@@ -31669,7 +33619,7 @@
       "attachment": false,
       "temperature": true,
       "last_updated": "2026-06-13",
-      "status": "beta",
+      "status": "deprecated",
       "reasoning_options": [
         {
           "type": "effort",
@@ -31686,7 +33636,7 @@
         "cache_read": 0.14
       },
       "limit": {
-        "context": 1000000,
+        "context": 1048576,
         "output": 131072
       }
     }
@@ -31697,7 +33647,7 @@
     "provider": "mistral",
     "family": "glm",
     "created_at": "2026-08-14 00:00:00 UTC",
-    "context_window": 1000000,
+    "context_window": 1048576,
     "max_output_tokens": 131072,
     "knowledge_cutoff": null,
     "modalities": {
@@ -31745,7 +33695,7 @@
         "cache_read": 0.14
       },
       "limit": {
-        "context": 1000000,
+        "context": 1048576,
         "output": 131072
       }
     }
@@ -35749,6 +37699,92 @@
     }
   },
   {
+    "id": "gpt-6.1-sol",
+    "name": "GPT-6.1 Sol",
+    "provider": "openai",
+    "family": "gpt-sol",
+    "created_at": "2026-09-29 00:00:00 UTC",
+    "context_window": 1050000,
+    "max_output_tokens": 128000,
+    "knowledge_cutoff": "2026-04-30",
+    "modalities": {
+      "input": [
+        "text",
+        "image",
+        "pdf"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "capabilities": [
+      "function_calling",
+      "structured_output",
+      "reasoning",
+      "vision"
+    ],
+    "pricing": {
+      "text_tokens": {
+        "standard": {
+          "input_per_million": 2,
+          "output_per_million": 10,
+          "cache_read_input_per_million": 0.1,
+          "cache_write_input_per_million": 2.5
+        }
+      }
+    },
+    "metadata": {
+      "source": "models.dev",
+      "provider_id": "openai",
+      "open_weights": false,
+      "attachment": true,
+      "temperature": false,
+      "last_updated": "2026-09-29",
+      "reasoning_options": [
+        {
+          "type": "effort",
+          "values": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ]
+        }
+      ],
+      "cost": {
+        "input": 2,
+        "output": 10,
+        "cache_read": 0.1,
+        "cache_write": 2.5,
+        "tiers": [
+          {
+            "input": 4,
+            "output": 15,
+            "cache_read": 0.2,
+            "cache_write": 5,
+            "tier": {
+              "type": "context",
+              "size": 272000
+            }
+          }
+        ],
+        "context_over_200k": {
+          "input": 4,
+          "output": 15,
+          "cache_read": 0.2,
+          "cache_write": 5
+        }
+      },
+      "limit": {
+        "context": 1050000,
+        "input": 922000,
+        "output": 128000
+      },
+      "knowledge": "2026-04-30"
+    }
+  },
+  {
     "id": "gpt-audio",
     "name": "gpt-audio",
     "provider": "openai",
@@ -39353,6 +41389,88 @@
     }
   },
   {
+    "id": "anthropic/claude-haiku-5.5",
+    "name": "Claude Haiku 5.5",
+    "provider": "openrouter",
+    "family": "claude-haiku",
+    "created_at": "2026-10-07 00:00:00 UTC",
+    "context_window": 1000000,
+    "max_output_tokens": 128000,
+    "knowledge_cutoff": null,
+    "modalities": {
+      "input": [
+        "text",
+        "image",
+        "pdf"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "capabilities": [
+      "function_calling",
+      "structured_output",
+      "reasoning",
+      "vision"
+    ],
+    "pricing": {
+      "text_tokens": {
+        "standard": {
+          "input_per_million": 0.1,
+          "output_per_million": 0.5,
+          "cache_read_input_per_million": 0.01,
+          "cache_write_input_per_million": 0.125
+        }
+      }
+    },
+    "metadata": {
+      "source": "models.dev",
+      "provider_id": "openrouter",
+      "open_weights": false,
+      "attachment": true,
+      "temperature": true,
+      "last_updated": "2026-10-07",
+      "reasoning_options": [
+        {
+          "type": "toggle"
+        },
+        {
+          "type": "effort",
+          "values": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ]
+        }
+      ],
+      "cost": {
+        "input": 0.1,
+        "output": 0.5,
+        "cache_read": 0.01,
+        "cache_write": 0.125,
+        "tiers": [
+          {
+            "input": 0.5,
+            "output": 2.5,
+            "cache_read": 0.05,
+            "cache_write": 0.625,
+            "tier": {
+              "type": "context",
+              "size": 100000
+            }
+          }
+        ]
+      },
+      "limit": {
+        "context": 1000000,
+        "output": 128000
+      },
+      "knowledge": "2026-06"
+    }
+  },
+  {
     "id": "anthropic/claude-opus-4",
     "name": "Claude Opus 4",
     "provider": "openrouter",
@@ -40781,6 +42899,125 @@
         "output": 128000
       },
       "knowledge": "2026-01-31"
+    }
+  },
+  {
+    "id": "anthropic/claude-sonnet-5.5",
+    "name": "Claude Sonnet 5.5",
+    "provider": "openrouter",
+    "family": "claude-sonnet",
+    "created_at": "2026-09-28 00:00:00 UTC",
+    "context_window": 1000000,
+    "max_output_tokens": 128000,
+    "knowledge_cutoff": null,
+    "modalities": {
+      "input": [
+        "text",
+        "image",
+        "pdf"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "capabilities": [
+      "function_calling",
+      "structured_output",
+      "reasoning",
+      "vision"
+    ],
+    "pricing": {
+      "text_tokens": {
+        "standard": {
+          "input_per_million": 2,
+          "output_per_million": 10,
+          "cache_read_input_per_million": 0.1,
+          "cache_write_input_per_million": 2.5
+        }
+      }
+    },
+    "metadata": {
+      "source": "models.dev",
+      "provider_id": "openrouter",
+      "open_weights": false,
+      "attachment": true,
+      "temperature": true,
+      "last_updated": "2026-09-28",
+      "reasoning_options": [
+        {
+          "type": "effort",
+          "values": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ]
+        }
+      ],
+      "cost": {
+        "input": 2,
+        "output": 10,
+        "cache_read": 0.1,
+        "cache_write": 2.5
+      },
+      "limit": {
+        "context": 1000000,
+        "output": 128000
+      },
+      "knowledge": "2026-06"
+    }
+  },
+  {
+    "id": "apodex/apodex-1.1-mini:free",
+    "name": "Apodex 1.1 Mini (free)",
+    "provider": "openrouter",
+    "family": null,
+    "created_at": "2026-10-01 00:00:00 UTC",
+    "context_window": 262144,
+    "max_output_tokens": 235929,
+    "knowledge_cutoff": null,
+    "modalities": {
+      "input": [
+        "text"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "capabilities": [
+      "function_calling",
+      "structured_output",
+      "reasoning"
+    ],
+    "pricing": {
+      "text_tokens": {
+        "standard": {
+          "input_per_million": 0,
+          "output_per_million": 0
+        }
+      }
+    },
+    "metadata": {
+      "source": "models.dev",
+      "provider_id": "openrouter",
+      "open_weights": false,
+      "attachment": false,
+      "temperature": true,
+      "last_updated": "2026-10-01",
+      "reasoning_options": [
+        {
+          "type": "toggle"
+        }
+      ],
+      "cost": {
+        "input": 0,
+        "output": 0
+      },
+      "limit": {
+        "context": 262144,
+        "output": 235929
+      }
     }
   },
   {
@@ -42601,7 +44838,7 @@
     "family": "deepseek",
     "created_at": "2025-03-24 00:00:00 UTC",
     "context_window": 163840,
-    "max_output_tokens": 147456,
+    "max_output_tokens": 115200,
     "knowledge_cutoff": "2024-07-31",
     "modalities": {
       "input": [
@@ -42675,7 +44912,7 @@
       },
       "limit": {
         "context": 163840,
-        "output": 147456
+        "output": 115200
       },
       "knowledge": "2024-07-31"
     }
@@ -43212,7 +45449,7 @@
     "family": "deepseek",
     "created_at": "2025-12-01 00:00:00 UTC",
     "context_window": 163840,
-    "max_output_tokens": 65536,
+    "max_output_tokens": 147456,
     "knowledge_cutoff": null,
     "modalities": {
       "input": [
@@ -43232,9 +45469,9 @@
     "pricing": {
       "text_tokens": {
         "standard": {
-          "input_per_million": 0.28,
+          "input_per_million": 0.259,
           "output_per_million": 0.42,
-          "cache_read_input_per_million": 0.028
+          "cache_read_input_per_million": 0.135
         }
       }
     },
@@ -43283,13 +45520,13 @@
       "temperature": true,
       "last_updated": "2025-12-01",
       "cost": {
-        "input": 0.28,
+        "input": 0.259,
         "output": 0.42,
-        "cache_read": 0.028
+        "cache_read": 0.135
       },
       "limit": {
         "context": 163840,
-        "output": 65536
+        "output": 147456
       },
       "knowledge": "2024-07",
       "reasoning_options": [
@@ -43398,7 +45635,7 @@
     "family": "deepseek-flash",
     "created_at": "2026-04-24 00:00:00 UTC",
     "context_window": 1048576,
-    "max_output_tokens": 131072,
+    "max_output_tokens": 943718,
     "knowledge_cutoff": null,
     "modalities": {
       "input": [
@@ -43418,9 +45655,9 @@
     "pricing": {
       "text_tokens": {
         "standard": {
-          "input_per_million": 0.07308,
-          "output_per_million": 0.14616,
-          "cache_read_input_per_million": 0.014616
+          "input_per_million": 0.03,
+          "output_per_million": 1.28,
+          "cache_read_input_per_million": 0.03
         }
       }
     },
@@ -43474,13 +45711,13 @@
         "field": "reasoning_content"
       },
       "cost": {
-        "input": 0.07308,
-        "output": 0.14616,
-        "cache_read": 0.014616
+        "input": 0.03,
+        "output": 1.28,
+        "cache_read": 0.03
       },
       "limit": {
         "context": 1048576,
-        "output": 131072
+        "output": 943718
       },
       "knowledge": "2025-05",
       "reasoning_options": [
@@ -43503,7 +45740,7 @@
     "provider": "openrouter",
     "family": "deepseek-flash",
     "created_at": "2026-07-31 00:00:00 UTC",
-    "context_window": 1310720,
+    "context_window": 1048576,
     "max_output_tokens": 943718,
     "knowledge_cutoff": null,
     "modalities": {
@@ -43522,9 +45759,9 @@
     "pricing": {
       "text_tokens": {
         "standard": {
-          "input_per_million": 0.021,
-          "output_per_million": 0.32,
-          "cache_read_input_per_million": 0.016
+          "input_per_million": 0.018,
+          "output_per_million": 1.28,
+          "cache_read_input_per_million": 0.018
         }
       }
     },
@@ -43549,12 +45786,12 @@
         }
       ],
       "cost": {
-        "input": 0.021,
-        "output": 0.32,
-        "cache_read": 0.016
+        "input": 0.018,
+        "output": 1.28,
+        "cache_read": 0.018
       },
       "limit": {
-        "context": 1310720,
+        "context": 1048576,
         "output": 943718
       },
       "knowledge": "2025-05"
@@ -43567,7 +45804,7 @@
     "family": "deepseek-flash",
     "created_at": "2026-08-21 00:00:00 UTC",
     "context_window": 1048576,
-    "max_output_tokens": 943717,
+    "max_output_tokens": 262144,
     "knowledge_cutoff": null,
     "modalities": {
       "input": [
@@ -43587,9 +45824,9 @@
     "pricing": {
       "text_tokens": {
         "standard": {
-          "input_per_million": 0.44,
-          "output_per_million": 1.32,
-          "cache_read_input_per_million": 0.014
+          "input_per_million": 0.2156,
+          "output_per_million": 0.6468,
+          "cache_read_input_per_million": 0.00686
         }
       }
     },
@@ -43614,13 +45851,13 @@
         }
       ],
       "cost": {
-        "input": 0.44,
-        "output": 1.32,
-        "cache_read": 0.014
+        "input": 0.2156,
+        "output": 0.6468,
+        "cache_read": 0.00686
       },
       "limit": {
         "context": 1048576,
-        "output": 943717
+        "output": 262144
       }
     }
   },
@@ -43651,9 +45888,9 @@
     "pricing": {
       "text_tokens": {
         "standard": {
-          "input_per_million": 0.783,
-          "output_per_million": 1.566,
-          "cache_read_input_per_million": 0.06525
+          "input_per_million": 0.2088,
+          "output_per_million": 0.4176,
+          "cache_read_input_per_million": 0.0174
         }
       }
     },
@@ -43707,9 +45944,9 @@
         "field": "reasoning_content"
       },
       "cost": {
-        "input": 0.783,
-        "output": 1.566,
-        "cache_read": 0.06525
+        "input": 0.2088,
+        "output": 0.4176,
+        "cache_read": 0.0174
       },
       "limit": {
         "context": 1048576,
@@ -43737,7 +45974,7 @@
     "family": "deepseek-thinking",
     "created_at": "2026-08-12 00:00:00 UTC",
     "context_window": 1048576,
-    "max_output_tokens": 943718,
+    "max_output_tokens": 393216,
     "knowledge_cutoff": null,
     "modalities": {
       "input": [
@@ -43755,9 +45992,9 @@
     "pricing": {
       "text_tokens": {
         "standard": {
-          "input_per_million": 0.3995,
-          "output_per_million": 4.2,
-          "cache_read_input_per_million": 0.399
+          "input_per_million": 0.66,
+          "output_per_million": 1.98,
+          "cache_read_input_per_million": 0.022
         }
       }
     },
@@ -43782,13 +46019,13 @@
         }
       ],
       "cost": {
-        "input": 0.3995,
-        "output": 4.2,
-        "cache_read": 0.399
+        "input": 0.66,
+        "output": 1.98,
+        "cache_read": 0.022
       },
       "limit": {
         "context": 1048576,
-        "output": 943718
+        "output": 393216
       }
     }
   },
@@ -46090,6 +48327,68 @@
     }
   },
   {
+    "id": "google/gemini-nano-banana-2.1",
+    "name": "Nano Banana 2.1",
+    "provider": "openrouter",
+    "family": "nano-banana",
+    "created_at": "2026-10-06 00:00:00 UTC",
+    "context_window": 65536,
+    "max_output_tokens": 58982,
+    "knowledge_cutoff": null,
+    "modalities": {
+      "input": [
+        "image",
+        "text"
+      ],
+      "output": [
+        "image",
+        "text"
+      ]
+    },
+    "capabilities": [
+      "function_calling",
+      "structured_output",
+      "reasoning",
+      "vision"
+    ],
+    "pricing": {
+      "text_tokens": {
+        "standard": {
+          "input_per_million": 1.5,
+          "output_per_million": 7.5
+        }
+      }
+    },
+    "metadata": {
+      "source": "models.dev",
+      "provider_id": "openrouter",
+      "open_weights": false,
+      "attachment": true,
+      "temperature": true,
+      "last_updated": "2026-10-06",
+      "reasoning_options": [
+        {
+          "type": "toggle"
+        },
+        {
+          "type": "effort",
+          "values": [
+            "minimal",
+            "high"
+          ]
+        }
+      ],
+      "cost": {
+        "input": 1.5,
+        "output": 7.5
+      },
+      "limit": {
+        "context": 65536,
+        "output": 58982
+      }
+    }
+  },
+  {
     "id": "google/gemma-2-27b-it",
     "name": "Gemma 2 27B",
     "provider": "openrouter",
@@ -46533,9 +48832,9 @@
     "pricing": {
       "text_tokens": {
         "standard": {
-          "input_per_million": 0.09,
-          "output_per_million": 0.3,
-          "cache_read_input_per_million": 0.05
+          "input_per_million": 0.0765,
+          "output_per_million": 0.255,
+          "cache_read_input_per_million": 0.0425
         }
       }
     },
@@ -46588,9 +48887,9 @@
       "temperature": true,
       "last_updated": "2026-04-02",
       "cost": {
-        "input": 0.09,
-        "output": 0.3,
-        "cache_read": 0.05
+        "input": 0.0765,
+        "output": 0.255,
+        "cache_read": 0.0425
       },
       "limit": {
         "context": 262144,
@@ -47702,7 +50001,7 @@
     "family": "ling",
     "created_at": "2026-08-27 00:00:00 UTC",
     "context_window": 262144,
-    "max_output_tokens": 235929,
+    "max_output_tokens": 32768,
     "knowledge_cutoff": null,
     "modalities": {
       "input": [
@@ -47720,9 +50019,9 @@
     "pricing": {
       "text_tokens": {
         "standard": {
-          "input_per_million": 0.06,
-          "output_per_million": 0.18,
-          "cache_read_input_per_million": 0.012
+          "input_per_million": 0.042,
+          "output_per_million": 0.1232,
+          "cache_read_input_per_million": 0.0084
         }
       }
     },
@@ -47739,13 +50038,13 @@
         }
       ],
       "cost": {
-        "input": 0.06,
-        "output": 0.18,
-        "cache_read": 0.012
+        "input": 0.042,
+        "output": 0.1232,
+        "cache_read": 0.0084
       },
       "limit": {
         "context": 262144,
-        "output": 235929
+        "output": 32768
       }
     }
   },
@@ -47850,6 +50149,57 @@
         "input": 0.021,
         "output": 0.0616,
         "cache_read": 0.0042
+      },
+      "limit": {
+        "context": 262144,
+        "output": 32768
+      }
+    }
+  },
+  {
+    "id": "inclusionai/ling-3.1-flash",
+    "name": "Ling 3.1 Flash",
+    "provider": "openrouter",
+    "family": "ling",
+    "created_at": "2026-10-02 00:00:00 UTC",
+    "context_window": 262144,
+    "max_output_tokens": 32768,
+    "knowledge_cutoff": null,
+    "modalities": {
+      "input": [
+        "text"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "capabilities": [
+      "function_calling",
+      "reasoning"
+    ],
+    "pricing": {
+      "text_tokens": {
+        "standard": {
+          "input_per_million": 0,
+          "output_per_million": 0
+        }
+      }
+    },
+    "metadata": {
+      "source": "models.dev",
+      "provider_id": "openrouter",
+      "open_weights": false,
+      "attachment": false,
+      "temperature": true,
+      "last_updated": "2026-10-02",
+      "reasoning_options": [
+        {
+          "type": "toggle"
+        }
+      ],
+      "cost": {
+        "input": 0,
+        "output": 0
       },
       "limit": {
         "context": 262144,
@@ -49365,8 +51715,9 @@
     "pricing": {
       "text_tokens": {
         "standard": {
-          "input_per_million": 0.1,
-          "output_per_million": 0.32
+          "input_per_million": 0.22,
+          "output_per_million": 0.5,
+          "cache_read_input_per_million": 0.11
         }
       }
     },
@@ -49413,8 +51764,9 @@
       "temperature": true,
       "last_updated": "2024-12-06",
       "cost": {
-        "input": 0.1,
-        "output": 0.32
+        "input": 0.22,
+        "output": 0.5,
+        "cache_read": 0.11
       },
       "limit": {
         "context": 131072,
@@ -49521,7 +51873,8 @@
       "text_tokens": {
         "standard": {
           "input_per_million": 0.1875,
-          "output_per_million": 0.6525
+          "output_per_million": 0.6525,
+          "cache_read_input_per_million": 0.05
         }
       }
     },
@@ -49570,7 +51923,8 @@
       "last_updated": "2025-04-05",
       "cost": {
         "input": 0.1875,
-        "output": 0.6525
+        "output": 0.6525,
+        "cache_read": 0.05
       },
       "limit": {
         "context": 1048576,
@@ -50551,7 +52905,7 @@
     "pricing": {
       "text_tokens": {
         "standard": {
-          "input_per_million": 0.4,
+          "input_per_million": 0.55,
           "output_per_million": 2.2
         }
       }
@@ -50597,7 +52951,7 @@
       "temperature": true,
       "last_updated": "2025-06-17",
       "cost": {
-        "input": 0.4,
+        "input": 0.55,
         "output": 2.2
       },
       "limit": {
@@ -50966,7 +53320,7 @@
     "family": "minimax",
     "created_at": "2026-03-18 00:00:00 UTC",
     "context_window": 204800,
-    "max_output_tokens": 131072,
+    "max_output_tokens": 176947,
     "knowledge_cutoff": null,
     "modalities": {
       "input": [
@@ -50978,7 +53332,6 @@
     },
     "capabilities": [
       "function_calling",
-      "structured_output",
       "reasoning",
       "streaming",
       "predicted_outputs"
@@ -50986,9 +53339,9 @@
     "pricing": {
       "text_tokens": {
         "standard": {
-          "input_per_million": 0.3,
-          "output_per_million": 1.2,
-          "cache_read_input_per_million": 0.06
+          "input_per_million": 0.21,
+          "output_per_million": 0.84,
+          "cache_read_input_per_million": 0.042
         }
       }
     },
@@ -51039,13 +53392,13 @@
       "temperature": true,
       "last_updated": "2026-03-18",
       "cost": {
-        "input": 0.3,
-        "output": 1.2,
-        "cache_read": 0.06
+        "input": 0.21,
+        "output": 0.84,
+        "cache_read": 0.042
       },
       "limit": {
         "context": 204800,
-        "output": 131072
+        "output": 176947
       },
       "reasoning_options": []
     }
@@ -51140,13 +53493,13 @@
   },
   {
     "id": "mistralai/codestral-2508",
-    "name": "Codestral 2508",
+    "name": "Codestral 25.08",
     "provider": "openrouter",
     "family": "codestral",
-    "created_at": "2025-08-01 00:00:00 UTC",
+    "created_at": "2025-07-30 00:00:00 UTC",
     "context_window": 256000,
     "max_output_tokens": 204800,
-    "knowledge_cutoff": "2025-03-31",
+    "knowledge_cutoff": null,
     "modalities": {
       "input": [
         "text",
@@ -51209,7 +53562,7 @@
       "open_weights": false,
       "attachment": true,
       "temperature": true,
-      "last_updated": "2025-08-01",
+      "last_updated": "2025-07-30",
       "cost": {
         "input": 0.3,
         "output": 0.9,
@@ -51817,6 +54170,66 @@
         "output": 209715
       },
       "knowledge": "2024-11"
+    }
+  },
+  {
+    "id": "mistralai/mistral-large-4-0",
+    "name": "Mistral Large 4",
+    "provider": "openrouter",
+    "family": "mistral-large",
+    "created_at": "2026-10-06 00:00:00 UTC",
+    "context_window": 524288,
+    "max_output_tokens": 262144,
+    "knowledge_cutoff": null,
+    "modalities": {
+      "input": [
+        "text",
+        "image"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "capabilities": [
+      "function_calling",
+      "structured_output",
+      "reasoning",
+      "vision"
+    ],
+    "pricing": {
+      "text_tokens": {
+        "standard": {
+          "input_per_million": 0.68,
+          "output_per_million": 2.09,
+          "cache_read_input_per_million": 0.07
+        }
+      }
+    },
+    "metadata": {
+      "source": "models.dev",
+      "provider_id": "openrouter",
+      "open_weights": false,
+      "attachment": true,
+      "temperature": true,
+      "last_updated": "2026-10-06",
+      "reasoning_options": [
+        {
+          "type": "effort",
+          "values": [
+            "none",
+            "high"
+          ]
+        }
+      ],
+      "cost": {
+        "input": 0.68,
+        "output": 2.09,
+        "cache_read": 0.07
+      },
+      "limit": {
+        "context": 524288,
+        "output": 262144
+      }
     }
   },
   {
@@ -52452,6 +54865,7 @@
     },
     "capabilities": [
       "function_calling",
+      "structured_output",
       "vision",
       "streaming",
       "predicted_outputs"
@@ -52939,7 +55353,7 @@
     "family": "kimi-thinking",
     "created_at": "2025-11-06 00:00:00 UTC",
     "context_window": 262144,
-    "max_output_tokens": 98304,
+    "max_output_tokens": 235929,
     "knowledge_cutoff": null,
     "modalities": {
       "input": [
@@ -52960,8 +55374,7 @@
       "text_tokens": {
         "standard": {
           "input_per_million": 0.6,
-          "output_per_million": 2.5,
-          "cache_read_input_per_million": 0.15
+          "output_per_million": 2.5
         }
       }
     },
@@ -53014,12 +55427,11 @@
       },
       "cost": {
         "input": 0.6,
-        "output": 2.5,
-        "cache_read": 0.15
+        "output": 2.5
       },
       "limit": {
         "context": 262144,
-        "output": 98304
+        "output": 235929
       },
       "knowledge": "2024-08",
       "reasoning_options": []
@@ -53156,9 +55568,9 @@
     "pricing": {
       "text_tokens": {
         "standard": {
-          "input_per_million": 0.65,
-          "output_per_million": 3.41,
-          "cache_read_input_per_million": 0.15
+          "input_per_million": 0.465,
+          "output_per_million": 2.45,
+          "cache_read_input_per_million": 0.0975
         }
       }
     },
@@ -53215,9 +55627,9 @@
         "field": "reasoning_details"
       },
       "cost": {
-        "input": 0.65,
-        "output": 3.41,
-        "cache_read": 0.15
+        "input": 0.465,
+        "output": 2.45,
+        "cache_read": 0.0975
       },
       "limit": {
         "context": 262144,
@@ -53329,8 +55741,8 @@
     "pricing": {
       "text_tokens": {
         "standard": {
-          "input_per_million": 0.6562,
-          "output_per_million": 3.3,
+          "input_per_million": 0.6712,
+          "output_per_million": 3.35,
           "cache_read_input_per_million": 0.18
         }
       }
@@ -53344,8 +55756,8 @@
       "last_updated": "2026-06-12",
       "reasoning_options": [],
       "cost": {
-        "input": 0.6562,
-        "output": 3.3,
+        "input": 0.6712,
+        "output": 3.35,
         "cache_read": 0.18
       },
       "limit": {
@@ -53383,9 +55795,9 @@
     "pricing": {
       "text_tokens": {
         "standard": {
-          "input_per_million": 3,
+          "input_per_million": 0.5,
           "output_per_million": 15,
-          "cache_read_input_per_million": 0.3
+          "cache_read_input_per_million": 0.45
         }
       }
     },
@@ -53410,9 +55822,9 @@
         }
       ],
       "cost": {
-        "input": 3,
+        "input": 0.5,
         "output": 15,
-        "cache_read": 0.3
+        "cache_read": 0.45
       },
       "limit": {
         "context": 1048576,
@@ -54220,7 +56632,7 @@
     "family": "nemotron",
     "created_at": "2025-12-15 00:00:00 UTC",
     "context_window": 262144,
-    "max_output_tokens": 235929,
+    "max_output_tokens": 32768,
     "knowledge_cutoff": null,
     "modalities": {
       "input": [
@@ -54241,8 +56653,7 @@
       "text_tokens": {
         "standard": {
           "input_per_million": 0.05,
-          "output_per_million": 0.2,
-          "cache_read_input_per_million": 0.03
+          "output_per_million": 0.2
         }
       }
     },
@@ -54291,12 +56702,11 @@
       "last_updated": "2025-12-15",
       "cost": {
         "input": 0.05,
-        "output": 0.2,
-        "cache_read": 0.03
+        "output": 0.2
       },
       "limit": {
         "context": 262144,
-        "output": 235929
+        "output": 32768
       },
       "reasoning_options": [
         {
@@ -54665,7 +57075,7 @@
     "family": "nemotron",
     "created_at": "2026-06-04 00:00:00 UTC",
     "context_window": 262144,
-    "max_output_tokens": 182520,
+    "max_output_tokens": 16384,
     "knowledge_cutoff": null,
     "modalities": {
       "input": [
@@ -54685,9 +57095,9 @@
     "pricing": {
       "text_tokens": {
         "standard": {
-          "input_per_million": 0.6,
-          "output_per_million": 2.4,
-          "cache_read_input_per_million": 0.12
+          "input_per_million": 0.5,
+          "output_per_million": 2.2,
+          "cache_read_input_per_million": 0.1
         }
       }
     },
@@ -54736,13 +57146,13 @@
       "temperature": true,
       "last_updated": "2026-06-04",
       "cost": {
-        "input": 0.6,
-        "output": 2.4,
-        "cache_read": 0.12
+        "input": 0.5,
+        "output": 2.2,
+        "cache_read": 0.1
       },
       "limit": {
         "context": 262144,
-        "output": 182520
+        "output": 16384
       },
       "reasoning_options": [
         {
@@ -54989,7 +57399,7 @@
     "provider": "openrouter",
     "family": "nemotron",
     "created_at": "2026-08-11 00:00:00 UTC",
-    "context_window": 1000000,
+    "context_window": 262144,
     "max_output_tokens": 131072,
     "knowledge_cutoff": null,
     "modalities": {
@@ -55008,9 +57418,9 @@
     "pricing": {
       "text_tokens": {
         "standard": {
-          "input_per_million": 0.08,
-          "output_per_million": 0.2,
-          "cache_read_input_per_million": 0.04
+          "input_per_million": 0.049,
+          "output_per_million": 0.14,
+          "cache_read_input_per_million": 0.0245
         }
       }
     },
@@ -55027,12 +57437,12 @@
         }
       ],
       "cost": {
-        "input": 0.08,
-        "output": 0.2,
-        "cache_read": 0.04
+        "input": 0.049,
+        "output": 0.14,
+        "cache_read": 0.0245
       },
       "limit": {
-        "context": 1000000,
+        "context": 262144,
         "output": 131072
       }
     }
@@ -60342,6 +62752,176 @@
     }
   },
   {
+    "id": "openai/gpt-6.1-sol",
+    "name": "GPT-6.1 Sol",
+    "provider": "openrouter",
+    "family": "gpt-sol",
+    "created_at": "2026-09-29 00:00:00 UTC",
+    "context_window": 1050000,
+    "max_output_tokens": 128000,
+    "knowledge_cutoff": "2026-04-30",
+    "modalities": {
+      "input": [
+        "text",
+        "image",
+        "pdf"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "capabilities": [
+      "function_calling",
+      "structured_output",
+      "reasoning",
+      "vision"
+    ],
+    "pricing": {
+      "text_tokens": {
+        "standard": {
+          "input_per_million": 2,
+          "output_per_million": 10,
+          "cache_read_input_per_million": 0.1,
+          "cache_write_input_per_million": 2.5
+        }
+      }
+    },
+    "metadata": {
+      "source": "models.dev",
+      "provider_id": "openrouter",
+      "open_weights": false,
+      "attachment": true,
+      "temperature": false,
+      "last_updated": "2026-09-29",
+      "reasoning_options": [
+        {
+          "type": "effort",
+          "values": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ]
+        }
+      ],
+      "cost": {
+        "input": 2,
+        "output": 10,
+        "cache_read": 0.1,
+        "cache_write": 2.5,
+        "tiers": [
+          {
+            "input": 4,
+            "output": 15,
+            "cache_read": 0.2,
+            "cache_write": 5,
+            "tier": {
+              "type": "context",
+              "size": 272000
+            }
+          }
+        ],
+        "context_over_200k": {
+          "input": 4,
+          "output": 15,
+          "cache_read": 0.2,
+          "cache_write": 5
+        }
+      },
+      "limit": {
+        "context": 1050000,
+        "input": 922000,
+        "output": 128000
+      },
+      "knowledge": "2026-04-30"
+    }
+  },
+  {
+    "id": "openai/gpt-6.1-sol-pro",
+    "name": "GPT-6.1 Sol Pro",
+    "provider": "openrouter",
+    "family": "gpt",
+    "created_at": "2026-09-29 00:00:00 UTC",
+    "context_window": 1050000,
+    "max_output_tokens": 128000,
+    "knowledge_cutoff": null,
+    "modalities": {
+      "input": [
+        "pdf",
+        "image",
+        "text"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "capabilities": [
+      "function_calling",
+      "structured_output",
+      "reasoning",
+      "vision"
+    ],
+    "pricing": {
+      "text_tokens": {
+        "standard": {
+          "input_per_million": 2,
+          "output_per_million": 10,
+          "cache_read_input_per_million": 0.1,
+          "cache_write_input_per_million": 2.5
+        }
+      }
+    },
+    "metadata": {
+      "source": "models.dev",
+      "provider_id": "openrouter",
+      "open_weights": false,
+      "attachment": true,
+      "temperature": false,
+      "last_updated": "2026-09-29",
+      "reasoning_options": [
+        {
+          "type": "effort",
+          "values": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ]
+        }
+      ],
+      "cost": {
+        "input": 2,
+        "output": 10,
+        "cache_read": 0.1,
+        "cache_write": 2.5,
+        "tiers": [
+          {
+            "input": 4,
+            "output": 15,
+            "cache_read": 0.2,
+            "cache_write": 5,
+            "tier": {
+              "type": "context",
+              "size": 272000
+            }
+          }
+        ],
+        "context_over_200k": {
+          "input": 4,
+          "output": 15,
+          "cache_read": 0.2,
+          "cache_write": 5
+        }
+      },
+      "limit": {
+        "context": 1050000,
+        "output": 128000
+      }
+    }
+  },
+  {
     "id": "openai/gpt-audio",
     "name": "GPT Audio",
     "provider": "openrouter",
@@ -60604,7 +63184,7 @@
     "family": "gpt-oss",
     "created_at": "2025-08-05 00:00:00 UTC",
     "context_window": 131072,
-    "max_output_tokens": 65536,
+    "max_output_tokens": 117964,
     "knowledge_cutoff": null,
     "modalities": {
       "input": [
@@ -60624,9 +63204,8 @@
     "pricing": {
       "text_tokens": {
         "standard": {
-          "input_per_million": 0.15,
-          "output_per_million": 0.6,
-          "cache_read_input_per_million": 0.075
+          "input_per_million": 0.037,
+          "output_per_million": 0.17
         }
       }
     },
@@ -60677,13 +63256,12 @@
       "temperature": true,
       "last_updated": "2025-08-05",
       "cost": {
-        "input": 0.15,
-        "output": 0.6,
-        "cache_read": 0.075
+        "input": 0.037,
+        "output": 0.17
       },
       "limit": {
         "context": 131072,
-        "output": 65536
+        "output": 117964
       },
       "knowledge": "2024-06-30",
       "reasoning_options": [
@@ -60795,7 +63373,8 @@
       "text_tokens": {
         "standard": {
           "input_per_million": 0.018,
-          "output_per_million": 0.09
+          "output_per_million": 0.09,
+          "cache_read_input_per_million": 0.009
         }
       }
     },
@@ -60847,7 +63426,8 @@
       "last_updated": "2025-08-05",
       "cost": {
         "input": 0.018,
-        "output": 0.09
+        "output": 0.09,
+        "cache_read": 0.009
       },
       "limit": {
         "context": 131072,
@@ -63332,7 +65912,8 @@
       "text_tokens": {
         "standard": {
           "input_per_million": 0.075,
-          "output_per_million": 0.5
+          "output_per_million": 0.5,
+          "cache_read_input_per_million": 0.0375
         }
       }
     },
@@ -63357,7 +65938,8 @@
       ],
       "cost": {
         "input": 0.075,
-        "output": 0.5
+        "output": 0.5,
+        "cache_read": 0.0375
       },
       "limit": {
         "context": 262144,
@@ -64147,7 +66729,7 @@
     "family": "qwen",
     "created_at": "2025-07-21 00:00:00 UTC",
     "context_window": 262144,
-    "max_output_tokens": 235929,
+    "max_output_tokens": 16384,
     "knowledge_cutoff": "2025-06-30",
     "modalities": {
       "input": [
@@ -64166,9 +66748,8 @@
     "pricing": {
       "text_tokens": {
         "standard": {
-          "input_per_million": 0.0875,
-          "output_per_million": 0.35,
-          "cache_read_input_per_million": 0.0175
+          "input_per_million": 0.09,
+          "output_per_million": 0.55
         }
       }
     },
@@ -64215,13 +66796,12 @@
       "temperature": true,
       "last_updated": "2025-07-21",
       "cost": {
-        "input": 0.0875,
-        "output": 0.35,
-        "cache_read": 0.0175
+        "input": 0.09,
+        "output": 0.55
       },
       "limit": {
         "context": 262144,
-        "output": 235929
+        "output": 16384
       },
       "knowledge": "2025-06-30"
     }
@@ -65656,7 +68236,7 @@
     "family": "qwen",
     "created_at": "2025-09-01 00:00:00 UTC",
     "context_window": 262144,
-    "max_output_tokens": 235929,
+    "max_output_tokens": 32768,
     "knowledge_cutoff": null,
     "modalities": {
       "input": [
@@ -65731,7 +68311,7 @@
       },
       "limit": {
         "context": 262144,
-        "output": 235929
+        "output": 32768
       },
       "knowledge": "2025-04",
       "reasoning_options": []
@@ -66342,7 +68922,7 @@
     "family": "qwen",
     "created_at": "2026-02-23 00:00:00 UTC",
     "context_window": 262144,
-    "max_output_tokens": 235929,
+    "max_output_tokens": 65536,
     "knowledge_cutoff": null,
     "modalities": {
       "input": [
@@ -66424,7 +69004,7 @@
       },
       "limit": {
         "context": 262144,
-        "output": 235929
+        "output": 65536
       },
       "reasoning_options": [
         {
@@ -66538,7 +69118,7 @@
     "family": "qwen",
     "created_at": "2026-02-23 00:00:00 UTC",
     "context_window": 262144,
-    "max_output_tokens": 65536,
+    "max_output_tokens": 235929,
     "knowledge_cutoff": null,
     "modalities": {
       "input": [
@@ -66561,8 +69141,9 @@
     "pricing": {
       "text_tokens": {
         "standard": {
-          "input_per_million": 0.1625,
-          "output_per_million": 1.3
+          "input_per_million": 0.15,
+          "output_per_million": 1,
+          "cache_read_input_per_million": 0.05
         }
       }
     },
@@ -66615,12 +69196,13 @@
       "temperature": true,
       "last_updated": "2026-02-23",
       "cost": {
-        "input": 0.1625,
-        "output": 1.3
+        "input": 0.15,
+        "output": 1,
+        "cache_read": 0.05
       },
       "limit": {
         "context": 262144,
-        "output": 65536
+        "output": 235929
       },
       "reasoning_options": [
         {
@@ -66636,7 +69218,7 @@
     "family": "qwen",
     "created_at": "2026-02-15 00:00:00 UTC",
     "context_window": 262144,
-    "max_output_tokens": 235929,
+    "max_output_tokens": 81920,
     "knowledge_cutoff": null,
     "modalities": {
       "input": [
@@ -66659,9 +69241,9 @@
     "pricing": {
       "text_tokens": {
         "standard": {
-          "input_per_million": 0.55,
-          "output_per_million": 3.5,
-          "cache_read_input_per_million": 0.225
+          "input_per_million": 0.45,
+          "output_per_million": 3,
+          "cache_read_input_per_million": 0.22
         }
       }
     },
@@ -66714,13 +69296,13 @@
       "temperature": true,
       "last_updated": "2026-02-15",
       "cost": {
-        "input": 0.55,
-        "output": 3.5,
-        "cache_read": 0.225
+        "input": 0.45,
+        "output": 3,
+        "cache_read": 0.22
       },
       "limit": {
         "context": 262144,
-        "output": 235929
+        "output": 81920
       },
       "reasoning_options": [
         {
@@ -67134,7 +69716,7 @@
     "family": "qwen",
     "created_at": "2026-04-22 00:00:00 UTC",
     "context_window": 262144,
-    "max_output_tokens": 81920,
+    "max_output_tokens": 65536,
     "knowledge_cutoff": null,
     "modalities": {
       "input": [
@@ -67157,8 +69739,9 @@
     "pricing": {
       "text_tokens": {
         "standard": {
-          "input_per_million": 0.32,
-          "output_per_million": 3.2
+          "input_per_million": 0.3,
+          "output_per_million": 2,
+          "cache_read_input_per_million": 0.03
         }
       }
     },
@@ -67211,12 +69794,13 @@
       "temperature": true,
       "last_updated": "2026-04-22",
       "cost": {
-        "input": 0.32,
-        "output": 3.2
+        "input": 0.3,
+        "output": 2,
+        "cache_read": 0.03
       },
       "limit": {
         "context": 262144,
-        "output": 81920
+        "output": 65536
       },
       "reasoning_options": [
         {
@@ -68013,9 +70597,10 @@
     "pricing": {
       "text_tokens": {
         "standard": {
-          "input_per_million": 0.42,
-          "output_per_million": 3,
-          "cache_read_input_per_million": 0.085
+          "input_per_million": 0.425,
+          "output_per_million": 2.55,
+          "cache_read_input_per_million": 0.085,
+          "cache_write_input_per_million": 0.53125
         }
       }
     },
@@ -68040,9 +70625,10 @@
         }
       ],
       "cost": {
-        "input": 0.42,
-        "output": 3,
-        "cache_read": 0.085
+        "input": 0.425,
+        "output": 2.55,
+        "cache_read": 0.085,
+        "cache_write": 0.53125
       },
       "limit": {
         "context": 1000000,
@@ -69981,9 +72567,9 @@
     "pricing": {
       "text_tokens": {
         "standard": {
-          "input_per_million": 0.834,
-          "output_per_million": 2.501,
-          "cache_read_input_per_million": 0.042
+          "input_per_million": 0.7506,
+          "output_per_million": 2.2509,
+          "cache_read_input_per_million": 0.0378
         }
       }
     },
@@ -70005,9 +72591,9 @@
         }
       ],
       "cost": {
-        "input": 0.834,
-        "output": 2.501,
-        "cache_read": 0.042
+        "input": 0.7506,
+        "output": 2.2509,
+        "cache_read": 0.0378
       },
       "limit": {
         "context": 1048576,
@@ -70639,6 +73225,55 @@
       },
       "limit": {
         "context": 262144,
+        "output": 131072
+      }
+    }
+  },
+  {
+    "id": "unbiased/pareto-26.10-preview",
+    "name": "Pareto 26.10 Preview",
+    "provider": "openrouter",
+    "family": null,
+    "created_at": "2026-10-01 00:00:00 UTC",
+    "context_window": 1048576,
+    "max_output_tokens": 131072,
+    "knowledge_cutoff": null,
+    "modalities": {
+      "input": [
+        "text",
+        "image"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "capabilities": [
+      "function_calling",
+      "vision"
+    ],
+    "pricing": {
+      "text_tokens": {
+        "standard": {
+          "input_per_million": 0.8,
+          "output_per_million": 3.2,
+          "cache_read_input_per_million": 0.03
+        }
+      }
+    },
+    "metadata": {
+      "source": "models.dev",
+      "provider_id": "openrouter",
+      "open_weights": false,
+      "attachment": true,
+      "temperature": true,
+      "last_updated": "2026-10-01",
+      "cost": {
+        "input": 0.8,
+        "output": 3.2,
+        "cache_read": 0.03
+      },
+      "limit": {
+        "context": 1048576,
         "output": 131072
       }
     }
@@ -71536,9 +74171,9 @@
     "pricing": {
       "text_tokens": {
         "standard": {
-          "input_per_million": 1.6,
-          "output_per_million": 4.8,
-          "cache_read_input_per_million": 0.4
+          "input_per_million": 2,
+          "output_per_million": 6,
+          "cache_read_input_per_million": 0.5
         }
       }
     },
@@ -71561,14 +74196,14 @@
         }
       ],
       "cost": {
-        "input": 1.6,
-        "output": 4.8,
-        "cache_read": 0.4,
+        "input": 2,
+        "output": 6,
+        "cache_read": 0.5,
         "tiers": [
           {
-            "input": 3.2,
-            "output": 9.6,
-            "cache_read": 0.8,
+            "input": 4,
+            "output": 12,
+            "cache_read": 1,
             "tier": {
               "type": "context",
               "size": 200000
@@ -71576,9 +74211,9 @@
           }
         ],
         "context_over_200k": {
-          "input": 3.2,
-          "output": 9.6,
-          "cache_read": 0.8
+          "input": 4,
+          "output": 12,
+          "cache_read": 1
         }
       },
       "limit": {
@@ -71978,7 +74613,7 @@
     "provider": "openrouter",
     "family": "mimo",
     "created_at": "2026-09-22 00:00:00 UTC",
-    "context_window": 1048576,
+    "context_window": 1050000,
     "max_output_tokens": 131072,
     "knowledge_cutoff": null,
     "modalities": {
@@ -72025,7 +74660,7 @@
         "cache_read": 0.0028
       },
       "limit": {
-        "context": 1048576,
+        "context": 1050000,
         "output": 131072
       }
     }
@@ -72680,7 +75315,7 @@
         "standard": {
           "input_per_million": 0.3,
           "output_per_million": 0.9,
-          "cache_read_input_per_million": 0.055
+          "cache_read_input_per_million": 0.05
         }
       }
     },
@@ -72730,7 +75365,7 @@
       "cost": {
         "input": 0.3,
         "output": 0.9,
-        "cache_read": 0.055
+        "cache_read": 0.05
       },
       "limit": {
         "context": 131072,
@@ -73135,7 +75770,7 @@
     "family": "glm",
     "created_at": "2026-04-07 00:00:00 UTC",
     "context_window": 204800,
-    "max_output_tokens": 131072,
+    "max_output_tokens": 128000,
     "knowledge_cutoff": null,
     "modalities": {
       "input": [
@@ -73155,9 +75790,9 @@
     "pricing": {
       "text_tokens": {
         "standard": {
-          "input_per_million": 0.9646,
-          "output_per_million": 3.0316,
-          "cache_read_input_per_million": 0.17914
+          "input_per_million": 0.966,
+          "output_per_million": 3.036,
+          "cache_read_input_per_million": 0.1794
         }
       }
     },
@@ -73213,13 +75848,13 @@
         "field": "reasoning_content"
       },
       "cost": {
-        "input": 0.9646,
-        "output": 3.0316,
-        "cache_read": 0.17914
+        "input": 0.966,
+        "output": 3.036,
+        "cache_read": 0.1794
       },
       "limit": {
         "context": 204800,
-        "output": 131072
+        "output": 128000
       },
       "reasoning_options": [
         {
@@ -73253,9 +75888,9 @@
     "pricing": {
       "text_tokens": {
         "standard": {
-          "input_per_million": 0.6496,
-          "output_per_million": 2.0416,
-          "cache_read_input_per_million": 0.12064
+          "input_per_million": 0.0883,
+          "output_per_million": 7.2,
+          "cache_read_input_per_million": 0.0795
         }
       }
     },
@@ -73282,9 +75917,9 @@
         }
       ],
       "cost": {
-        "input": 0.6496,
-        "output": 2.0416,
-        "cache_read": 0.12064
+        "input": 0.0883,
+        "output": 7.2,
+        "cache_read": 0.0795
       },
       "limit": {
         "context": 1048576,
@@ -73298,8 +75933,8 @@
     "provider": "openrouter",
     "family": "glm",
     "created_at": "2026-08-14 00:00:00 UTC",
-    "context_window": 1310720,
-    "max_output_tokens": 943717,
+    "context_window": 1048576,
+    "max_output_tokens": 943718,
     "knowledge_cutoff": null,
     "modalities": {
       "input": [
@@ -73317,9 +75952,9 @@
     "pricing": {
       "text_tokens": {
         "standard": {
-          "input_per_million": 1.4,
-          "output_per_million": 4.4,
-          "cache_read_input_per_million": 0.26
+          "input_per_million": 0.062,
+          "output_per_million": 3.39,
+          "cache_read_input_per_million": 0.06
         }
       }
     },
@@ -73341,13 +75976,13 @@
         }
       ],
       "cost": {
-        "input": 1.4,
-        "output": 4.4,
-        "cache_read": 0.26
+        "input": 0.062,
+        "output": 3.39,
+        "cache_read": 0.06
       },
       "limit": {
-        "context": 1310720,
-        "output": 943717
+        "context": 1048576,
+        "output": 943718
       }
     }
   },
@@ -73357,7 +75992,7 @@
     "provider": "openrouter",
     "family": "glm-flash",
     "created_at": "2026-08-26 00:00:00 UTC",
-    "context_window": 1310720,
+    "context_window": 1048576,
     "max_output_tokens": 943717,
     "knowledge_cutoff": null,
     "modalities": {
@@ -73408,7 +76043,7 @@
         "cache_read": 0.03
       },
       "limit": {
-        "context": 1310720,
+        "context": 1048576,
         "output": 943717
       }
     }
@@ -73694,8 +76329,8 @@
     "provider": "openrouter",
     "family": "claude-haiku",
     "created_at": "2026-04-27 00:00:00 UTC",
-    "context_window": 200000,
-    "max_output_tokens": 64000,
+    "context_window": 1000000,
+    "max_output_tokens": 128000,
     "knowledge_cutoff": null,
     "modalities": {
       "input": [
@@ -73717,10 +76352,10 @@
     "pricing": {
       "text_tokens": {
         "standard": {
-          "input_per_million": 1,
-          "output_per_million": 5,
-          "cache_read_input_per_million": 0.1,
-          "cache_write_input_per_million": 1.25
+          "input_per_million": 0.1,
+          "output_per_million": 0.5,
+          "cache_read_input_per_million": 0.01,
+          "cache_write_input_per_million": 0.125
         }
       }
     },
@@ -73765,18 +76400,40 @@
       "temperature": true,
       "last_updated": "2026-04-27",
       "cost": {
-        "input": 1,
-        "output": 5,
-        "cache_read": 0.1,
-        "cache_write": 1.25
+        "input": 0.1,
+        "output": 0.5,
+        "cache_read": 0.01,
+        "cache_write": 0.125,
+        "tiers": [
+          {
+            "input": 0.5,
+            "output": 2.5,
+            "cache_read": 0.05,
+            "cache_write": 0.625,
+            "tier": {
+              "type": "context",
+              "size": 100000
+            }
+          }
+        ]
       },
       "limit": {
-        "context": 200000,
-        "output": 64000
+        "context": 1000000,
+        "output": 128000
       },
       "reasoning_options": [
         {
           "type": "toggle"
+        },
+        {
+          "type": "effort",
+          "values": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ]
         }
       ]
     }
@@ -73910,7 +76567,7 @@
         "standard": {
           "input_per_million": 2,
           "output_per_million": 10,
-          "cache_read_input_per_million": 0.2,
+          "cache_read_input_per_million": 0.1,
           "cache_write_input_per_million": 2.5
         }
       }
@@ -73955,12 +76612,12 @@
       "provider_id": "openrouter",
       "open_weights": false,
       "attachment": true,
-      "temperature": false,
+      "temperature": true,
       "last_updated": "2026-04-27",
       "cost": {
         "input": 2,
         "output": 10,
-        "cache_read": 0.2,
+        "cache_read": 0.1,
         "cache_write": 2.5
       },
       "limit": {
@@ -73968,9 +76625,6 @@
         "output": 128000
       },
       "reasoning_options": [
-        {
-          "type": "toggle"
-        },
         {
           "type": "effort",
           "values": [
@@ -74012,9 +76666,9 @@
     "pricing": {
       "text_tokens": {
         "standard": {
-          "input_per_million": 0.03,
-          "output_per_million": 0.6,
-          "cache_read_input_per_million": 0.01
+          "input_per_million": 0.0152,
+          "output_per_million": 0.8,
+          "cache_read_input_per_million": 0.005
         }
       }
     },
@@ -74039,9 +76693,9 @@
         }
       ],
       "cost": {
-        "input": 0.03,
-        "output": 0.6,
-        "cache_read": 0.01
+        "input": 0.0152,
+        "output": 0.8,
+        "cache_read": 0.005
       },
       "limit": {
         "context": 1048576,
@@ -74056,7 +76710,7 @@
     "family": "deepseek",
     "created_at": "2026-09-14 00:00:00 UTC",
     "context_window": 1048576,
-    "max_output_tokens": 943718,
+    "max_output_tokens": 393216,
     "knowledge_cutoff": null,
     "modalities": {
       "input": [
@@ -74074,9 +76728,9 @@
     "pricing": {
       "text_tokens": {
         "standard": {
-          "input_per_million": 0.22592,
-          "output_per_million": 1.9584,
-          "cache_read_input_per_million": 0.08832
+          "input_per_million": 0.2909,
+          "output_per_million": 4.2,
+          "cache_read_input_per_million": 0.2
         }
       }
     },
@@ -74101,13 +76755,13 @@
         }
       ],
       "cost": {
-        "input": 0.22592,
-        "output": 1.9584,
-        "cache_read": 0.08832
+        "input": 0.2909,
+        "output": 4.2,
+        "cache_read": 0.2
       },
       "limit": {
         "context": 1048576,
-        "output": 943718
+        "output": 393216
       }
     }
   },
@@ -74117,7 +76771,7 @@
     "provider": "openrouter",
     "family": "deepseek",
     "created_at": "2026-08-01 00:00:00 UTC",
-    "context_window": 1310720,
+    "context_window": 1048576,
     "max_output_tokens": 943718,
     "knowledge_cutoff": null,
     "modalities": {
@@ -74136,9 +76790,9 @@
     "pricing": {
       "text_tokens": {
         "standard": {
-          "input_per_million": 0.021,
-          "output_per_million": 0.32,
-          "cache_read_input_per_million": 0.016
+          "input_per_million": 0.018,
+          "output_per_million": 1.28,
+          "cache_read_input_per_million": 0.018
         }
       }
     },
@@ -74163,12 +76817,12 @@
         }
       ],
       "cost": {
-        "input": 0.021,
-        "output": 0.32,
-        "cache_read": 0.016
+        "input": 0.018,
+        "output": 1.28,
+        "cache_read": 0.018
       },
       "limit": {
-        "context": 1310720,
+        "context": 1048576,
         "output": 943718
       }
     }
@@ -74429,9 +77083,9 @@
     "pricing": {
       "text_tokens": {
         "standard": {
-          "input_per_million": 0.97575,
-          "output_per_million": 8.5442,
-          "cache_read_input_per_million": 0.176987
+          "input_per_million": 0.49,
+          "output_per_million": 13,
+          "cache_read_input_per_million": 0.45
         }
       }
     },
@@ -74485,9 +77139,9 @@
       "temperature": true,
       "last_updated": "2026-04-27",
       "cost": {
-        "input": 0.97575,
-        "output": 8.5442,
-        "cache_read": 0.176987
+        "input": 0.49,
+        "output": 13,
+        "cache_read": 0.45
       },
       "limit": {
         "context": 1048576,
@@ -74890,7 +77544,7 @@
         "standard": {
           "input_per_million": 2,
           "output_per_million": 10,
-          "cache_read_input_per_million": 0.2,
+          "cache_read_input_per_million": 0.1,
           "cache_write_input_per_million": 2.5
         }
       }
@@ -74906,7 +77560,6 @@
         {
           "type": "effort",
           "values": [
-            "none",
             "low",
             "medium",
             "high",
@@ -74918,13 +77571,13 @@
       "cost": {
         "input": 2,
         "output": 10,
-        "cache_read": 0.2,
+        "cache_read": 0.1,
         "cache_write": 2.5,
         "tiers": [
           {
             "input": 4,
             "output": 15,
-            "cache_read": 0.4,
+            "cache_read": 0.2,
             "cache_write": 5,
             "tier": {
               "type": "context",
@@ -74935,7 +77588,7 @@
         "context_over_200k": {
           "input": 4,
           "output": 15,
-          "cache_read": 0.4,
+          "cache_read": 0.2,
           "cache_write": 5
         }
       },
@@ -75060,9 +77713,9 @@
     "pricing": {
       "text_tokens": {
         "standard": {
-          "input_per_million": 1.6,
-          "output_per_million": 4.8,
-          "cache_read_input_per_million": 0.4
+          "input_per_million": 2,
+          "output_per_million": 6,
+          "cache_read_input_per_million": 0.5
         }
       }
     },
@@ -75085,14 +77738,14 @@
         }
       ],
       "cost": {
-        "input": 1.6,
-        "output": 4.8,
-        "cache_read": 0.4,
+        "input": 2,
+        "output": 6,
+        "cache_read": 0.5,
         "tiers": [
           {
-            "input": 3.2,
-            "output": 9.6,
-            "cache_read": 0.8,
+            "input": 4,
+            "output": 12,
+            "cache_read": 1,
             "tier": {
               "type": "context",
               "size": 200000
@@ -75100,9 +77753,9 @@
           }
         ],
         "context_over_200k": {
-          "input": 3.2,
-          "output": 9.6,
-          "cache_read": 0.8
+          "input": 4,
+          "output": 12,
+          "cache_read": 1
         }
       },
       "limit": {
@@ -75117,8 +77770,8 @@
     "provider": "openrouter",
     "family": "glm-flash",
     "created_at": "2026-08-27 00:00:00 UTC",
-    "context_window": 1310720,
-    "max_output_tokens": 128000,
+    "context_window": 1048576,
+    "max_output_tokens": 131072,
     "knowledge_cutoff": null,
     "modalities": {
       "input": [
@@ -75139,9 +77792,9 @@
     "pricing": {
       "text_tokens": {
         "standard": {
-          "input_per_million": 0.045,
-          "output_per_million": 0.14,
-          "cache_read_input_per_million": 0.01
+          "input_per_million": 0.04,
+          "output_per_million": 0.5,
+          "cache_read_input_per_million": 0.025
         }
       }
     },
@@ -75163,13 +77816,13 @@
         }
       ],
       "cost": {
-        "input": 0.045,
-        "output": 0.14,
-        "cache_read": 0.01
+        "input": 0.04,
+        "output": 0.5,
+        "cache_read": 0.025
       },
       "limit": {
-        "context": 1310720,
-        "output": 128000
+        "context": 1048576,
+        "output": 131072
       }
     }
   },
@@ -75179,8 +77832,8 @@
     "provider": "openrouter",
     "family": "glm",
     "created_at": "2026-08-19 00:00:00 UTC",
-    "context_window": 1310720,
-    "max_output_tokens": 943718,
+    "context_window": 1048576,
+    "max_output_tokens": 131072,
     "knowledge_cutoff": null,
     "modalities": {
       "input": [
@@ -75198,9 +77851,9 @@
     "pricing": {
       "text_tokens": {
         "standard": {
-          "input_per_million": 0.1785,
-          "output_per_million": 2.805,
-          "cache_read_input_per_million": 0.146625
+          "input_per_million": 0.0496,
+          "output_per_million": 6.3,
+          "cache_read_input_per_million": 0.0461
         }
       }
     },
@@ -75222,13 +77875,13 @@
         }
       ],
       "cost": {
-        "input": 0.1785,
-        "output": 2.805,
-        "cache_read": 0.146625
+        "input": 0.0496,
+        "output": 6.3,
+        "cache_read": 0.0461
       },
       "limit": {
-        "context": 1310720,
-        "output": 943718
+        "context": 1048576,
+        "output": 131072
       }
     }
   },
@@ -75819,6 +78472,88 @@
           "min": 1024
         }
       ]
+    }
+  },
+  {
+    "id": "claude-haiku-5-5@default",
+    "name": "Claude Haiku 5.5",
+    "provider": "vertexai",
+    "family": "claude-haiku",
+    "created_at": "2026-10-07 00:00:00 UTC",
+    "context_window": 1000000,
+    "max_output_tokens": 128000,
+    "knowledge_cutoff": null,
+    "modalities": {
+      "input": [
+        "text",
+        "image",
+        "pdf"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "capabilities": [
+      "function_calling",
+      "structured_output",
+      "reasoning",
+      "vision"
+    ],
+    "pricing": {
+      "text_tokens": {
+        "standard": {
+          "input_per_million": 0.1,
+          "output_per_million": 0.5,
+          "cache_read_input_per_million": 0.01,
+          "cache_write_input_per_million": 0.125
+        }
+      }
+    },
+    "metadata": {
+      "source": "models.dev",
+      "provider_id": "google-vertex",
+      "open_weights": false,
+      "attachment": true,
+      "temperature": false,
+      "last_updated": "2026-10-07",
+      "reasoning_options": [
+        {
+          "type": "toggle"
+        },
+        {
+          "type": "effort",
+          "values": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ]
+        }
+      ],
+      "cost": {
+        "input": 0.1,
+        "output": 0.5,
+        "cache_read": 0.01,
+        "cache_write": 0.125,
+        "tiers": [
+          {
+            "input": 0.5,
+            "output": 2.5,
+            "cache_read": 0.05,
+            "cache_write": 0.625,
+            "tier": {
+              "type": "context",
+              "size": 100000
+            }
+          }
+        ]
+      },
+      "limit": {
+        "context": 1000000,
+        "output": 128000
+      },
+      "knowledge": "2026-06"
     }
   },
   {
@@ -76605,6 +79340,73 @@
           "min": 1024
         }
       ]
+    }
+  },
+  {
+    "id": "claude-sonnet-5-5@default",
+    "name": "Claude Sonnet 5.5",
+    "provider": "vertexai",
+    "family": "claude-sonnet",
+    "created_at": "2026-09-28 00:00:00 UTC",
+    "context_window": 1000000,
+    "max_output_tokens": 128000,
+    "knowledge_cutoff": null,
+    "modalities": {
+      "input": [
+        "text",
+        "image",
+        "pdf"
+      ],
+      "output": [
+        "text"
+      ]
+    },
+    "capabilities": [
+      "function_calling",
+      "structured_output",
+      "reasoning",
+      "vision"
+    ],
+    "pricing": {
+      "text_tokens": {
+        "standard": {
+          "input_per_million": 2,
+          "output_per_million": 10,
+          "cache_read_input_per_million": 0.2,
+          "cache_write_input_per_million": 2.5
+        }
+      }
+    },
+    "metadata": {
+      "source": "models.dev",
+      "provider_id": "google-vertex",
+      "open_weights": false,
+      "attachment": true,
+      "temperature": false,
+      "last_updated": "2026-09-28",
+      "reasoning_options": [
+        {
+          "type": "effort",
+          "values": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ]
+        }
+      ],
+      "cost": {
+        "input": 2,
+        "output": 10,
+        "cache_read": 0.2,
+        "cache_write": 2.5
+      },
+      "limit": {
+        "context": 1000000,
+        "output": 128000
+      },
+      "knowledge": "2026-06"
     }
   },
   {
@@ -79912,6 +82714,42 @@
       "attachment": true,
       "temperature": false,
       "last_updated": "2026-05-30",
+      "limit": {
+        "context": 1024,
+        "output": 0
+      }
+    }
+  },
+  {
+    "id": "grok-imagine-video-1.5-lite",
+    "name": "Grok Imagine Video 1.5 Lite",
+    "provider": "xai",
+    "family": "grok",
+    "created_at": "2026-10-01 00:00:00 UTC",
+    "context_window": 1024,
+    "max_output_tokens": 0,
+    "knowledge_cutoff": null,
+    "modalities": {
+      "input": [
+        "text",
+        "image",
+        "pdf"
+      ],
+      "output": [
+        "video"
+      ]
+    },
+    "capabilities": [
+      "vision"
+    ],
+    "pricing": {},
+    "metadata": {
+      "source": "models.dev",
+      "provider_id": "xai",
+      "open_weights": false,
+      "attachment": true,
+      "temperature": false,
+      "last_updated": "2026-10-01",
       "limit": {
         "context": 1024,
         "output": 0
