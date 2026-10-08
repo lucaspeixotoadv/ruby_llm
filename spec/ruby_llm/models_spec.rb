@@ -290,6 +290,40 @@ RSpec.describe RubyLLM::Models do
       )
     end
 
+    # models.dev has no 1-hour cache write price; the registry carries the
+    # one from Anthropic's pricing page, and a refresh must not drop it.
+    describe 'prices only the registry states' do
+      # As models.dev entries come: the cost they were priced from goes along.
+      def priced(standard)
+        RubyLLM::Model::Info.new(id: 'claude-haiku-5-5', provider: 'anthropic',
+                                 metadata: { source: 'models.dev', cost: standard },
+                                 pricing: { text_tokens: { standard: } })
+      end
+
+      let(:existing) do
+        priced({ input_per_million: 0.1, cache_write_input_per_million: 0.125,
+                 cache_write_1h_input_per_million: 0.2 })
+      end
+
+      def refreshed(models_dev_standard)
+        merged = described_class.merge_with_existing(
+          [existing], { models: [], fetched_providers: [] }, { models: [priced(models_dev_standard)], fetched: true }
+        )
+        merged.first.pricing.text_tokens.standard.to_h
+      end
+
+      it 'keeps a price the fresh sources do not state' do
+        expect(refreshed({ input_per_million: 0.1, cache_write_input_per_million: 0.125 }))
+          .to include(cache_write_1h_input_per_million: 0.2)
+      end
+
+      it 'lets a price the fresh sources state win' do
+        expect(refreshed({ input_per_million: 0.12, cache_write_input_per_million: 0.15,
+                           cache_write_1h_input_per_million: 0.24 }))
+          .to include(input_per_million: 0.12, cache_write_1h_input_per_million: 0.24)
+      end
+    end
+
     it 'keeps models.dev authoritative for overlapping capabilities when merging provider metadata' do
       models_dev_model = RubyLLM::Model::Info.new(
         id: 'test-model',
