@@ -27,6 +27,7 @@ O Chatwoot consome **sempre uma tag imutável**, nunca a branch.
 | `1.16.7` | cache explícito do Gemini (`cachedContents`): criação e requisição que o referencia |
 | `1.16.8` | chamada de ferramenta de outro provider aceita pelo Gemini 3 (assinatura documentada) |
 | `1.16.9` | Anthropic com os modelos Claude 5.x: raciocínio devolvido íntegro, temperatura, recusa, `disabled`, `/v1/models`; registry atualizado |
+| `1.16.10` | ferramenta em modo estrito: `strict: true` na OpenAI e na Anthropic, modo `VALIDATED` no Gemini |
 
 `RubyLLM::VERSION` acompanha a tag: a partir da `1.16.3` a constante é a
 mesma coisa que a tag, e não mais a versão da base upstream. Ela ficou presa
@@ -647,3 +648,49 @@ entram `claude-sonnet-5-5` e `claude-haiku-5-5`. As opções de raciocínio de
 `RubyLLM::RefusalError` é falha do provider como as outras (não adianta repetir
 no mesmo modelo; o modelo reserva pode assumir). O raciocínio dos turnos com
 ferramentas volta íntegro sem nada do lado de cá.
+
+### 1.16.10 — ferramentas em modo estrito
+
+**O problema**
+
+Os três providers aceitam ferramentas em modo estrito — o argumento que o
+modelo escreve é restrito ao schema por decodificação com gramática, em vez de
+apenas orientado por ele —, e a lib não tinha como pedir isso. A saída
+estruturada já ia estrita (`strict` no `response_format` da OpenAI;
+`output_config.format` da Anthropic e `responseJsonSchema` do Gemini são
+estritos por natureza).
+
+**A correção**
+
+- `RubyLLM::Tool.strict` (e `strict?` na classe e na instância, que a
+  instância pode sobrescrever) declara a ferramenta estrita. Sem declaração,
+  nada muda.
+- OpenAI: `strict: true` na função
+  (https://developers.openai.com/api/docs/guides/function-calling#strict-mode).
+- Anthropic: `strict: true` na ferramenta
+  (https://platform.claude.com/docs/en/agents-and-tools/tool-use/strict-tool-use),
+  e o `input_schema` vai sem o marcador `strict` que a lib escreve nos schemas
+  que monta — a API o recusa numa ferramenta estrita.
+- Gemini: o modo `VALIDATED` da chamada (`toolConfig.functionCallingConfig`,
+  https://ai.google.dev/api/caching#Mode), que vale para a requisição inteira e
+  não por função. Ele entra quando todas as ferramentas são estritas e a
+  escolha é livre (`nil` ou `:auto`); uma ferramenta não estrita deixa o modo
+  padrão, e uma escolha de ferramenta mantém o modo que pede. O cache
+  explícito (`cachedContents`) guarda o modo junto das ferramentas, porque a
+  requisição que o referencia não pode levar `toolConfig`.
+
+**Ressalvas**
+
+- O schema vai como foi declarado: cabe a quem declara a ferramenta estrita
+  escrever um schema que o modo estrito do provider aceita (a OpenAI exige toda
+  propriedade em `required` e `additionalProperties: false`; a Anthropic e o
+  Gemini aceitam opcionais).
+- A Anthropic compila todas as ferramentas estritas e a saída da requisição
+  numa gramática só, com um teto interno não documentado além dos explícitos
+  (20 ferramentas, 24 opcionais, 16 uniões); acima dele, recusa a requisição
+  inteira com 400.
+
+**Consumo no Chatwoot**
+
+Quais ferramentas vão estritas, e o schema estrito de cada provider, é decisão
+do produto (`Llm::StrictContract` e `Llm::StrictSchema`).
