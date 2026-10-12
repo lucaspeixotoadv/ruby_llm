@@ -30,6 +30,7 @@ O Chatwoot consome **sempre uma tag imutável**, nunca a branch.
 | `1.16.10` | ferramenta em modo estrito: `strict: true` na OpenAI e na Anthropic, modo `VALIDATED` no Gemini; preço por faixa de tamanho do prompt (`prompt_tiers`) |
 | `1.16.11` | escrita no cache de 1 hora da Anthropic separada da de 5 minutos, em tokens, preço e custo; correções de ReDoS do upstream (CVE-2026-67987 e 67991) |
 | `1.16.12` | a atualização do registro mantém os preços que só ele e o `models.json` embarcado têm (ex.: escrita no cache de 1 hora), em vez de apagá-los |
+| `1.16.13` | stream retentado recomeça do zero, com aviso ao chamador (`Chunk#restart?`); `PartialJSON` lê o que uma resposta estruturada já disse durante o stream |
 
 `RubyLLM::VERSION` acompanha a tag: a partir da `1.16.3` a constante é a
 mesma coisa que a tag, e não mais a versão da base upstream. Ela ficou presa
@@ -771,3 +772,28 @@ versão grava os preços das páginas oficiais, e o registro em uso. Só o regis
 em uso não bastaria: o Chatwoot publica o registro atualizado no Redis e atualiza
 de novo a partir dele (`Llm::ModelRegistry`, diária), então um preço perdido
 numa atualização anterior nunca voltaria.
+
+### 1.16.13 — streaming: retentativa limpa e resposta estruturada parcial
+
+**O stream retentado recomeça do zero.** A conexão repete o `POST` quando a
+requisição falha por sobrecarga, 5xx, 429 ou timeout, e isso vale também para
+um stream que já tinha começado: o `overloaded_error` que a Anthropic manda
+como evento dentro de uma resposta 200, ou um timeout de leitura entre dois
+pedaços. A nova tentativa usava o mesmo acumulador, o mesmo parser SSE e o
+mesmo buffer da que falhou, e a mensagem saía com o começo da tentativa perdida
+seguido da resposta inteira (`"HelHello world"`). Agora cada tentativa tem o
+seu parser, o seu buffer e o seu acumulador, trocados pelo gancho de
+retentativa que a própria requisição leva (`Streaming::RESTART`, chamado pelo
+`retry_block` da conexão). Quem recebe os pedaços e já tinha recebido algum da
+tentativa perdida recebe antes dos novos um pedaço de reinício
+(`Chunk.restart`, `Chunk#restart?`), sem conteúdo: o que ele mostrou até ali
+não vale mais.
+
+**`RubyLLM::PartialJSON`.** Com `with_schema`, o texto que chega em stream é o
+JSON da resposta, e o parse só acontece no fim. `PartialJSON.parse` lê um
+prefixo desse JSON e devolve o que ele já diz: uma string mostra todo caractere
+já completo (um escape ou um par surrogate cortado no fim aparece quando o
+último caractere chega); um número, um literal ou uma chave só aparecem
+inteiros. O que um prefixo mostra só cresce, o documento inteiro é lido como o
+`JSON.parse` o lê, e um prefixo com que nenhum JSON começa levanta
+`PartialJSON::ParseError`.
