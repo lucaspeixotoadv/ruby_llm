@@ -26,6 +26,7 @@ loader.inflector.inflect(
   'mistral' => 'Mistral',
   'openai' => 'OpenAI',
   'openrouter' => 'OpenRouter',
+  'partial_json' => 'PartialJSON',
   'pdf' => 'PDF',
   'perplexity' => 'Perplexity',
   'ruby_llm' => 'RubyLLM',
