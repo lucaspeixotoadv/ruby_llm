@@ -109,8 +109,15 @@ module RubyLLM
         interval_randomness: @config.retry_interval_randomness,
         backoff_factor: @config.retry_backoff_factor,
         methods: Faraday::Retry::Middleware::IDEMPOTENT_METHODS + [:post],
-        exceptions: retry_exceptions
+        exceptions: retry_exceptions,
+        retry_block: method(:before_retry)
       }
+    end
+
+    # A retried stream starts over (`Streaming#stream_response`): the request
+    # carries what resets it. Other requests carry nothing to reset.
+    def before_retry(env:, **)
+      env.request.context&.fetch(Streaming::RESTART, nil)&.call(env)
     end
 
     def setup_middleware(faraday)

@@ -9,22 +9,39 @@ module RubyLLM
   module Streaming
     module_function
 
+    # The key, in the request context, of what a retry of this stream calls
+    # before it starts over (`Connection#before_retry`).
+    RESTART = :ruby_llm_stream_restart
+
+    # Each attempt at the request is a stream of its own: its own parser, its
+    # own buffer and its own accumulator. A request that fails after the stream
+    # began -- an error event inside a 200 response, a read timeout between
+    # chunks -- is retried by the connection, and what the failed attempt
+    # parsed and accumulated must not reach the next one. The caller, which
+    # already received the failed attempt's chunks, gets a restart chunk
+    # (`Chunk.restart`) before the new attempt's.
     def stream_response(connection, payload, additional_headers = {}, &block)
       accumulator = StreamAccumulator.new
+      delivered = false
+      attempt = lambda do
+        handle_stream do |chunk|
+          accumulator.add chunk
+          delivered = true
+          block.call chunk
+        end
+      end
 
       response = connection.post stream_url, payload do |req|
         req.headers = additional_headers.merge(req.headers) unless additional_headers.empty?
-        if faraday_1?
-          req.options[:on_data] = handle_stream do |chunk|
-            accumulator.add chunk
-            block.call chunk
+        req.options[:on_data] = attempt.call
+        req.options[:context] = {
+          RESTART => lambda do |env|
+            block.call Chunk.restart if delivered
+            accumulator = StreamAccumulator.new
+            delivered = false
+            env.request[:on_data] = attempt.call
           end
-        else
-          req.options.on_data = handle_stream do |chunk|
-            accumulator.add chunk
-            block.call chunk
-          end
-        end
+        }
       end
 
       message = accumulator.to_message(response)
