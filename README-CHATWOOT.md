@@ -31,6 +31,7 @@ O Chatwoot consome **sempre uma tag imutável**, nunca a branch.
 | `1.16.11` | escrita no cache de 1 hora da Anthropic separada da de 5 minutos, em tokens, preço e custo; correções de ReDoS do upstream (CVE-2026-67987 e 67991) |
 | `1.16.12` | a atualização do registro mantém os preços que só ele e o `models.json` embarcado têm (ex.: escrita no cache de 1 hora), em vez de apagá-los |
 | `1.16.13` | stream retentado recomeça do zero, com aviso ao chamador (`Chunk#restart?`); `PartialJSON` lê o que uma resposta estruturada já disse durante o stream |
+| `1.16.14` | resultado de ferramenta marcado como erro (`Tool::ErrorResult`, `Message#tool_error?`): `is_error` na Anthropic, `status: "error"` no Bedrock |
 
 `RubyLLM::VERSION` acompanha a tag: a partir da `1.16.3` a constante é a
 mesma coisa que a tag, e não mais a versão da base upstream. Ela ficou presa
@@ -797,3 +798,48 @@ já completo (um escape ou um par surrogate cortado no fim aparece quando o
 inteiros. O que um prefixo mostra só cresce, o documento inteiro é lido como o
 `JSON.parse` o lê, e um prefixo com que nenhum JSON começa levanta
 `PartialJSON::ParseError`.
+
+### 1.16.14 — o resultado de ferramenta que é erro
+
+**O problema.** Uma ferramenta que não cumpriu o pedido -- recusou o argumento,
+não achou o registro, o serviço caiu -- só tinha um jeito de dizer isso: o
+texto do resultado. A Anthropic e o Bedrock têm um campo para a mensagem de
+resultado dizer que é erro (`is_error` no bloco `tool_result`, `status` no
+`toolResult` da Converse), e a lib nunca o mandava.
+
+**O contrato.** A ferramenta devolve um `RubyLLM::Tool::ErrorResult` (o helper
+`error_result`, ao lado do `halt`) com o conteúdo que o modelo lê. A lib não
+interpreta o conteúdo nem conhece classe de quem a usa: a marca é o tipo do
+retorno.
+
+- `RubyLLM::Message.tool_result(tool_call_id:, result:)` monta a mensagem de
+  resultado a partir do que a ferramenta devolveu: o conteúdo do `Halt`, o do
+  `ErrorResult` com a marca, um `Content` como está, qualquer outro valor pelo
+  `to_s`. O `Chat` a usa para as suas chamadas, e quem monta um resultado à mão
+  (uma retomada) obtém a mesma mensagem.
+- `Message#tool_error?` é a marca; `tool_error: true` só é aceito numa mensagem
+  `:tool`, e um valor que não seja booleano levanta. Vai em `to_h` só quando
+  marcada, e sobrevive à realocação dos anexos de resultado
+  (`ToolResultAttachments`).
+
+**Por provider.**
+
+| Provider | Resultado marcado |
+|---|---|
+| Anthropic | `"is_error": true` no bloco `tool_result` |
+| Bedrock (Converse) | `"status": "error"` no `toolResult`, para os modelos que a AWS documenta como aceitando o campo (Anthropic Claude e Amazon Nova); os demais leem o erro no conteúdo |
+| OpenAI, Gemini e os compatíveis | sem campo para isso: o conteúdo já diz o erro, e nada muda |
+
+No Bedrock, o campo é documentado como "only supported by Amazon Nova and
+Anthropic Claude" models (referência `ToolResultBlock`). Nem a listagem de
+modelos nem o registro dizem isso, então a lib lê do id do modelo o primeiro
+segmento depois do prefixo de região -- o provider do modelo (`anthropic.`,
+`amazon.nova`). Um ARN de inference profile não diz o provider, e não recebe o
+campo.
+
+**O que não muda.** Os erros que a própria lib monta continuam como eram
+(`{ error: ... }` do argumento inválido e da ferramenta inexistente): os
+callbacks `after_tool_result` os recebem nessa forma, e mudar o tipo quebraria
+quem os lê. A persistência do ActiveRecord (`acts_as_message`) não tem coluna
+para a marca, e uma conversa reidratada dali volta sem ela.
+
