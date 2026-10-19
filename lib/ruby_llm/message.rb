@@ -8,6 +8,20 @@ module RubyLLM
     attr_reader :role, :model_id, :tool_calls, :tool_call_id, :raw, :thinking, :tokens
     attr_writer :content
 
+    # The message a tool's result becomes, answering the call `tool_call_id`.
+    #
+    # A `Tool::Halt` gives its content; a `Tool::ErrorResult` gives its content
+    # and marks the message as an error (`tool_error?`). A `Content` goes as
+    # it is, and anything else as its `to_s`.
+    def self.tool_result(tool_call_id:, result:)
+      payload = result.is_a?(Tool::Halt) ? result.content : result
+      tool_error = payload.is_a?(Tool::ErrorResult)
+      payload = payload.content if tool_error
+      content = payload.is_a?(Content) || payload.is_a?(Content::Raw) ? payload : payload.to_s
+
+      new(role: :tool, content:, tool_call_id:, tool_error:)
+    end
+
     def initialize(options = {})
       @role = options.fetch(:role).to_sym
       @tool_calls = options[:tool_calls]
@@ -25,8 +39,10 @@ module RubyLLM
       )
       @raw = options[:raw]
       @thinking = options[:thinking]
+      @tool_error = options.fetch(:tool_error, false)
 
       ensure_valid_role
+      ensure_valid_tool_error
     end
 
     def content
@@ -47,6 +63,11 @@ module RubyLLM
 
     def tool_results
       content if tool_result?
+    end
+
+    # The tool result reports an error (see `Tool::ErrorResult`).
+    def tool_error?
+      @tool_error
     end
 
     def input_tokens
@@ -100,6 +121,7 @@ module RubyLLM
         model_id: model_id,
         tool_calls: tool_calls,
         tool_call_id: tool_call_id,
+        tool_error: (true if tool_error?),
         thinking: thinking&.text,
         thinking_signature: thinking&.signature
       }.merge(tokens ? tokens.to_h : {}).compact
@@ -131,6 +153,13 @@ module RubyLLM
 
     def ensure_valid_role
       raise InvalidRoleError, "Expected role to be one of: #{ROLES.join(', ')}" unless ROLES.include?(role)
+    end
+
+    def ensure_valid_tool_error
+      unless [true, false].include?(@tool_error)
+        raise ArgumentError, "Expected tool_error to be true or false, got #{@tool_error.inspect}"
+      end
+      raise ArgumentError, 'Only a tool result can be marked as an error' if @tool_error && role != :tool
     end
   end
 end

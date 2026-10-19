@@ -791,6 +791,37 @@ RSpec.describe RubyLLM::Chat do
     end
   end
 
+  describe 'error results' do
+    let(:failing_tool) do
+      Class.new(RubyLLM::Tool) do
+        def self.name = 'FailingTool'
+
+        description 'Looks a record up'
+
+        def execute
+          error_result('{"error":{"code":"not_found","message":"No such record"}}')
+        end
+      end
+    end
+
+    it 'marks the tool result message and keeps the conversation going' do
+      chat = RubyLLM.chat.with_tool(failing_tool)
+      provider = chat.instance_variable_get(:@provider)
+      tool_call = RubyLLM::ToolCall.new(id: 'call_1', name: 'failing', arguments: {})
+      allow(provider).to receive(:complete).and_return(
+        RubyLLM::Message.new(role: :assistant, content: '', tool_calls: { tool_call.id => tool_call }),
+        RubyLLM::Message.new(role: :assistant, content: 'There is no such record.')
+      )
+
+      response = chat.ask('Find the record')
+
+      tool_message = chat.messages.find { |message| message.role == :tool }
+      expect(tool_message).to be_tool_error
+      expect(tool_message.content).to eq('{"error":{"code":"not_found","message":"No such record"}}')
+      expect(response.content).to eq('There is no such record.')
+    end
+  end
+
   describe 'tool choice and calls control' do
     CHAT_MODELS.each do |model_info|
       model = model_info[:model]

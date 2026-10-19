@@ -57,11 +57,13 @@ module RubyLLM
           content = msg.content
           content = '(no output)' if content.nil? || (content.respond_to?(:empty?) && content.empty?)
 
-          {
+          block = {
             type: 'tool_result',
             tool_use_id: msg.tool_call_id,
             content: Media.format_content(content)
           }
+          block[:is_error] = true if msg.tool_error?
+          block
         end
 
         def function_for(tool)

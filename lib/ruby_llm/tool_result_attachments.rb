@@ -40,7 +40,7 @@ module RubyLLM
 
     def text_only(message)
       text = message.content.text.to_s
-      Message.new(role: :tool, tool_call_id: message.tool_call_id,
+      Message.new(role: :tool, tool_call_id: message.tool_call_id, tool_error: message.tool_error?,
                   content: text.empty? ? NOTE : "#{text}\n\n#{NOTE}")
     end
 

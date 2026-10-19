@@ -142,6 +142,18 @@ module RubyLLM
           major > 4 || (major == 4 && minor >= 5)
         end
 
+        # Converse documents `toolResult.status` as "only supported by Amazon
+        # Nova and Anthropic Claude" models (the `ToolResultBlock` reference),
+        # so it goes to them alone; for any other model the error is read from
+        # the content. Neither the listing nor the registry states it, so it
+        # is read from the model id, whose first segment after an
+        # inference-profile region is the model's provider:
+        # `anthropic.claude-...`, `us.amazon.nova-pro-v1:0`.
+        def tool_result_status?(model_id)
+          provider, name = model_id.to_s.sub(/\A(?:#{REGION_PREFIXES.join('|')})\./, '').split('.', 2)
+          provider == 'anthropic' || (provider == 'amazon' && name.to_s.start_with?('nova'))
+        end
+
         def reasoning_embedded?(model)
           metadata = RubyLLM::Utils.deep_symbolize_keys(model.metadata || {})
           converse = metadata[:converse] || {}

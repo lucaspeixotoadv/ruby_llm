@@ -162,7 +162,8 @@ RSpec.describe RubyLLM::Providers::Anthropic::Tools do
     let(:msg) do
       instance_double(RubyLLM::Message,
                       tool_call_id: 'tool_123',
-                      content: 'Tool result')
+                      content: 'Tool result',
+                      tool_error?: false)
     end
 
     it 'formats a tool result message' do
@@ -188,7 +189,8 @@ RSpec.describe RubyLLM::Providers::Anthropic::Tools do
     it 'uses a placeholder when the tool returns no content' do
       msg = instance_double(RubyLLM::Message,
                             tool_call_id: 'tool_123',
-                            content: '')
+                            content: '',
+                            tool_error?: false)
 
       result = tools.format_tool_result(msg)
 
@@ -207,6 +209,24 @@ RSpec.describe RubyLLM::Providers::Anthropic::Tools do
                                }
                              ]
                            })
+    end
+  end
+
+  describe '.format_tool_result with an error' do
+    it 'sends is_error on a tool result marked as an error' do
+      msg = RubyLLM::Message.new(role: :tool, tool_call_id: 'tool_123', content: '{"error":{"code":"not_found"}}',
+                                 tool_error: true)
+
+      block = tools.format_tool_result(msg)[:content].first
+
+      expect(block).to include(type: 'tool_result', tool_use_id: 'tool_123', is_error: true)
+      expect(block[:content]).to eq([{ type: 'text', text: '{"error":{"code":"not_found"}}' }])
+    end
+
+    it 'leaves is_error out of a tool result that is not' do
+      msg = RubyLLM::Message.new(role: :tool, tool_call_id: 'tool_123', content: '{"id":1}')
+
+      expect(tools.format_tool_result(msg)[:content].first).not_to have_key(:is_error)
     end
   end
 

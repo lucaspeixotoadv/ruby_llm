@@ -636,6 +636,16 @@ rescue Faraday::ConnectionFailed
 end
 ```
 
+To also tell the provider that the call failed, return the error through `error_result`. The content goes to the model as any result's would, and the tool result message is marked (`Message#tool_error?`): Anthropic receives `is_error: true` on the `tool_result` block, and Bedrock `status: "error"` on the `toolResult` (for the Anthropic Claude and Amazon Nova models, which Converse documents as taking it). OpenAI and Gemini have no such field and read the error from the content.
+
+```ruby
+def execute(location:)
+  return error_result('{"error":"Location too short"}') if location.length < 3
+
+  # Fetch weather data...
+end
+```
+
 See the [Error Handling Guide]({% link _advanced/error-handling.md %}#handling-errors-within-tools) for more discussion.
 
 ## Security Considerations

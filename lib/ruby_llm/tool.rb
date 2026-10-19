@@ -30,6 +30,24 @@ module RubyLLM
       end
     end
 
+    # A result the tool marks as an error: the call did not do what it was
+    # asked, and `content` says why. The chat keeps the mark on the tool
+    # result message (`Message#tool_error?`), and each provider that has a
+    # field for it sends it there -- `is_error` on Anthropic, `status` on
+    # Bedrock. The content goes as any result's would, so a provider without
+    # such a field reads the error from it.
+    class ErrorResult
+      attr_reader :content
+
+      def initialize(content)
+        @content = content
+      end
+
+      def to_s
+        @content.to_s
+      end
+    end
+
     POSITIONAL_PARAMETER_KINDS = %i[req opt rest].freeze
 
     class << self
@@ -135,6 +153,10 @@ module RubyLLM
 
     def halt(message)
       Halt.new(message)
+    end
+
+    def error_result(content)
+      ErrorResult.new(content)
     end
 
     def normalize_args(args)

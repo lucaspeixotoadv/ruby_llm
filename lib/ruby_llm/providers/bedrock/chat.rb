@@ -152,12 +152,12 @@ module RubyLLM
         end
 
         def render_tool_result_block(msg)
-          {
-            toolResult: {
-              toolUseId: msg.tool_call_id,
-              content: render_tool_result_content(msg.content)
-            }
+          tool_result = {
+            toolUseId: msg.tool_call_id,
+            content: render_tool_result_content(msg.content)
           }
+          tool_result[:status] = 'error' if msg.tool_error? && Models.tool_result_status?(@model.id)
+          { toolResult: tool_result }
         end
 
         def render_tool_result_content(content)

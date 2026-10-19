@@ -40,6 +40,16 @@ RSpec.describe RubyLLM::ToolResultAttachments do
       expect(relocated[3].content.text).to include('call_1 (1)')
     end
 
+    it 'keeps the error mark of the tool result it rewrites' do
+      messages = [
+        call_message('call_1'),
+        RubyLLM::Message.new(role: :tool, content: RubyLLM::Content.new('failed', [image_path]),
+                             tool_call_id: 'call_1', tool_error: true)
+      ]
+
+      expect(described_class.relocate(messages)[1]).to be_tool_error
+    end
+
     # The API wants every tool result right after the call that asked for it:
     # the files of parallel calls wait for the last result, and go together.
     it 'gathers the files of parallel calls after the last of their results' do

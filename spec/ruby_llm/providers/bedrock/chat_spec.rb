@@ -132,6 +132,38 @@ RSpec.describe RubyLLM::Providers::Bedrock::Chat do
       end
     end
 
+    context 'with a tool result' do
+      let(:tool_call) { RubyLLM::ToolCall.new(id: 'call_1', name: 'lookup', arguments: {}) }
+
+      def tool_result_of(tool_error:, **overrides)
+        messages = [
+          RubyLLM::Message.new(role: :assistant, content: '', tool_calls: { tool_call.id => tool_call }),
+          RubyLLM::Message.new(role: :tool, tool_call_id: 'call_1', content: '{"error":{"code":"not_found"}}',
+                               tool_error:)
+        ]
+        render_payload(messages, **overrides)[:messages].last[:content].first[:toolResult]
+      end
+
+      it 'sends status error on a result marked as an error' do
+        expect(tool_result_of(tool_error: true)).to eq(
+          toolUseId: 'call_1', content: [{ text: '{"error":{"code":"not_found"}}' }], status: 'error'
+        )
+      end
+
+      it 'leaves status out of a result that is not an error' do
+        expect(tool_result_of(tool_error: false)).not_to have_key(:status)
+      end
+
+      it 'leaves status out for a model that does not take it, and the error goes in the content' do
+        llama = instance_double(RubyLLM::Model::Info, id: 'meta.llama3-1-70b-instruct-v1:0', max_tokens: nil,
+                                                      metadata: {})
+
+        expect(tool_result_of(tool_error: true, model: llama)).to eq(
+          toolUseId: 'call_1', content: [{ text: '{"error":{"code":"not_found"}}' }]
+        )
+      end
+    end
+
     context 'when schema is nil' do
       it 'does not include outputConfig' do
         payload = render_payload(schema: nil)

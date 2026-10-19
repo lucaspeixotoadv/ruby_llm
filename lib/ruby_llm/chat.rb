@@ -380,9 +380,7 @@ module RubyLLM
     end
 
     def add_tool_result_message(tool_call, result)
-      tool_payload = result.is_a?(Tool::Halt) ? result.content : result
-      content = content_like?(tool_payload) ? tool_payload : tool_payload.to_s
-      message = add_message role: :tool, content:, tool_call_id: tool_call.id
+      message = add_message Message.tool_result(tool_call_id: tool_call.id, result:)
       run_callbacks(:after_message, :end_message, message)
       message
     end
