@@ -7,11 +7,13 @@ module RubyLLM
     class Gemini
       # Tools methods for the Gemini API implementation
       module Tools
-        def format_tools(tools)
+        # @param json_schema [Boolean] whether the model reads the parameters as
+        #   JSON Schema (`Chat#json_schema_supported?`)
+        def format_tools(tools, json_schema:)
           return [] if tools.empty?
 
           [{
-            functionDeclarations: tools.values.map { |tool| function_declaration_for(tool) }
+            functionDeclarations: tools.values.map { |tool| function_declaration_for(tool, json_schema: json_schema) }
           }]
         end
 
@@ -171,7 +173,11 @@ module RubyLLM
 
         private
 
-        def function_declaration_for(tool)
+        # The parameters go as they were declared, in JSON Schema
+        # (`parametersJsonSchema`), to the models that read it: a free-form
+        # object stays free-form. The older models get the OpenAPI subset
+        # (`parameters`), in which the same object has no properties to fill.
+        def function_declaration_for(tool, json_schema:)
           parameters_schema = tool.params_schema ||
                               RubyLLM::Tool::SchemaDefinition.from_parameters(tool.parameters)&.json_schema
 
@@ -180,7 +186,13 @@ module RubyLLM
             description: tool.description
           }
 
-          declaration[:parameters] = convert_tool_schema_to_gemini(parameters_schema) if parameters_schema
+          if parameters_schema
+            if json_schema
+              declaration[:parametersJsonSchema] = RubyLLM::Utils.deep_stringify_keys(parameters_schema)
+            else
+              declaration[:parameters] = convert_tool_schema_to_gemini(parameters_schema)
+            end
+          end
 
           return declaration if tool.provider_params.empty?
 

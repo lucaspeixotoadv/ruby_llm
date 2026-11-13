@@ -32,6 +32,7 @@ O Chatwoot consome **sempre uma tag imutável**, nunca a branch.
 | `1.16.12` | a atualização do registro mantém os preços que só ele e o `models.json` embarcado têm (ex.: escrita no cache de 1 hora), em vez de apagá-los |
 | `1.16.13` | stream retentado recomeça do zero, com aviso ao chamador (`Chunk#restart?`); `PartialJSON` lê o que uma resposta estruturada já disse durante o stream |
 | `1.16.14` | resultado de ferramenta marcado como erro (`Tool::ErrorResult`, `Message#tool_error?`): `is_error` na Anthropic, `status: "error"` no Bedrock |
+| `1.16.15` | parâmetros das ferramentas em JSON Schema no Gemini 2.5 em diante (`parametersJsonSchema`): o objeto livre deixa de chegar ao modelo sem campos |
 
 `RubyLLM::VERSION` acompanha a tag: a partir da `1.16.3` a constante é a
 mesma coisa que a tag, e não mais a versão da base upstream. Ela ficou presa
@@ -842,4 +843,20 @@ campo.
 callbacks `after_tool_result` os recebem nessa forma, e mudar o tipo quebraria
 quem os lê. A persistência do ActiveRecord (`acts_as_message`) não tem coluna
 para a marca, e uma conversa reidratada dali volta sem ela.
+
+### 1.16.15 — os parâmetros das ferramentas em JSON Schema no Gemini
+
+**O problema.** O Gemini recebia os parâmetros de cada ferramenta convertidos
+para o subconjunto OpenAPI (`parameters`), que não tem objeto livre. Um
+parâmetro declarado como objeto sem campos listados (`"type": "object"`, com ou
+sem `additionalProperties`) virava um `OBJECT` sem propriedades, e o modelo só
+conseguia preenchê-lo vazio: a chamada saía com `{}` no lugar do objeto, por
+mais que o modelo tivesse decidido os valores.
+
+**A correção.** Os modelos que leem JSON Schema -- os mesmos que já recebem o
+esquema da resposta estruturada em `responseJsonSchema`, do Gemini 2.5 em
+diante -- recebem os parâmetros como foram declarados, em
+`parametersJsonSchema`. O critério é um só, `Chat#json_schema_supported?`, para
+a resposta estruturada e para as ferramentas, no pedido e no cache explícito
+(`cachedContents`). Os modelos anteriores continuam com o subconjunto OpenAPI.
 

@@ -28,7 +28,7 @@ module RubyLLM
           payload[:systemInstruction] = system_instruction if system_instruction
 
           if tools.any?
-            payload[:tools] = format_tools(tools)
+            payload[:tools] = format_tools(tools, json_schema: json_schema_supported?(model))
             # Gemini doesn't support controlling parallel tool calls
             tool_config = tool_config(tools, tool_prefs[:choice])
             payload[:toolConfig] = tool_config if tool_config
@@ -213,7 +213,12 @@ module RubyLLM
           candidates.to_i + thoughts.to_i
         end
 
-        def response_json_schema_supported?(model)
+        # Whether the model reads a schema as JSON Schema: the response schema
+        # (`responseJsonSchema`) and the parameters of each tool
+        # (`parametersJsonSchema`). The models before Gemini 2.5 read only the
+        # older OpenAPI subset, which has no free-form object: an object with no
+        # properties there can only be filled empty.
+        def json_schema_supported?(model)
           version = gemini_version(model)
           version && version >= Gem::Version.new('2.5')
         end
@@ -272,7 +277,7 @@ module RubyLLM
           {
             responseMimeType: 'application/json'
           }.tap do |config|
-            if response_json_schema_supported?(model)
+            if json_schema_supported?(model)
               config[:responseJsonSchema] = build_json_schema(schema)
             else
               config[:responseSchema] = convert_schema_to_gemini(schema)

@@ -187,6 +187,37 @@ RSpec.describe RubyLLM::Providers::Gemini::Tools do
     end
   end
 
+  # The parameters of a tool, as the model reads them: the declared JSON Schema
+  # to the models that read it, and the OpenAPI subset to the older ones.
+  describe '#format_tools' do
+    let(:files_tool) do
+      Class.new(RubyLLM::Tool) do
+        def self.name = 'PrepareFiles'
+
+        description 'Prepares files'
+        params type: 'object',
+               properties: { files: { type: 'array', items: { type: 'object', additionalProperties: {} } } },
+               required: ['files']
+      end.new
+    end
+
+    def declaration(json_schema:)
+      test_obj.format_tools({ files: files_tool }, json_schema:).first[:functionDeclarations].first
+    end
+
+    it 'sends the declared JSON Schema, a free-form object included, to the models that read it' do
+      parameters = declaration(json_schema: true)[:parametersJsonSchema]
+
+      expect(parameters.dig('properties', 'files', 'items')).to eq('type' => 'object', 'additionalProperties' => {})
+      expect(declaration(json_schema: true)).not_to have_key(:parameters)
+    end
+
+    it 'sends the OpenAPI subset to the older models' do
+      expect(declaration(json_schema: false).dig(:parameters, :properties, 'files', :items, :type)).to eq('OBJECT')
+      expect(declaration(json_schema: false)).not_to have_key(:parametersJsonSchema)
+    end
+  end
+
   # Gemini validates function calls for the whole request, not per function.
   describe '#tool_config' do
     def tool(strict:)

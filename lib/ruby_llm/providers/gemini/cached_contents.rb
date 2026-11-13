@@ -25,12 +25,12 @@ module RubyLLM
           payload = { model: "models/#{model.id}" }
           system_instruction = format_system_instruction(messages)
           payload[:systemInstruction] = system_instruction if system_instruction
-          add_cached_tools(payload, tools) if tools.any?
+          add_cached_tools(payload, tools, model) if tools.any?
           payload
         end
 
-        def add_cached_tools(payload, tools)
-          payload[:tools] = format_tools(tools)
+        def add_cached_tools(payload, tools, model)
+          payload[:tools] = format_tools(tools, json_schema: json_schema_supported?(model))
           tool_config = tool_config(tools, nil)
           payload[:toolConfig] = tool_config if tool_config
         end

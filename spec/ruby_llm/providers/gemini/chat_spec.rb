@@ -421,6 +421,23 @@ RSpec.describe RubyLLM::Providers::Gemini::Chat do
       expect(payload[:generationConfig]).not_to have_key('responseSchema')
     end
 
+    it 'declares the parameters of the tools in JSON Schema for Gemini 2.5 models, and in the older subset before' do
+      tool = Class.new(RubyLLM::Tool) do
+        def self.name = 'Lookup'
+
+        description 'Looks up'
+        params type: 'object', properties: { query: { type: 'string' } }
+      end.new
+      declaration = lambda do |id|
+        model = instance_double(RubyLLM::Model::Info, id:, metadata: {})
+        payload = test_obj.send(:render_payload, messages, tools: { lookup: tool }, temperature: nil, model:)
+        payload[:tools].first[:functionDeclarations].first
+      end
+
+      expect(declaration.call('gemini-2.5-flash')).to have_key(:parametersJsonSchema)
+      expect(declaration.call('gemini-2.0-flash')).to have_key(:parameters)
+    end
+
     it 'unwraps wrapper schemas for responseJsonSchema' do
       model = instance_double(RubyLLM::Model::Info, id: 'gemini-3.0-pro', metadata: {})
       wrapped_schema = {
