@@ -5,6 +5,8 @@ module RubyLLM
     class Mistral
       # Determines capabilities for Mistral models
       module Capabilities
+        VOXTRAL = 'voxtral'
+
         module_function
 
         def supports_streaming?(model_id)
@@ -90,6 +92,15 @@ module RubyLLM
           8192
         end
 
+        # Positional check in place of /voxtral.*marker/, whose backtracking is
+        # polynomial on long ids that hold many "voxtral" occurrences.
+        def voxtral_followed_by?(model_id, marker)
+          start = model_id.index(VOXTRAL)
+          return false unless start
+
+          !model_id.index(marker, start + VOXTRAL.length).nil?
+        end
+
         def modalities_for(model_id)
           case model_id
           when /pixtral/
@@ -113,7 +124,7 @@ module RubyLLM
         def capabilities_for(model_id) # rubocop:disable Metrics/PerceivedComplexity
           case model_id
           when /moderation/ then ['moderation']
-          when /voxtral.*transcribe/ then ['transcription']
+          when ->(id) { voxtral_followed_by?(id, 'transcribe') } then ['transcription']
           when /ocr/ then ['vision']
           else
             capabilities = []

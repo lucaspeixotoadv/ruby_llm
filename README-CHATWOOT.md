@@ -33,6 +33,7 @@ O Chatwoot consome **sempre uma tag imutável**, nunca a branch.
 | `1.16.13` | stream retentado recomeça do zero, com aviso ao chamador (`Chunk#restart?`); `PartialJSON` lê o que uma resposta estruturada já disse durante o stream |
 | `1.16.14` | resultado de ferramenta marcado como erro (`Tool::ErrorResult`, `Message#tool_error?`): `is_error` na Anthropic, `status: "error"` no Bedrock |
 | `1.16.15` | parâmetros das ferramentas em JSON Schema no Gemini 2.5 em diante (`parametersJsonSchema`): o objeto livre deixa de chegar ao modelo sem campos |
+| `1.16.16` | a detecção de modelos de transcrição da Mistral (`voxtral`) deixa de usar regex de tempo polinomial (CVE-2026-67989) |
 
 `RubyLLM::VERSION` acompanha a tag: a partir da `1.16.3` a constante é a
 mesma coisa que a tag, e não mais a versão da base upstream. Ela ficou presa
@@ -752,8 +753,7 @@ As advisories CVE-2026-67987, 67989 e 67991 (regex de tempo polinomial no Ruby
 - **67987** (`5e88411f`): sai a leitura de tags `<think>` do conteúdo, no
   caminho síncrono e no streaming. Nenhum provider suportado devolve raciocínio
   assim; ele vem dos campos próprios.
-- **67989**: não se aplica. As regex de `voxtral` da Mistral não existem neste
-  fork.
+- **67989**: não foi portada na 1.16.11. Ela foi corrigida na 1.16.16.
 
 O `bundler-audit` continua apontando as três, porque a base de advisories só
 reconhece como corrigidas as versões a partir da 2.0.
@@ -860,3 +860,18 @@ diante -- recebem os parâmetros como foram declarados, em
 a resposta estruturada e para as ferramentas, no pedido e no cache explícito
 (`cachedContents`). Os modelos anteriores continuam com o subconjunto OpenAPI.
 
+### 1.16.16 — a detecção de modelos de transcrição da Mistral
+
+**O problema.** `Mistral::Capabilities.capabilities_for` reconhecia os modelos de
+transcrição com a regex `/voxtral.*transcribe/`. Em um identificador longo com
+muitas ocorrências de `voxtral`, o `.*` faz a regex voltar atrás em tempo
+polinomial. É a advisory CVE-2026-67989, que a 1.16.11 não portou.
+
+**A correção.** A regex sai. `voxtral_followed_by?` acha a primeira ocorrência de
+`voxtral` e procura a marca (`transcribe`) a partir do fim dela, em uma única
+passada, sem voltar atrás. O resultado é o mesmo para os identificadores reais
+(`voxtral-mini-transcribe-2507` é transcrição; `voxtral-small-latest` e
+`mistral.voxtral-mini-3b-2507` não são).
+
+O `bundler-audit` continua apontando as advisories de ReDoS, porque a base só as
+reconhece como corrigidas nas versões a partir da 2.0.0.rc1.
